@@ -325,16 +325,22 @@ export async function runBootSequence() {
     });
     setProgress(100);
     const rev = result.revision || revisionFromMeta();
-    if (result.status === "ok" || result.status === "offline" || rev || metaGet()) {
+    const ok = result.status === "ok" || result.status === "offline";
+    if (ok) {
       markCheckedThisSession(rev);
+      await new Promise((r) => setTimeout(r, 320));
+      hideBootUi();
+      return result;
     }
-    await new Promise((r) => setTimeout(r, result.status === "error" ? 1200 : 320));
+    // Incomplete / error: stay on overlay — do not enter main menu
+    $("boot-status").textContent = result.message || "다운로드 실패";
+    $("boot-detail").textContent = "새로고침 후 다시 받아 주세요";
+    stopDots();
     return result;
   } catch (err) {
-    markSessionOk();
-    await new Promise((r) => setTimeout(r, 1600));
+    $("boot-status").textContent = err.message || String(err);
+    $("boot-detail").textContent = "새로고침 후 다시 받아 주세요";
+    stopDots();
     return { status: "error", message: err.message || String(err) };
-  } finally {
-    hideBootUi();
   }
 }

@@ -207,33 +207,41 @@ export async function checkAndApplyUpdates(onProgress) {
       sizeLabel: `${formatBytes(bytesDone)} / ${formatBytes(bytesTotal)}`,
     });
     const source = fileSource(path, info);
-    try {
-      let url = assetUrl(path, source);
-      let res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) res = await fetch(path, { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const buf = await res.arrayBuffer();
-      const hash = await sha256(buf);
-      if (hash !== info.sha256) throw new Error("무결성 불일치");
-      await writeStored(path, buf, hash, res.headers.get("Content-Type") || guessType(path));
-      updated++;
-      bytesDone += info.size || buf.byteLength;
-    } catch (err) {
-      if (source === "data" && path.startsWith("data/")) {
-        throw new Error(`${path}: ${err.message || err}`);
+    const maxAttempts = 3;
+    let lastErr = null;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        let url = assetUrl(path, source);
+        let res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) res = await fetch(path, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const buf = await res.arrayBuffer();
+        const hash = await sha256(buf);
+        if (hash !== info.sha256) throw new Error("무결성 불일치");
+        await writeStored(path, buf, hash, res.headers.get("Content-Type") || guessType(path));
+        updated++;
+        bytesDone += info.size || buf.byteLength;
+        lastErr = null;
+        break;
+      } catch (err) {
+        lastErr = err;
+        onProgress?.({
+          status: "downloading",
+          message: attempt < maxAttempts ? `재시도 ${path}` : path,
+          checked: entries.length,
+          updated,
+          current: path,
+          index: i + 1,
+          total: need.length,
+          bytesDone,
+          bytesTotal,
+          sizeLabel: `${formatBytes(bytesDone)} / ${formatBytes(bytesTotal)}`,
+        });
+        if (attempt < maxAttempts) await new Promise((r) => setTimeout(r, 400 * attempt));
       }
-      console.warn("asset skip", path, err);
-      onProgress?.({
-        status: "downloading",
-        message: `건너뜀 ${path}`,
-        checked: entries.length,
-        updated,
-        index: i + 1,
-        total: need.length,
-        bytesDone,
-        bytesTotal,
-        sizeLabel: `${formatBytes(bytesDone)} / ${formatBytes(bytesTotal)}`,
-      });
+    }
+    if (lastErr) {
+      throw new Error(`${path}: ${lastErr.message || lastErr}`);
     }
   }
 
@@ -253,7 +261,7 @@ export async function ensureServiceWorker() {
   if (isTauri()) return null; // WebView2 + custom protocol: SW optional
   if (!("serviceWorker" in navigator)) return null;
   // ?v= bumps the script URL so browsers pick up CACHE_NAME changes
-  const reg = await navigator.serviceWorker.register("./sw.js?v=5", { scope: "./" });
+  const reg = await navigator.serviceWorker.register("./sw.js?v=6", { scope: "./" });
   await navigator.serviceWorker.ready;
   if (reg.waiting) reg.waiting.postMessage?.({ type: "SKIP_WAITING" });
   return reg;

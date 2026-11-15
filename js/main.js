@@ -135,6 +135,8 @@ document.getElementById("settings-lang").addEventListener("change", (e) => {
 
 runBootSequence().then(async (result) => {
   if (result?.status === "design") return;
+  // 다운로드 실패/미완료면 오버레이에 머물고 메인 메뉴를 열지 않음
+  if (result?.status === "error") return;
   document.getElementById("main-menu").classList.remove("booting");
   if (location.search.includes("boot=demo")) {
     history.replaceState(null, "", "index.html");
