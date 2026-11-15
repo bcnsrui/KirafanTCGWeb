@@ -95,13 +95,13 @@ export function assetUrl(relPath, source) {
     return `${base}/data/${rest}`;
   }
   if (kind === "pics") {
-    // KirafanTCGpics root already contains pics/
+    // KirafanTCG: …/main/pics/…
     const rest = path.startsWith("pics/") ? path : `pics/${path}`;
     return `${base}/${rest}`;
   }
   if (kind === "sound") {
-    // repo root IS the sound folder contents (BGM/, summon/, *.wav)
-    const rest = path.replace(/^sound\//, "");
+    // KirafanTCG: …/main/sound/… (예전 KirafanTCGsound는 루트가 sound 내용이었음)
+    const rest = path.startsWith("sound/") ? path : `sound/${path}`;
     return `${base}/${rest}`;
   }
   return `${base}/${path}`;
