@@ -14,6 +14,21 @@ export { CACHE_NAME, cacheKey } from "./update-cache.js";
 
 const META_KEY = "kirafan-manifest-meta";
 
+/** raw.githubusercontent.com CDN often serves stale blobs; bust with a query param. */
+function bustRemoteCache(url) {
+  if (!url || !/^https?:\/\//i.test(url)) return url;
+  try {
+    const u = new URL(url);
+    if (!/githubusercontent\.com$/i.test(u.hostname) && u.hostname !== "cdn.jsdelivr.net") {
+      return url;
+    }
+    u.searchParams.set("_kb", String(Date.now()));
+    return u.href;
+  } catch {
+    return url;
+  }
+}
+
 function hex(buf) {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
@@ -41,7 +56,7 @@ function metaSet(manifest) {
 }
 
 async function loadManifestJson(url) {
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(bustRemoteCache(url), { cache: "no-store" });
   if (!res.ok) throw new Error(`매니페스트 ${res.status}`);
   const manifest = await res.json();
   if (!manifest || manifest.version !== 1 || !manifest.files) {
@@ -211,7 +226,7 @@ export async function checkAndApplyUpdates(onProgress) {
     let lastErr = null;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        let url = assetUrl(path, source);
+        let url = bustRemoteCache(assetUrl(path, source));
         let res = await fetch(url, { cache: "no-store" });
         if (!res.ok) res = await fetch(path, { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
