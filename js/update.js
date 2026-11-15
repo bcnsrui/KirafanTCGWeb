@@ -53,7 +53,9 @@ async function loadManifestJson(url) {
 export async function fetchManifest() {
   const local = new URL("data/manifest.json", location.href).href;
   const remote = dataUrl("manifest.json");
-  const remoteOk = remote && remote !== local && !remote.endsWith("data/manifest.json");
+  // Absolute http(s) only. (이전 endsWith("data/manifest.json") 조건은
+  // 깃허브 raw URL까지 remoteOk=false 로 막아 배포에서 매니페스트를 못 찾았음)
+  const remoteOk = /^https?:\/\//i.test(remote || "") && remote !== local;
 
   // Exe: GitHub is the source of truth. Browser/dev: prefer same-origin, then remote.
   if (isTauri() && remoteOk) {
