@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title data-i18n="puzzle.title">튜토리얼 + 퍼즐 - 키라라 판타지아 카드게임</title>
+  <link rel="stylesheet" href="css/style.css?v=w6">
+  <link rel="stylesheet" href="css/deck.css?v=23">
+  <link rel="stylesheet" href="css/replay.css?v=w4">
+</head>
+<body class="window-theme window-theme-fill">
+  <div id="background" aria-hidden="true"></div>
+
+  <section class="replay-page panel">
+    <header class="bar">
+      <span data-i18n="puzzle.title">튜토리얼 + 퍼즐</span>
+      <span id="puzzle-count"></span>
+    </header>
+    <p class="replay-note" data-i18n="puzzle.note">튜토리얼로 규칙을 익히고, 노말·하드 모드 퍼즐에 도전해 보세요. 푼 퍼즐에는 표시가 붙습니다.</p>
+    <div class="puzzle-groups" id="puzzle-groups"></div>
+    <footer class="replay-footer">
+      <button class="menu-button" id="back" data-i18n="common.exit">나가기</button>
+    </footer>
+  </section>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/puzzle-list.js?v=i18n4"></script>
+</body>
+</html>

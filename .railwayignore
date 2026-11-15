@@ -1,0 +1,9 @@
+.vercel
+.git
+pics
+sound
+data/ai/test
+data/local_api.sqlite
+data/lobby_rooms.json
+data/duels
+node_modules

@@ -1,0 +1,519 @@
+#deck-background {
+  position: fixed;
+  inset: 0;
+  background: url("../assets/bg_deck.jpg") center / cover no-repeat;
+}
+
+/* Tutorial / replay: frame only + single CSS translucent fill */
+.window-theme:not(.window-theme-fill) .panel {
+  background: var(--window-fill, rgba(255, 255, 255, 0.38)) !important;
+  background-clip: padding-box !important;
+  border: 24px solid transparent !important;
+  border-image-source: url("../assets/ui/ScreenWindow9.png?v=12") !important;
+  border-image-slice: 148 !important;
+  border-image-width: 24px !important;
+  border-image-outset: 0 !important;
+  border-image-repeat: stretch !important;
+  border-radius: 0 !important;
+  color: #2a1a12;
+  box-shadow: 0 8px 18px rgba(40, 20, 10, 0.22);
+  backdrop-filter: none;
+}
+
+/* Deck edit + AI / tutorial / replay: 9-slice fill (same denser translucency) */
+.window-theme-fill .panel {
+  background: rgba(255, 255, 255, 0.58) !important;
+  border: 24px solid transparent !important;
+  border-image-source: url("../assets/ui/ScreenWindow9.png?v=12") !important;
+  border-image-slice: 148 fill !important;
+  border-image-width: 24px !important;
+  border-image-outset: 0 !important;
+  border-image-repeat: stretch !important;
+  border-radius: 0 !important;
+  color: #2a1a12;
+  box-shadow: 0 8px 18px rgba(40, 20, 10, 0.22);
+  backdrop-filter: blur(2px);
+}
+
+.window-theme-dense {
+  --window-fill: rgba(255, 255, 255, 0.58);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 36px;
+  padding: 0 10px;
+  background: rgba(255, 248, 238, 0.72);
+  border: 1px solid rgba(107, 74, 58, 0.28);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 15px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(40, 20, 10, 0.12);
+}
+
+.bar b {
+  margin-left: 6px;
+  font-weight: normal;
+  font-size: 16px;
+}
+
+/* ---- three columns, as EDOPro's deck editor ---- */
+.deck-editor {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: var(--side-column) 1fr minmax(170px, 21%);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "side top top"
+    "side deck results";
+  gap: 6px;
+  padding: 6px;
+}
+
+.side {
+  grid-area: side;
+}
+
+.top-strip {
+  grid-area: top;
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+
+.deck {
+  grid-area: deck;
+}
+
+.results {
+  grid-area: results;
+}
+
+.side,
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+/* the card under the pointer, as wide as the column (every screen's left column) */
+.preview {
+  align-self: center;
+  width: 93%;
+  max-height: 43vh;
+  aspect-ratio: 3 / 4;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.preview[src=""] {
+  visibility: hidden;
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: -6px;
+}
+
+.tab {
+  padding: 5px 10px;
+  background: rgba(255, 248, 238, 0.72);
+  border: 1px solid rgba(107, 74, 58, 0.28);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.text-size {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 4px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.text-size > span {
+  min-width: 1.6em;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.size-button {
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--button-border);
+  border-radius: 3px;
+  background: linear-gradient(var(--button-top), var(--button-bottom));
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.size-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.card-info {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 10px;
+  font-size: var(--card-text-size, 13px);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  user-select: text;
+  color: #1f140e;
+}
+
+.card-info .name {
+  display: block;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--panel-border);
+  text-align: center;
+  font-size: 1.1em;
+}
+
+.card-info .meta {
+  color: #6b4a18;
+}
+
+/* ---- the deck's name and order (EDOPro's deck box) ---- */
+.deck-controls {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr) auto auto;
+  align-content: center;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 10px 12px;
+  font-size: 16px;
+}
+
+.deck-controls .field.wide {
+  grid-column: span 3;
+}
+
+.menu-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.control-buttons {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.control-label {
+  color: var(--text-dim);
+  white-space: nowrap;
+  font-size: 16px;
+}
+
+.field {
+  height: 34px;
+  min-width: 0;
+  padding: 0 10px 1px;
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--text);
+  border: 1px solid rgba(107, 74, 58, 0.35);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 15px;
+  line-height: 33px;
+}
+
+.field:focus {
+  outline: 1px solid #c49a6c;
+}
+
+.window-theme .menu-button,
+.window-theme .menu-button.small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 16px 1px;
+  font-size: 15px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ---- the deck ---- */
+.deck {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.deck #main-deck {
+  flex: 1;
+}
+
+.deck .bar {
+  border: none;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+#class-counts {
+  margin-left: 6px;
+  color: var(--text-dim);
+  white-space: pre;
+}
+
+#unsaved {
+  color: #1a100c;
+  font-weight: 700;
+}
+
+#deck-note.bad {
+  color: #ff9b9b;
+}
+
+/* the deck's grid: the label in the first two cells, the 7 summoners after it, each as big as a deck card */
+.summoner-row,
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  padding: 8px;
+}
+
+.summoner-row {
+  align-items: center;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.summoner-row .row-label {
+  grid-column: span 2;
+  font-size: 17px;
+  color: var(--text-dim);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* the 7 summoner cards side by side: the chosen one lit, the rest dimmed */
+.summoners {
+  display: contents;
+}
+
+.summoners .card {
+  opacity: 0.4;
+  filter: grayscale(0.6);
+  transition: opacity 0.15s, filter 0.15s;
+}
+
+.summoners .card:hover {
+  opacity: 0.8;
+  filter: none;
+}
+
+.summoners .card.selected {
+  opacity: 1;
+  filter: none;
+  outline: 2px solid #f2d060;
+}
+
+.card-grid {
+  align-content: start;
+}
+
+.card {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 3px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.card:hover {
+  outline: 2px solid #f2d060;
+}
+
+/* ---- filters: icon toggles, any of a row, every row ---- */
+.filters {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 14px;
+  overflow-x: auto;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.filter-row > * {
+  flex: none;
+}
+
+.filter-button {
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  opacity: 0.35;
+  filter: grayscale(0.8);
+  transition: opacity 0.15s, filter 0.15s, transform 0.15s;
+}
+
+.filter-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.filter-button:hover {
+  opacity: 0.75;
+  filter: none;
+}
+
+.filter-button.on {
+  opacity: 1;
+  filter: none;
+  transform: scale(1.08);
+}
+
+.filter-button.level {
+  width: 36px;
+  border-radius: 4px;
+}
+
+.filter-reset {
+  margin-left: auto;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--button-border);
+  border-radius: 3px;
+  background: linear-gradient(var(--button-top), var(--button-bottom));
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* ---- the card list ---- */
+.results-bar {
+  height: 34px;
+  font-size: 16px;
+}
+
+.results-bar select {
+  max-width: 50%;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--text);
+  border: 1px solid rgba(107, 74, 58, 0.35);
+  font: inherit;
+  font-size: 15px;
+}
+
+.result-list {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 4px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.result-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.result-list li:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.result-list img {
+  width: 48px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 2px;
+  flex: none;
+}
+
+.result-list .text {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.result-list .title {
+  display: block;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result-list .sub {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+.result-list .sub img {
+  flex: none;
+  width: 27px;
+  height: 27px;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+/* (the dark brown digits sit on a light badge, as in the game) */
+.result-list .sub img.level {
+  padding: 2px 4px;
+  background: #f6ead0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #c9a86a;
+}
+
+.result-list .count {
+  flex: none;
+  min-width: 40px;
+  text-align: right;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-shadow: none;
+}

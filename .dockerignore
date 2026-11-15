@@ -1,0 +1,15 @@
+.vercel
+.git
+**/__pycache__
+**/*.pyc
+**/*.pyo
+pics
+sound
+data/ai/test
+data/local_api.sqlite
+data/lobby_rooms.json
+data/duels
+node_modules
+KirafanDesktop
+*.md
+!DEPLOY.md

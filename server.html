@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title data-i18n="server.title">서버 대전 - 키라라 판타지아 카드게임</title>
+  <link rel="stylesheet" href="css/style.css?v=w7">
+  <link rel="stylesheet" href="css/deck.css?v=23">
+  <link rel="stylesheet" href="css/server.css?v=5">
+</head>
+<body class="window-theme window-theme-fill">
+  <div id="background" aria-hidden="true"></div>
+
+  <section class="server-page panel">
+    <header class="bar">
+      <span data-i18n="server.title">서버 대전</span>
+      <span id="room-count">0방</span>
+    </header>
+
+    <div class="server-top">
+      <div class="server-fields">
+        <div class="server-field">
+          <span data-i18n="common.nickname">닉네임</span>
+          <div class="server-nick-row">
+            <input class="field wide" id="nickname" type="text" value="키라판플레이어" maxlength="10" autocomplete="off">
+            <button class="menu-button small" type="button" id="save-nick" data-i18n="common.save">저장</button>
+          </div>
+        </div>
+        <div class="server-field">
+          <span data-i18n="server.banlist">금지/제한</span>
+          <span class="server-fixed" id="banlist" data-i18n="common.none">없음</span>
+        </div>
+      </div>
+
+      <div class="server-actions-top">
+        <button class="menu-button small" type="button" id="create-room" data-i18n="server.create">방 만들기</button>
+      </div>
+    </div>
+
+    <div class="room-table-wrap">
+      <table class="room-table">
+        <thead>
+          <tr>
+            <th data-i18n="server.col.ban">금지/제한</th>
+            <th data-i18n="server.col.name">방 이름</th>
+            <th data-i18n="server.col.summoner">소환사</th>
+            <th data-i18n="server.col.status">상태</th>
+          </tr>
+        </thead>
+        <tbody id="room-list">
+          <tr class="room-empty">
+            <td colspan="4" data-i18n="server.empty">표시할 방이 없습니다</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="server-footer">
+      <button class="menu-button" type="button" id="refresh" data-i18n="common.refresh">새로 고침</button>
+      <div class="server-footer-right">
+        <button class="menu-button primary" type="button" id="enter" data-i18n="common.enter">들어가기</button>
+        <button class="menu-button" type="button" id="back" data-i18n="common.cancel">취소</button>
+      </div>
+    </footer>
+  </section>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/server.js?v=i18n4"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title data-i18n="deck.title">덱 편집 - 키라라 판타지아 카드게임</title>
+  <link rel="stylesheet" href="css/style.css?v=w5">
+  <link rel="stylesheet" href="css/deck.css?v=31">
+</head>
+<body class="deck-page window-theme window-theme-fill">
+  <div id="deck-background" aria-hidden="true"></div>
+
+  <div class="deck-editor">
+    <!-- left: the card under the pointer, the editor's buttons and the card's text -->
+    <section class="side">
+      <img id="preview" class="preview" alt="" src="">
+      <div class="tabs">
+        <span class="tab active" data-i18n="common.cardInfo">카드 정보</span>
+        <span class="text-size">
+          <button class="size-button" id="text-smaller" data-i18n="common.textSizeMinus" data-i18n-title="common.textSmaller" title="글자 작게">가-</button>
+          <span id="text-size-value"></span>
+          <button class="size-button" id="text-bigger" data-i18n="common.textSizePlus" data-i18n-title="common.textBigger" title="글자 크게">가+</button>
+        </span>
+      </div>
+      <div class="card-info panel" id="card-info"></div>
+    </section>
+
+    <!-- top: the deck's name and order, then the filters of the card list -->
+    <div class="top-strip">
+      <div class="deck-controls panel">
+        <label class="control-label" for="ai-deck-select" data-i18n="deck.aiDeck">AI 덱:</label>
+        <select id="ai-deck-select" class="field wide"></select>
+        <label class="control-label" for="deck-select" data-i18n="deck.deck">덱:</label>
+        <select id="deck-select" class="field"></select>
+        <button class="menu-button small" id="clear" data-i18n="deck.clear">비우기</button>
+        <button class="menu-button small" id="new-deck" data-i18n="deck.new">새 덱</button>
+        <label class="control-label" for="deck-name" data-i18n="deck.name">이름:</label>
+        <input id="deck-name" class="field" maxlength="40" data-i18n-placeholder="deck.namePlaceholder" placeholder="덱 이름">
+        <button class="menu-button small" id="save-deck" data-i18n="common.save">저장</button>
+        <button class="menu-button small" id="save-as" data-i18n="deck.saveAs">(으)로 저장</button>
+        <div class="control-buttons">
+          <button class="menu-button small" id="exit" data-i18n="deck.exit">덱 편집 나가기</button>
+          <button class="menu-button small" id="delete-deck" data-i18n="deck.delete">삭제</button>
+          <button class="menu-button small" id="load" data-i18n="deck.import" data-i18n-title="deck.importTitle" title=".ydk 파일을 새 덱으로 불러옵니다">덱 불러오기</button>
+          <button class="menu-button small" id="save" data-i18n="deck.export" data-i18n-title="deck.exportTitle" title="지금 덱을 .ydk 파일로 내보냅니다">덱 내보내기</button>
+          <input type="file" id="load-file" accept=".ydk" hidden>
+        </div>
+      </div>
+      <div class="filters panel">
+        <div class="filter-row" id="filter-attribute"></div>
+        <div class="filter-row" id="filter-class"></div>
+        <div class="filter-row" id="filter-level"></div>
+      </div>
+    </div>
+
+    <!-- middle: the summoner card, then the deck -->
+    <section class="deck panel">
+        <div class="summoner-row">
+          <span class="row-label" data-i18n="deck.summoner">소환사 카드</span>
+          <div id="summoners" class="summoners"></div>
+        </div>
+        <header class="bar">
+          <span><span data-i18n="deck.mainCountLabel">덱 장수:</span> <b id="main-count">0</b> <span id="class-counts"></span></span>
+          <span><span id="unsaved" hidden></span><span id="deck-note"></span></span>
+        </header>
+        <div id="main-deck" class="card-grid"></div>
+    </section>
+
+    <!-- right: the cards to add -->
+    <section class="results">
+      <header class="bar results-bar">
+        <span><span data-i18n="deck.results">결과:</span> <b id="result-count">0</b></span>
+        <select id="sort" data-i18n-aria="deck.sort" aria-label="정렬">
+          <option value="level-asc" data-i18n="deck.sort.levelAsc">레벨 ↑</option>
+          <option value="level-desc" data-i18n="deck.sort.levelDesc">레벨 ↓</option>
+          <option value="class" data-i18n="deck.sort.class">클래스</option>
+          <option value="name" data-i18n="deck.sort.name">이름</option>
+        </select>
+      </header>
+      <ul id="result-list" class="result-list panel"></ul>
+    </section>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/deck.js?v=i18n10"></script>
+</body>
+</html>

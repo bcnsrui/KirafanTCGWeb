@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title data-i18n="ai.title">AI 대전 - 키라라 판타지아 카드게임</title>
+  <link rel="stylesheet" href="css/style.css?v=w6">
+  <link rel="stylesheet" href="css/deck.css?v=30">
+  <link rel="stylesheet" href="css/ai.css?v=w9">
+</head>
+<body class="window-theme window-theme-fill">
+  <div id="background" aria-hidden="true"></div>
+
+  <div class="ai-page">
+    <!-- left: the card under the pointer -->
+    <section class="side">
+      <img id="preview" class="preview" alt="" src="">
+      <div class="tabs">
+        <span class="tab active" data-i18n="common.cardInfo">카드 정보</span>
+        <span class="text-size">
+          <button class="size-button" id="text-smaller" data-i18n="common.textSizeMinus" data-i18n-title="common.textSmaller" title="글자 작게">가-</button>
+          <span id="text-size-value"></span>
+          <button class="size-button" id="text-bigger" data-i18n="common.textSizePlus" data-i18n-title="common.textBigger" title="글자 크게">가+</button>
+        </span>
+      </div>
+      <div class="card-info panel" id="card-info"></div>
+    </section>
+
+    <!-- right: 1. the opponent (level, deck), 2. the player's deck -->
+    <section class="ai-main panel">
+      <header class="steps">
+        <span class="step" data-step="1" data-i18n="ai.step1">1. 상대 고르기</span>
+        <span class="step-arrow">›</span>
+        <span class="step" data-step="2" data-i18n="ai.step2">2. 내 덱 고르기</span>
+      </header>
+
+      <div class="step-body" id="step-1">
+        <div class="section-row">
+          <h2 class="section-title" data-i18n="ai.level">AI 난이도</h2>
+          <span class="level-desc" id="level-desc"></span>
+        </div>
+        <div class="level-choices" id="level-choices"></div>
+        <div class="section-row ai-deck-head">
+          <h2 class="section-title" data-i18n="ai.deck">AI 덱</h2>
+          <div class="deck-source-tabs" id="deck-source-tabs" role="tablist"></div>
+        </div>
+        <div class="deck-choices" id="ai-deck-choices"></div>
+        <p id="opp-deck-note" class="opp-deck-note" hidden></p>
+      </div>
+
+      <div class="step-body" id="step-2" hidden>
+        <p class="opponent" id="opponent"></p>
+        <h2 class="section-title" data-i18n="ai.myDeck">내 덱</h2>
+        <div class="my-deck-row">
+          <select id="my-deck" class="field"></select>
+          <span id="my-deck-note"></span>
+        </div>
+      </div>
+
+      <section class="recipe">
+        <header class="bar">
+          <span id="recipe-title"></span>
+          <span id="recipe-counts"></span>
+        </header>
+        <div class="recipe-cards">
+          <div class="recipe-summoner" id="recipe-summoner"></div>
+          <div class="recipe-grid" id="recipe-grid"></div>
+        </div>
+      </section>
+
+      <footer class="ai-footer">
+        <button class="menu-button" id="back" data-i18n="common.exit">나가기</button>
+        <div class="ai-footer-right">
+          <button class="menu-button" id="random-opp" type="button" data-i18n="ai.randomToggle">AI 덱은 해당 난이도의 랜덤 덱</button>
+          <button class="menu-button primary" id="next" data-i18n="common.next">다음</button>
+        </div>
+      </footer>
+    </section>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/ai.js?v=i18n26"></script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+/* ---- the saved games (replay.html) ---- */
+.replay-page {
+  position: fixed;
+  inset: 6vh 12vw;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px;
+}
+
+.replay-page .bar {
+  font-size: 18px;
+}
+
+#replay-count {
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.replay-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.replay-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.replay-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  background: rgba(107, 74, 58, 0.12);
+}
+
+.replay-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 14px;
+}
+
+.replay-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  min-width: 0;
+}
+
+.replay-result {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.replay-result.win {
+  color: #2a6fd4;
+}
+
+.replay-result.lose {
+  color: #d03232;
+}
+
+.window-theme .replay-item {
+  background: rgba(255, 248, 238, 0.96);
+  border-color: rgba(107, 74, 58, 0.28);
+}
+
+.replay-date {
+  color: var(--text-dim);
+}
+
+.replay-match {
+  color: var(--text);
+}
+
+.replay-actions {
+  flex: none;
+  display: flex;
+  gap: 6px;
+}
+
+.replay-empty {
+  margin: auto;
+  color: var(--text-dim);
+}
+
+.replay-footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.replay-footer .menu-button {
+  width: 160px;
+  height: 38px;
+  font-size: 15px;
+  display: grid;
+  place-items: center;
+}
+
+.menu-button.primary {
+  --button-top: #8a3fc4;
+  --button-bottom: #45156e;
+}
+
+/* ---- the tutorials and puzzles (puzzle.html): a column per category, each puzzle on its colour's banner ---- */
+.puzzle-groups {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  align-items: start;
+  padding: 4px 8px;
+}
+
+.puzzle-category {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0 6px 10px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid var(--kind);
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--kind);
+}
+
+.puzzle-category small {
+  font-size: 14px;
+  font-weight: normal;
+  color: var(--text-dim);
+}
+
+.puzzle-group.tutorial {
+  --kind: #ffb02e;
+  --ink: #7a3f00;
+  --banner: url("../assets/puzzle/tutorial.png");
+}
+
+.puzzle-group.normal {
+  --kind: #8fd84c;
+  --ink: #2f5f12;
+  --banner: url("../assets/puzzle/normal.png");
+}
+
+.puzzle-group.hard {
+  --kind: #ff5a64;
+  --ink: #8a1820;
+  --banner: url("../assets/puzzle/hard.png");
+}
+
+.puzzle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 10px;
+}
+
+/* (the banner stretched along: its pointed ends kept) */
+.puzzle-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 58px;
+  box-sizing: border-box;
+  padding: 0 34px 0 24px;
+  border: solid transparent;
+  border-width: 8px 24px;
+  border-image: var(--banner) 8 24 fill / 8px 24px stretch;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.12s, filter 0.12s;
+}
+
+.puzzle-item:hover,
+.puzzle-item:focus-visible {
+  transform: translateX(6px);
+  filter: brightness(1.08) drop-shadow(0 0 6px var(--kind));
+  outline: none;
+}
+
+.puzzle-number {
+  flex: none;
+  min-width: 44px;
+  font-size: 20px;
+}
+
+.puzzle-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* a cleared one: the gold crown on its right shoulder */
+.puzzle-crown {
+  position: absolute;
+  top: -16px;
+  right: -6px;
+  width: 50px;
+  transform: rotate(16deg);
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+  pointer-events: none;
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>전적 - 키라라 판타지아 카드게임</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/records.css">
+</head>
+<body>
+  <div id="background" aria-hidden="true"></div>
+
+  <main class="records-page panel">
+    <header class="records-header">
+      <a class="back-link" href="index.html">← 메뉴</a>
+      <h1>전적</h1>
+      <p id="records-user" class="records-user"></p>
+    </header>
+
+    <section class="records-summary" id="records-summary">
+      <div class="stat"><span class="stat-label">총전</span><span class="stat-value" id="stat-total">-</span></div>
+      <div class="stat"><span class="stat-label">승</span><span class="stat-value" id="stat-win">-</span></div>
+      <div class="stat"><span class="stat-label">패</span><span class="stat-value" id="stat-lose">-</span></div>
+      <div class="stat"><span class="stat-label">승률</span><span class="stat-value" id="stat-rate">-</span></div>
+    </section>
+
+    <section class="records-list-wrap">
+      <h2>최근 대국</h2>
+      <ul id="records-list" class="records-list"></ul>
+      <p id="records-empty" class="records-empty" hidden>아직 동기화된 전적이 없습니다.</p>
+      <p id="records-error" class="records-error" hidden></p>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="js/records-page.js"></script>
+</body>
+</html>

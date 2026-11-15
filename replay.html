@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title data-i18n="replay.title">리플레이 - 키라라 판타지아 카드게임</title>
+  <link rel="stylesheet" href="css/style.css?v=w6">
+  <link rel="stylesheet" href="css/deck.css?v=23">
+  <link rel="stylesheet" href="css/replay.css?v=w5">
+</head>
+<body class="window-theme window-theme-fill">
+  <div id="background" aria-hidden="true"></div>
+
+  <section class="replay-page panel">
+    <header class="bar">
+      <span data-i18n="replay.title">리플레이 열람</span>
+      <span id="replay-count"></span>
+    </header>
+    <p class="replay-note" data-i18n="replay.note">대전이 끝나거나 항복하면 자동으로 저장됩니다 (최근 50판). 카드 효과가 바뀌어도 그때의 화면 그대로 재생됩니다.</p>
+    <ol class="replay-list" id="replay-list"></ol>
+    <footer class="replay-footer">
+      <button class="menu-button" id="back" data-i18n="replay.exit">나가기</button>
+      <label class="menu-button" id="import-label"><span data-i18n="replay.import">파일 불러오기</span><input type="file" id="import" accept=".json,application/json" hidden></label>
+    </footer>
+  </section>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/replay-list.js?v=i18n20"></script>
+</body>
+</html>

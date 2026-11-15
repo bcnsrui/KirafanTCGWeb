@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>방 - 키라라 판타지아 카드게임</title>
+  <link rel="stylesheet" href="css/style.css?v=w7">
+  <link rel="stylesheet" href="css/deck.css?v=23">
+  <link rel="stylesheet" href="css/room.css?v=18">
+</head>
+<body class="window-theme window-theme-fill">
+  <div id="background" aria-hidden="true"></div>
+
+  <section class="room-page panel">
+    <header class="bar room-bar">
+      <label class="room-name-edit">
+        <span class="room-name-label" data-i18n="room.nameLabel">방 이름:</span>
+        <input class="field" id="room-name" type="text" maxlength="20" value="키라판의 방" autocomplete="off">
+        <button class="menu-button small" type="button" id="save-room-name" data-i18n="common.save">저장</button>
+      </label>
+      <label class="room-spectate-policy">
+        <span data-i18n="room.spectate">관전</span>
+        <select class="field" id="spectate-policy">
+          <option value="allow" data-i18n="room.allow">허용</option>
+          <option value="deny" data-i18n="room.deny">비허용</option>
+        </select>
+      </label>
+      <span class="room-banlist" data-i18n="room.banNone">금지/제한: 없음</span>
+    </header>
+
+    <div class="room-top">
+      <div class="room-players-row">
+        <div class="room-section-label" data-i18n="room.duel">→듀얼</div>
+        <div class="room-seats">
+          <div class="room-seat on" id="seat-box-1" data-seat="1">
+            <span class="room-seat-name" id="seat-1">키라판 카드게임 플레이어</span>
+            <span class="room-ready-mark" id="seat-ready-1" hidden data-i18n-title="room.ready" title="준비 완료">✓</span>
+            <button class="room-to-spectate" type="button" data-to-spectate="1" data-i18n="room.spectate" data-i18n-title="room.spectate" title="관전으로 보내기" aria-label="관전으로 보내기" hidden>관전</button>
+            <button class="room-kick" type="button" data-kick-seat="1" data-i18n-title="room.kick" data-i18n-aria="room.kick" title="강퇴" aria-label="강퇴" hidden>×</button>
+          </div>
+          <div class="room-seat" id="seat-box-2" data-seat="2">
+            <span class="room-seat-name empty" id="seat-2" data-i18n="room.waitingSeat">대기 중…</span>
+            <span class="room-ready-mark" id="seat-ready-2" hidden data-i18n-title="room.ready" title="준비 완료">✓</span>
+            <button class="room-to-spectate" type="button" data-to-spectate="2" data-i18n="room.spectate" data-i18n-title="room.spectate" title="관전으로 보내기" aria-label="관전으로 보내기" hidden>관전</button>
+            <button class="room-kick" type="button" data-kick-seat="2" data-i18n-title="room.kick" data-i18n-aria="room.kick" title="강퇴" aria-label="강퇴" hidden>×</button>
+          </div>
+        </div>
+        <button class="menu-button small room-spectate-btn" type="button" id="spectate" data-i18n="room.toSpectate">→관전</button>
+        <div class="room-ai-setup">
+          <label class="room-deck">
+            <span data-i18n="room.aiLevel">AI 단계</span>
+            <select class="field" id="opp-ai-level"></select>
+          </label>
+          <label class="room-deck">
+            <span data-i18n="room.aiDeck">AI 덱</span>
+            <select class="field wide" id="opp-ai-deck"></select>
+          </label>
+          <button class="menu-button small room-ai-btn" type="button" id="add-ai" data-i18n="room.addAi">AI 추가</button>
+        </div>
+      </div>
+      <div class="room-spectators" id="spectator-line">
+        <span class="room-spectators-label" id="spectator-label">현재 관전자(0명):</span>
+        <span class="room-spectators-names" id="spectator-names"></span>
+      </div>
+    </div>
+
+    <div class="room-deck-preview">
+      <div class="room-deck-stats" id="deck-stats" hidden>
+        <span id="deck-count-label"><span data-i18n="deck.mainCountLabel">덱 장수:</span> <b id="deck-main-count">0</b></span>
+        <span id="deck-class-counts"></span>
+        <span id="deck-role-counts">배틀 0 · 서포트 0</span>
+      </div>
+      <div class="room-deck-body">
+        <div class="room-deck-summoner" id="deck-summoner"></div>
+        <div class="room-deck-grid" id="deck-grid">
+          <p class="room-deck-empty" data-i18n="room.deckPickHint">덱을 선택하면 카드가 표시됩니다</p>
+        </div>
+      </div>
+    </div>
+
+    <footer class="room-footer">
+      <div class="room-deck-picks">
+        <label class="room-deck">
+          <span data-i18n="ai.myDeck">덱 선택:</span>
+          <select class="field" id="deck-select">
+            <option value="" data-i18n="ai.myDeck">내 덱</option>
+          </select>
+        </label>
+        <label class="room-deck">
+          <span data-i18n="room.aiDeck">AI 덱:</span>
+          <select class="field wide" id="ai-deck-select">
+            <option value="" data-i18n="room.aiDeck">AI 덱</option>
+          </select>
+        </label>
+      </div>
+      <button class="menu-button primary room-ready" type="button" id="ready" data-i18n="room.ready">준비 완료</button>
+      <div class="room-footer-actions">
+        <button class="menu-button" type="button" id="start" disabled data-i18n="room.start">시작</button>
+        <button class="menu-button" type="button" id="leave" data-i18n="room.end">종료</button>
+      </div>
+    </footer>
+  </section>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/room.js?v=i18n21"></script>
+</body>
+</html>

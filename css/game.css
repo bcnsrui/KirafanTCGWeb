@@ -1,0 +1,1692 @@
+#duel-background {
+  position: fixed;
+  inset: 0;
+  background: url("../assets/bg_duel.jpg") center 60% / cover no-repeat;
+}
+
+#duel-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(60, 40, 28, 0.22);
+}
+
+/* ---- two columns: the card under the pointer, then the board ---- */
+.game-page {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: var(--side-column) 1fr;
+  gap: 6px;
+  padding: 6px;
+}
+
+.game-page .side {
+  grid-area: auto;
+}
+
+/* ---- the left column's tabs ---- */
+.tabs .tab {
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tabs .tab.active {
+  color: var(--wood-deep);
+  background: rgba(255, 248, 238, 0.95);
+  border-radius: 8px 8px 0 0;
+}
+
+.tab-page {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 10px;
+  font-size: var(--card-text-size, 13px);
+}
+
+.tab-page[hidden] {
+  display: none;
+}
+
+.tab-page ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  line-height: 1.6;
+}
+
+/* the card info (or the settings) over the duel log and the chat: half the column each */
+.game-page .tab-page {
+  flex: var(--top-share, 1) 1 0;
+}
+
+.game-page .feeds {
+  flex: var(--feed-share, 1) 1 0;
+}
+
+/* (dragged: the share of the two - game.js setupSideSplit; one over the log, and in a replay one more under the
+   card info, its panel between them keeping its height) */
+.side-split {
+  position: relative;
+  flex: none;
+  height: 10px;
+  margin: -5px 0;
+  cursor: row-resize;
+  touch-action: none;
+  z-index: 2;
+}
+
+.side-split::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 48px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.18);
+  transform: translate(-50%, -50%);
+  transition: background 0.15s, width 0.15s;
+}
+
+.side-split:hover::after,
+.side-split.dragging::after {
+  width: 90px;
+  background: #b98aff;
+}
+
+body:not(.replaying) .side-split.upper {
+  display: none;
+}
+
+.feeds {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.feed {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 10px 8px;
+  font-size: var(--log-text-size, 13px);
+}
+
+.feed-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--panel-border);
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.feed ol {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  line-height: 1.6;
+}
+
+.feed.chat .field {
+  margin-top: 6px;
+}
+
+/* (a chat message among the log lines) */
+.feed .chat-line {
+  color: #9fd8ff;
+}
+
+.tab-page.settings p {
+  margin: 0 0 8px;
+  color: var(--text-dim);
+}
+
+/* a volume: its name, the slider, the percentage */
+.volume {
+  display: grid;
+  grid-template-columns: 1fr 3.5em;
+  align-items: center;
+  gap: 4px 10px;
+  margin-bottom: 14px;
+}
+
+.volume span {
+  grid-column: 1 / -1;
+}
+
+.volume input {
+  width: 100%;
+  accent-color: #b070f0;
+}
+
+.volume b {
+  font-weight: normal;
+  text-align: right;
+}
+
+/* (in the board's top right corner, out of the way of the hand) */
+.board .surrender:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: default;
+}
+.board .surrender {
+  position: absolute;
+  z-index: 3;
+  top: 6px;
+  right: 6px;
+  transform: scale(1.2);
+  transform-origin: top right;
+}
+
+/* ---- the board ---- */
+.board {
+  --card-w: min(8.6vw, 12.6vh);       /* a battle creamate */
+  --small-w: calc(var(--card-w) * 0.78);   /* a support creamate, the summoner */
+  /* Board field: no ScreenWindow; light text on dark row chrome */
+  --text: #fff8ee;
+  --text-dim: rgba(255, 248, 238, 0.78);
+  --panel-border: rgba(255, 255, 255, 0.28);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  min-height: 0;
+  color: #fff8ee;
+  background: none !important;
+  border: none !important;
+  border-image: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* ScreenWindow on card info + settings + duel log + replay; other panels keep compact plate */
+.window-theme-fill .panel:not(.card-info):not(.settings):not(.feed):not(.replay-panel):not(.choose):not(.select-bar):not(.pile-list) {
+  --text: #2a1a12;
+  --text-dim: #3d2a20;
+  --panel-border: rgba(107, 74, 58, 0.35);
+  background: rgba(255, 248, 238, 0.96) !important;
+  border: 10px solid transparent !important;
+  border-image-source: var(--ui-plate) !important;
+  border-image-slice: 18 fill !important;
+  border-image-width: 10px !important;
+  border-image-outset: 0 !important;
+  border-image-repeat: stretch !important;
+  border-radius: 0 !important;
+  backdrop-filter: none;
+  color: #2a1a12;
+  box-shadow: 0 8px 20px rgba(70, 40, 30, 0.22);
+}
+
+/* 설정 탭: 카드 정보·리플레이와 같은 ScreenWindow 프레임·반투명 */
+.window-theme-fill .settings.panel {
+  --text: #2a1a12;
+  --text-dim: #3d2a20;
+  background: rgba(255, 255, 255, 0.58) !important;
+  border: 24px solid transparent !important;
+  border-image-source: var(--ui-window) !important;
+  border-image-slice: 148 fill !important;
+  border-image-width: 24px !important;
+  border-image-outset: 0 !important;
+  border-image-repeat: stretch !important;
+  border-radius: 0 !important;
+  backdrop-filter: blur(2px);
+  color: #2a1a12;
+  box-shadow: 0 8px 18px rgba(40, 20, 10, 0.22);
+}
+
+/* 선택창·성전/마을/돗테오키: SelectFrame 이중선·꺾인 모서리 9-slice */
+.choose.panel,
+.select-bar.panel,
+.pile-list.panel,
+.window-theme-fill .choose.panel,
+.window-theme-fill .select-bar.panel,
+.window-theme-fill .pile-list.panel {
+  --text: #2a1a12;
+  --text-dim: #3d2a20;
+  --panel-border: rgba(107, 74, 58, 0.28);
+  --ui-select: url("../assets/ui/SelectFrame.png?v=1");
+  background: #fdfbe6 !important;
+  border: 16px solid transparent !important;
+  border-image-source: var(--ui-select) !important;
+  border-image-slice: 28 fill !important;
+  border-image-width: 16px !important;
+  border-image-outset: 0 !important;
+  border-image-repeat: stretch !important;
+  border-radius: 0 !important;
+  backdrop-filter: none;
+  color: #2a1a12;
+  box-shadow: 0 6px 18px rgba(70, 40, 30, 0.28);
+}
+
+.card-face {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.card-face img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* ---- hands ---- */
+.hand {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  min-height: 0;
+}
+
+.hand .card-face {
+  width: auto;
+  height: 100%;
+}
+
+.hand.op {
+  height: 6.5vh;
+}
+
+.hand.me {
+  height: 13.5vh;
+}
+
+.hand.me .card-face {
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+
+.hand.me .card-face:hover {
+  transform: translateY(-10%);
+}
+
+/* ---- a player's row: summoner | battle zone over support zone | piles ---- */
+/* (the three parts spread with the same space between them and the row's edges) */
+.side-row {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 24px;
+  padding: 14px 20px;
+  background: rgba(74, 50, 36, 0.45);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+}
+
+.side-row.op {
+  border-color: rgba(120, 140, 255, 0.45);
+}
+
+.side-row.me {
+  border-color: rgba(255, 110, 130, 0.45);
+}
+
+/* (the opponent's turned round: both battle zones face the middle) */
+.zones {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.side-row.op .zones {
+  flex-direction: column-reverse;
+}
+
+.zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.zone-label {
+  display: block;
+  margin-bottom: 18px;
+  font-size: 13px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* the summoner and what its stats mean in this game */
+.summoner-box {
+  flex: 0 1 calc(var(--card-w) * 2);
+  min-width: 0;
+  display: grid;
+  grid-template-columns: var(--card-w) minmax(0, 1fr);
+  gap: 10px 14px;
+  align-items: center;
+}
+
+.summoner-box .name {
+  grid-column: 1 / -1;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* over the summoner in 진실의 손의 시간 */
+.summoner-box .truth {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-bottom: -4px;
+  padding: 2px 14px;
+  border-radius: 3px;
+  background: rgba(160, 20, 40, 0.85);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.stat b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 28px;
+  font-weight: normal;
+  line-height: 1.15;
+  color: var(--text);
+}
+
+.stat b .icon {
+  width: 1.2em;
+  height: 1.2em;
+  object-fit: contain;
+}
+
+.stat.sanctuary b,
+.stat.stones b {
+  color: #9fd8ff;
+}
+
+/* (성채석 한도 full; 성전 레벨 as high as the other player's or higher in 진실의 손의 시간) */
+.stat.sanctuary.alert b,
+.stat.stones.alert b {
+  color: #ff6b6b;
+}
+
+/* battle and support slots */
+/* (set places, wide apart from the start: a card turned sideways (경직) fills its cell and nothing moves; the
+ * support zone's places stand under the battle zone's) */
+.slots {
+  --cell-gap: 30px;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--card-w) * 4 / 3 + var(--cell-gap) - var(--small-w));
+}
+
+.slots:has(.battle-cell) {
+  gap: var(--cell-gap);
+}
+
+.slots > * {
+  flex: none;
+}
+
+.slot {
+  position: relative;
+  border: 2px dashed rgba(255, 255, 255, 0.35);
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.25);
+  aspect-ratio: 3 / 4;
+}
+
+.slot:has(.card-face) {
+  border-color: transparent;
+}
+
+.battle-cell {
+  width: calc(var(--card-w) * 4 / 3);
+  height: calc(var(--card-w) * 4 / 3);
+  display: grid;
+  place-items: center;
+}
+
+.slot.battle {
+  width: var(--card-w);
+}
+
+.slot.support {
+  width: var(--small-w);
+}
+
+.slot.closed {
+  background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0 6px, transparent 6px 12px);
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.slot .card-face {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+
+/* a battle creamate's numbers over its art */
+.badge {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 12px 2px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  background: rgba(20, 12, 32, 0.9);
+  font-size: 26px;
+  font-weight: bold;
+  line-height: 1.2;
+  text-shadow: 0 1px 2px #000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+  white-space: nowrap;
+}
+
+.badge .icon {
+  width: 1.2em;
+  height: 1.2em;
+  object-fit: contain;
+  flex: none;
+}
+
+/* 공격력·체력: 카드 아래 한 줄, 화면이 작아지면 글자도 같이 축소 */
+.stat-bar {
+  position: absolute;
+  z-index: 1;
+  left: -10%;
+  right: -10%;
+  bottom: -12%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.stat-bar .badge {
+  position: static;
+  pointer-events: auto;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: calc(50% - 1px);
+  gap: 0.12em;
+  padding: 0.08em 0.42em 0.08em 0.22em;
+  font-size: clamp(10px, calc(var(--card-w) * 0.26), 26px);
+  box-sizing: border-box;
+}
+
+.stat-bar .badge .icon {
+  width: 1.05em;
+  height: 1.05em;
+}
+
+/* against the card's own numbers: the same white, the attack raised light red / lowered sky blue, the 체력
+   below its own light orange / above it light green */
+.badge.atk.up {
+  color: #ff8f8f;
+}
+
+.badge.atk.down {
+  color: #8fd0ff;
+}
+
+.badge.hp.hurt {
+  color: #ffd25a;
+}
+
+.badge.hp.over {
+  color: #9df08a;
+}
+
+.badge.hp.low {
+  color: #ff6b7a;
+}
+
+/* over the card's top right: its level, then the normal attacks left */
+.top-tags {
+  position: absolute;
+  z-index: 1;
+  right: -12px;
+  top: -14px;
+  display: flex;
+  gap: 4px;
+}
+
+.top-tags .badge {
+  position: static;
+}
+
+.badge.level {
+  padding: 2px 10px;
+  background: #2c6b52;
+  font-size: calc(var(--card-w) * 0.112);
+  white-space: nowrap;
+}
+
+/* the level on a creamate's face in the hand, a support zone or the recent alchemists */
+.level-tag {
+  position: absolute;
+  z-index: 1;
+  left: 3px;
+  top: 3px;
+  padding: 0 0.45em;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 1em;
+  background: #2c6b52;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1.35;
+  text-shadow: 0 1px 2px #000;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+}
+
+/* in the hand and the support zones: as big as the battle zone's, over the card so the art shows whole */
+.hand .level-tag,
+.slot.support .level-tag {
+  top: auto;
+  bottom: calc(100% - 4px);
+  left: -6px;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: calc(var(--card-w) * 0.112);
+  line-height: 1.2;
+}
+
+.last-alchemist-cards .level-tag {
+  left: 2px;
+  top: 2px;
+  font-size: 12px;
+}
+
+.badge.attacks {
+  padding: 2px 10px;
+  background: #4a3aa8;
+  font-size: calc(var(--card-w) * 0.112);
+  white-space: nowrap;
+}
+
+/* over the attacks left (whose top is 14px over the card's): the statuses, a 나이트's pull on top */
+.tags {
+  position: absolute;
+  z-index: 1;
+  right: -12px;
+  bottom: calc(100% + 14px + 4px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.tags .badge {
+  position: static;
+}
+
+.badge.aggro {
+  padding: 2px 10px;
+  background: #a8323a;
+  font-size: calc(var(--card-w) * 0.112);
+  white-space: nowrap;
+}
+
+.badge.attacks.none {
+  background: rgba(20, 12, 32, 0.9);
+  color: #a9a0b8;
+}
+
+/* the statuses in words, STATUS_PER_LINE (game.js) a line */
+.badge.status-text {
+  display: grid;
+  justify-items: end;
+  column-gap: 0.4em;
+  row-gap: 0;
+  padding: 2px 10px;
+  border-radius: 14px;
+  background: #5a2a7a;
+  font-size: calc(var(--card-w) * 0.112);
+  white-space: nowrap;
+}
+
+.statuses {
+  position: absolute;
+  z-index: 1;
+  left: 4px;
+  right: 4px;
+  top: calc(var(--card-w) * 0.16);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.status {
+  position: relative;
+  display: flex;
+}
+
+.status .icon {
+  width: calc(var(--card-w) * 0.24);
+  height: calc(var(--card-w) * 0.24);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+}
+
+.status-name {
+  padding: 0 5px;
+  border-radius: 3px;
+  background: rgba(70, 20, 110, 0.9);
+  font-size: 11px;
+}
+
+.status-turns {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  min-width: 1.4em;
+  padding: 0 3px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 9px;
+  background: rgba(20, 12, 32, 0.92);
+  font-size: calc(var(--card-w) * 0.1);
+  line-height: 1.3;
+  text-align: center;
+}
+
+/* 경직: the card turned sideways, its slot as wide as a card is tall */
+.slot.battle.stiff {
+  width: calc(var(--card-w) * 4 / 3);
+  aspect-ratio: 4 / 3;
+}
+
+.slot.stiff .card-face {
+  inset: auto;
+  left: 50%;
+  top: 50%;
+  width: calc(100% * 3 / 4);
+  height: calc(100% * 4 / 3);
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+/* 성전 / 돗테오키 / 덱 / 마을 */
+/* (a set width: what is in it - the recent alchemists' pictures as they load, a number's digits - does not
+ * make it grow and push the row about) */
+.piles {
+  flex: 0 1 min(calc(var(--card-w) * 1.95), 330px);
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 14px;
+  align-items: start;
+}
+
+.pile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+}
+
+button.pile {
+  cursor: pointer;
+}
+
+button.pile:hover {
+  border-color: #f2d060;
+}
+
+.pile b {
+  font-size: 26px;
+  font-weight: normal;
+  line-height: 1.15;
+}
+
+.pile .label {
+  color: var(--text-dim);
+}
+
+.pile.concealed {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.pile.concealed b {
+  letter-spacing: 0.05em;
+}
+
+.gauge {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 20px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.gauge:hover {
+  border-color: #f2d060;
+}
+
+.gauge-head {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+
+.gauge-title {
+  height: 36px;
+}
+
+.gauge-stars {
+  height: 30px;
+}
+
+.gauge-label {
+  text-align: center;
+}
+
+.gauge-pips {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 3px;
+}
+
+.gauge-pips i {
+  height: 12px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* (a rainbow along the gauge: the first blue, on through green and yellow, the ninth red) */
+.gauge-pips i:nth-child(1) { --pip: #1a9be0; }
+.gauge-pips i:nth-child(2) { --pip: #22b8d8; }
+.gauge-pips i:nth-child(3) { --pip: #2ccdb4; }
+.gauge-pips i:nth-child(4) { --pip: #62da7a; }
+.gauge-pips i:nth-child(5) { --pip: #aee84a; }
+.gauge-pips i:nth-child(6) { --pip: #f4e82a; }
+.gauge-pips i:nth-child(7) { --pip: #ffb436; }
+.gauge-pips i:nth-child(8) { --pip: #ff7a58; }
+.gauge-pips i:nth-child(9) { --pip: #ff4a7e; }
+
+.gauge-pips i.on {
+  background: linear-gradient(color-mix(in srgb, var(--pip) 55%, #fff), var(--pip) 60%, color-mix(in srgb, var(--pip) 80%, #000));
+  box-shadow: 0 0 5px color-mix(in srgb, var(--pip) 75%, transparent);
+}
+
+/* the alchemist whose 돗테오키 존 effect came last, under the gauge */
+.last-alchemist {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 5px 8px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text-dim);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* (up to three, the newest on the left; an empty place until one has been used) */
+.last-alchemist-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.last-alchemist-cards .card-face,
+.last-alchemist-cards .card-face img {
+  min-width: 0;
+  width: 100%;
+}
+
+.last-alchemist-cards .slot.empty {
+  aspect-ratio: 3 / 4;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+}
+
+/* the alchemist notices over the top of the board, the newest first (only their 확인 takes a click) */
+.notices {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: 9vh;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 70%;
+  pointer-events: none;
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
+  padding: 10px 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  animation: notice-in 0.25s ease-out;
+}
+
+.notice {
+  position: relative;
+  overflow: hidden;
+}
+
+.notice .menu-button {
+  flex: none;
+  pointer-events: auto;
+}
+
+/* the time the notice has left, a bar along its foot running out */
+.notice-time {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background: #f2d060;
+  transform-origin: left;
+  animation: notice-time linear forwards;
+}
+
+@keyframes notice-time {
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.notice img {
+  width: 64px;
+  border-radius: 4px;
+}
+
+.notice-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 15px;
+  white-space: pre-line;
+}
+
+.notice-text b {
+  color: #f2d060;
+  font-weight: normal;
+}
+
+@keyframes notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* PvP: 상대 선택 대기 (알케미스트 알림과 같은 자리) */
+.notice.opp-wait {
+  min-width: min(420px, 90%);
+  justify-content: center;
+  pointer-events: none;
+  padding: 14px 28px;
+}
+
+.notice.opp-wait[hidden] {
+  display: none !important;
+}
+
+.opp-wait-line {
+  font-size: 17px;
+  text-align: center;
+}
+
+.opp-wait-dots {
+  display: inline-block;
+  min-width: 1.4em;
+  text-align: left;
+  color: #f2d060;
+}
+
+/* ---- the middle: turn, phases, the turn player's buttons ---- */
+.center-bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 0 4px;
+}
+
+/* the turn, the phases and the buttons: the same pill */
+.center-bar {
+  --pill-h: 38px;
+  --pill-font: 19px;
+}
+
+.turn-box,
+.phases li,
+.phase-actions .menu-button {
+  height: var(--pill-h);
+  display: grid;
+  place-items: center;
+  border-radius: calc(var(--pill-h) / 2);
+  font-size: var(--pill-font);
+  white-space: nowrap;
+}
+
+.turn-box {
+  display: block;
+  line-height: calc(var(--pill-h) - 2px);
+  padding: 0 22px;
+  background: rgba(74, 50, 36, 0.5);
+  border: 1px solid var(--panel-border);
+}
+
+.turn-box span:first-child {
+  color: #a0f0dc;
+}
+
+/* (spread over the bar) */
+.phases {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.phases li {
+  flex: 1;
+  max-width: 170px;
+  background: rgba(74, 50, 36, 0.5);
+  border: 1px solid var(--panel-border);
+  color: var(--text-dim);
+}
+
+.phases li.on {
+  background: linear-gradient(#8a3fc4, #45156e);
+  color: var(--text);
+  border-color: #f2d060;
+  box-shadow: 0 0 10px rgba(242, 208, 96, 0.45);
+}
+
+.phase-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.phase-actions .menu-button {
+  padding: 0 22px;
+}
+
+.menu-button.primary {
+  --button-top: #8a3fc4;
+  --button-bottom: #45156e;
+}
+
+/* ---- a pile's cards (성전, 마을, 돗테오키), opened from the row ---- */
+.pile-list {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(720px, 70vw);
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.pile-list .bar {
+  background: transparent;
+  border: none;
+  color: #2a1a12;
+}
+
+.pile-list[hidden] {
+  display: none;
+}
+
+.pile-list-cards {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.pile-section {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--panel-border);
+  font-size: 15px;
+  font-weight: 700;
+  color: #3d2a20;
+}
+
+.pile-section:first-child {
+  margin-top: 0;
+}
+
+/* ---- picking cards (over the board, so the card info beside it stays in view) ---- */
+.choose {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 94%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+.choose[hidden] {
+  display: none;
+}
+
+.board:has(.choose:not([hidden]))::before {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.choose .bar {
+  font-size: 22px;
+  background: transparent;
+  border: none;
+  color: #2a1a12;
+}
+
+.choose-note {
+  margin: 10px 16px 0;
+  color: var(--text-dim);
+  font-size: 16px;
+}
+
+.choose-cards {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 12px;
+  padding: 34px 16px 18px;
+}
+
+.choose-card {
+  position: relative;
+  padding: 0;
+  border: 3px solid transparent;
+  border-radius: 7px;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s;
+}
+
+.choose-card:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.choose-card.on {
+  transform: translateY(-16px);
+  border-color: #f2d060;
+  box-shadow: 0 0 14px rgba(242, 208, 96, 0.6);
+}
+
+.choose-card.on::after {
+  content: attr(data-mark);
+  position: absolute;
+  left: 50%;
+  top: -14px;
+  transform: translateX(-50%);
+  padding: 1px 10px;
+  border-radius: 10px;
+  background: #f2d060;
+  color: #2a1a40;
+  font-size: 15px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.choose-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--panel-border);
+  font-size: 18px;
+}
+
+.choose-footer .warn {
+  color: #ff9b9b;
+}
+
+.choose-footer .menu-button {
+  min-width: 180px;
+  font-size: 19px;
+}
+
+.choose-place {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-dim);
+  font-size: 13px;
+  text-align: center;
+}
+
+.choose-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* ---- a question over the board (chain, yes / no, a number, the result) ---- */
+.prompt {
+  position: absolute;
+  z-index: 40;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(560px, 80%);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+.prompt[hidden] {
+  display: none !important;
+}
+
+.prompt.waiting {
+  z-index: 40;
+}
+
+.prompt .bar {
+  font-size: 20px;
+}
+
+.prompt-text {
+  margin: 12px 16px 0;
+  font-size: 17px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.prompt-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px 16px;
+}
+
+.prompt-options .row {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.prompt-options .menu-button {
+  height: auto;
+  min-height: 36px;
+  padding: 6px 14px;
+  font-size: 17px;
+  text-align: left;
+}
+
+/* a summoner coming out before the duel */
+.summoner-box .card-face.entering {
+  animation: summoner-enter 0.9s ease-out;
+}
+
+@keyframes summoner-enter {
+  from {
+    opacity: 0;
+    transform: scale(1.8);
+    filter: brightness(2.5) drop-shadow(0 0 24px #f2d060);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.95);
+  }
+}
+
+/* pictures under a question's text (the coin toss) */
+.prompt-pictures {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 12px;
+}
+
+.prompt-pictures figure {
+  margin: 0;
+  text-align: center;
+}
+
+.prompt-pictures img {
+  width: 110px;
+  border-radius: 4px;
+}
+
+.prompt-pictures figcaption {
+  margin-top: 4px;
+}
+
+/* the coin spins as it lands (heads: the star, tails: the plain back) */
+.prompt-pictures .coin img {
+  width: 128px;
+  animation: coin-flip 1s ease-out;
+}
+
+@keyframes coin-flip {
+  from {
+    transform: rotateY(1440deg) scale(0.6);
+  }
+}
+
+.prompt.result .bar {
+  justify-content: center;
+  font-size: 34px;
+}
+
+/* ---- what a clicked card can do ---- */
+.card-menu {
+  position: absolute;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 200px;
+  max-width: 360px;
+  padding: 6px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+.card-menu[hidden] {
+  display: none;
+}
+
+.card-menu .menu-button {
+  font-size: 16px;
+  text-align: left;
+  white-space: normal;
+}
+
+.card-face.playable {
+  cursor: pointer;
+  outline: 3px solid #f2d060;
+  outline-offset: 1px;
+  box-shadow: 0 0 14px rgba(242, 208, 96, 0.75);
+}
+
+.hand.me .card-face.playable {
+  transform: translateY(-8%);
+}
+
+/* picking cards where they are: the ones that can be picked glow, the picked ones rise with their mark */
+.select-bar {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  bottom: calc(13.5vh * 1.22 + 26px);   /* (over the hand, and the picked cards risen out of it) */
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 22px;
+  white-space: nowrap;
+}
+
+.select-bar[hidden] {
+  display: none;
+}
+
+.select-title {
+  font-size: 17px;
+}
+
+.select-count {
+  color: var(--text-dim);
+  font-size: 15px;
+}
+
+.select-count.warn {
+  color: #ff9b9b;
+}
+
+.select-bar .menu-button {
+  min-width: 110px;
+  font-size: 16px;
+}
+
+.card-face.selectable {
+  cursor: pointer;
+  outline: 3px solid rgba(160, 220, 255, 0.85);
+  outline-offset: 1px;
+  box-shadow: 0 0 12px rgba(160, 220, 255, 0.6);
+}
+
+.card-face.picked {
+  outline: 3px solid #f2d060;
+  box-shadow: 0 0 16px rgba(242, 208, 96, 0.8);
+}
+
+.hand.me .card-face.picked {
+  transform: translateY(-22%);
+}
+
+.card-face.picked::after {
+  content: attr(data-mark);
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  transform: translateX(-50%);
+  padding: 0 8px;
+  border-radius: 9px;
+  background: #f2d060;
+  color: #2a1a40;
+  font-size: 13px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.waiting-note {
+  color: var(--text-dim);
+}
+
+.pile-list-cards p {
+  grid-column: 1 / -1;
+  margin: 10px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* ---- a saved game shown again (game.html?replay=<id>) ---- */
+.replay-panel {
+  display: none;
+  flex: none;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 8px 8px;
+  font-size: 13px;
+}
+
+body.replaying .replay-panel {
+  display: flex;
+}
+
+/* 카드 정보·기록과 같은 ScreenWindow 프레임·반투명 */
+.window-theme-fill .replay-panel.panel {
+  --text: #2a1a12;
+  --text-dim: #3d2a20;
+  background: rgba(255, 255, 255, 0.58) !important;
+  border: 24px solid transparent !important;
+  border-image-source: var(--ui-window) !important;
+  border-image-slice: 148 fill !important;
+  border-image-width: 24px !important;
+  border-image-outset: 0 !important;
+  border-image-repeat: stretch !important;
+  border-radius: 0 !important;
+  backdrop-filter: blur(2px);
+  color: #2a1a12;
+  box-shadow: 0 8px 18px rgba(40, 20, 10, 0.22);
+}
+
+/* (nothing to answer: no turn button, no chat) */
+body.replaying .phase-actions,
+body.replaying #chat-input {
+  visibility: hidden;
+}
+
+.replay-head {
+  color: var(--text-dim);
+}
+
+.replay-head b {
+  color: #1a100c;
+  font-weight: 700;
+}
+
+#replay-seek {
+  width: 100%;
+  accent-color: #8a3fc4;
+}
+
+.replay-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.replay-speeds {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  color: var(--text-dim);
+}
+
+#replay-speed {
+  flex: 0 1 180px;
+  min-width: 0;
+  accent-color: #8a3fc4;
+}
+
+#replay-speed-value {
+  min-width: 3.4em;
+  color: #1a100c;
+  font-weight: 700;
+  text-align: right;
+}
+
+.replay-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.replay-buttons .size-button {
+  flex: 1 0 auto;
+}
+
+.replay-panel .size-button.on {
+  outline: 2px solid #f2d060;
+  outline-offset: -1px;
+}
+
+/* a puzzle's story line (Debug.ShowHint): the paper frame low on the board, the speaker's name on the ribbon over
+ * its corner, the quill bobbing at its foot (a click anywhere goes on) */
+.story {
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  bottom: calc(13.5vh + 14px);
+  transform: translateX(-50%);
+  width: min(920px, 88%);
+  min-height: 150px;
+  box-sizing: border-box;
+  padding: 30px 96px 20px 22px;
+  border: 26px solid transparent;
+  border-image: url("../assets/story/frame.png") 26 fill / 26px stretch;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+  cursor: pointer;
+  animation: story-in 0.18s ease-out;
+}
+
+.story[hidden] {
+  display: none;
+}
+
+.story-name {
+  position: absolute;
+  top: -48px;
+  left: -100px;
+  min-width: 300px;
+  height: 62px;
+  box-sizing: border-box;
+  padding: 0 56px 2px 84px;
+  border: 0 solid transparent;
+  border-width: 0 40px 0 14px;
+  border-image: url("../assets/story/ribbon.png") 0 34 0 14 fill / 0 40px 0 14px stretch;
+  color: #fff8e6;
+  font-size: 27px;
+  line-height: 60px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.story-text {
+  margin: 0;
+  color: #5b3b2c;
+  font-size: 27px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.story-pen {
+  position: absolute;
+  right: -4px;
+  bottom: -6px;
+  width: 58px;
+  filter: drop-shadow(1px 7px 4px rgba(70, 40, 20, 0.35));
+  animation: story-pen 1.8s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes story-pen {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-9px);
+  }
+}
+
+@keyframes story-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+}
+
+/* ---- the attack motion (attackFx): the weapon thrust at the target, the target's mark over its art ---- */
+.fx {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.fx-weapon {
+  position: absolute;
+  width: calc(var(--card-w) * 0.57);
+  filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.55));
+  will-change: transform, opacity;
+}
+
+.fx-target {
+  position: absolute;
+  width: calc(var(--card-w) * 0.99);
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.7));
+  /* (stamped on, then growing and shrinking a little while it waits) */
+  animation: fx-target-in 0.32s ease-out, fx-target-pulse 0.9s ease-in-out 0.32s infinite alternate;
+}
+
+/* (a creamate flying from a hand to its place, playFlights: over everything, the board's sizes) */
+.fly {
+  --card-w: min(8.6vw, 12.6vh);
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.fly .card-face.flying {
+  position: fixed;
+  margin: 0;
+  transform: none;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6);
+  will-change: translate, scale;
+}
+
+/* (what happened to a battle creamate, cardFx: a heart / flame over its art, "かいふく" rising out of it) */
+.fx-card,
+.fx-heal-text {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  will-change: transform, opacity;
+}
+
+.fx-card {
+  width: calc(var(--card-w) * 0.72);
+}
+
+.fx-heal-text {
+  width: calc(var(--card-w) * 0.95);
+}
+
+@keyframes fx-target-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.9);
+  }
+}
+
+@keyframes fx-target-pulse {
+  to {
+    transform: translate(-50%, -50%) scale(0.88);
+  }
+}
