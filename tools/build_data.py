@@ -125,9 +125,8 @@ AUDIO = (".mp3", ".wav", ".ogg")
 
 
 def sounds():
-    """sound/ (EDOPro's sounds: background music by situation, the creamates' voices by card code, effects) copied
-    to the page, and data/sounds.json listing them: {"bgm": {situation: [files]}, "voice": {summon / activate /
-    attack / totteoki / alchemist / recovery / defeat: [codes]}, "effects": [names]}.
+    """sound/ BGM + creamate voices copied to the page; data/sounds.json lists them.
+    Root-level EDOPro SFX (attack.wav, summon.wav, …) are skipped — web uses voices only.
     Folder sound/destroy/ → defeat; sound/Alchemist/ → alchemist."""
     src = os.path.join(GAME, "sound")
     dst = os.path.join(WEB, "sound")
@@ -142,13 +141,16 @@ def sounds():
         for name in files:
             if not name.lower().endswith(AUDIO):
                 continue
+            parts = rel.replace("\\", "/").split("/")
+            # Skip EDOPro default SFX sitting in sound/ root
+            if rel == ".":
+                continue
             to = os.path.join(dst, rel, name)
             path = os.path.join(root, name)
             if not os.path.exists(to) or os.path.getmtime(to) < os.path.getmtime(path):
                 os.makedirs(os.path.dirname(to), exist_ok=True)
                 shutil.copy2(path, to)
                 copied += 1
-            parts = rel.replace("\\", "/").split("/")
             if parts[0] == "BGM" and len(parts) > 1:
                 out["bgm"].setdefault(parts[1], []).append(name)
             elif parts[0] in voice_kinds:
@@ -162,13 +164,10 @@ def sounds():
                     else:
                         kind = folder
                     out["voice"].setdefault(kind, []).append(int(code))
-            elif rel == ".":
-                out["effects"].append(name)
     for v in out["bgm"].values():
         v.sort()
     for v in out["voice"].values():
         v.sort()
-    out["effects"].sort()
     return out, copied
 
 

@@ -100,7 +100,7 @@ export function voice(kind, code) {
   return playFile(`sound/${voiceDir(kind)}/${code}.mp3`);
 }
 
-/** duel SFX (attack.wav, activate.wav, destroyed.mp3, …); `name` may be stem or full filename */
+/** duel SFX helper (legacy EDOPro filenames). Unused in play — voices only. */
 export function sfx(name) {
   const files = manifest?.effects || [];
   const want = String(name || "").toLowerCase();
@@ -113,18 +113,7 @@ export function sfx(name) {
   return playFile(`sound/${file}`);
 }
 
-/** chant if present, else the matching SFX (EDOPro: chants override effect sounds) */
-const CUE_SFX = {
-  attack: "attack",
-  activate: "activate",
-  totteoki: "activate",
-  alchemist: "activate",
-  recovery: "gainlp",
-  summon: "specialsummon",
-  defeat: "destroyed",
-  damage: "damage",
-};
-
+/** creamate chant only — no EDOPro default wav fallback when a line is missing */
 export function playCue(kind, code) {
-  return voice(kind, code).then((ok) => (ok ? true : sfx(CUE_SFX[kind] || kind)));
+  return voice(kind, code);
 }

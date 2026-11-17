@@ -2,8 +2,8 @@ import { toast } from "./ui.js";
 import {
   ATTRIBUTE_ICONS, aiRecipeLabel, loadAiDecks, loadCards, setupTextSize, writeCardInfo,
 } from "./decks.js";
-import { newDuel, describe } from "./engine/index.js?v=hp2";
-import { K, NOOP_DESCS } from "./engine/flow.js?v=hp2";
+import { newDuel, describe } from "./engine/index.js?v=hp3";
+import { K, NOOP_DESCS } from "./engine/flow.js?v=hp3";
 import { puzzlePlayer, simplePlayer, SANCTUARY_HINT, SANCTUARY_ONE_HINT } from "./engine/players.js?v=hp2";
 import { modelPlayer } from "./ai/agent.js";
 import { loadSounds, playBgm, playCue, setVolume, voice, volume } from "./sound.js?v=8";
@@ -17,7 +17,7 @@ import {
 import { deleteRoom, fetchRooms } from "./lobby-rooms.js";
 import { currentNick, loadMatchData, saveMatch } from "./match-store.js";
 import { getLang, puzzlesDataUrl, setLang } from "./lang.js";
-import { applyI18n, t } from "./ui-i18n.js?v=i18n41";
+import { applyI18n, t } from "./ui-i18n.js?v=i18n42";
 import { loadJson, mediaUrl } from "./local-assets.js";
 import { bindBoardFit, fitFieldContent } from "./stage-scale.js?v=11";
 import { clearLocalDevCaches } from "./dev-cache.js?v=2";
@@ -2353,11 +2353,43 @@ async function loadMatch() {
 }
 
 const WIN_REASONS = {
-  lp: "",
   deck: "덱과 마을의 카드가 다 떨어졌습니다.",
   turns: "턴 수가 너무 길어 무승부입니다.",
   get surrender() { return t("duel.resignOppWin"); },
 };
+
+/** Official end-of-duel lines live on summoner utility card 10050114 (not creamate flavor hints). */
+const END_MSG_CODE = 10050114;
+const END_MSG_IDX = new Set([0, 1, 2, 3, 4, 5, 7, 8]);
+
+/** Result dialog body: system win/lose hint only — never a random creamate HINT_MESSAGE. */
+function endDetailText(duel, seat) {
+  if (duel.winReason === "deck") return WIN_REASONS.deck;
+  if (duel.winReason === "turns") return WIN_REASONS.turns;
+  if (duel.winReason === "surrender") return WIN_REASONS.surrender;
+
+  const decode = (desc) => {
+    const n = Number(desc);
+    if (!Number.isFinite(n)) return null;
+    const code = Math.floor(n / 0x100000);
+    const idx = n % 0x100000;
+    if (code !== END_MSG_CODE || !END_MSG_IDX.has(idx)) return null;
+    return describe(n);
+  };
+
+  const hints = [...duel.log].filter((e) => e.type === "hint" && e.desc != null).reverse();
+  for (const e of hints) {
+    if (e.player !== seat) continue;
+    const text = decode(e.desc);
+    if (text) return text;
+  }
+  for (const e of hints) {
+    const text = decode(e.desc);
+    if (text) return text;
+  }
+  if (duel.winReason === "lp") return t("duel.endBySanctuary");
+  return "";
+}
 
 /** a coin toss: heads, this player decides who moves first; tails, the AI does. true when this player moves first */
 async function coinToss() {
@@ -2529,10 +2561,7 @@ async function finishMatch(match, { pvp = false } = {}) {
   if (winner === me || winner === 1 - me) playBgm(winner === me ? "win" : "lose");
   const surrenderedWin = pvp && duel.winReason === "surrender" && winner === me;
   const title = winner === me ? t("duel.win") : winner === 1 - me ? t("duel.resultLoss") : (getLang() === "en" ? "Draw" : getLang() === "ja" ? "引き分け" : "무승부");
-  const reason = WIN_REASONS[duel.winReason] || [...duel.log].reverse().find((e) => e.type === "hint" && e.player === me && describe(e.desc))?.desc;
-  const text = surrenderedWin
-    ? WIN_REASONS.surrender
-    : (typeof reason === "number" ? describe(reason) : reason || "");
+  const text = surrenderedWin ? WIN_REASONS.surrender : endDetailText(duel, me);
   surrendering = null;
   log(`${title}${text ? ` - ${text.replace(/\n/g, " ")}` : ""}`);
   await clearMatchRoom(match);
