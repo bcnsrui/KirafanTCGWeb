@@ -25,7 +25,7 @@ WEB = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(WEB, "data", "manifest.json")
 
 SKIP_DATA_PREFIXES = ("ai/test/", "duels/")
-SKIP_NAMES = {"manifest.json", "local_api.sqlite", "lobby_rooms.json"}
+SKIP_NAMES = {"manifest.json", "local_api.sqlite", "lobby_rooms.json", "packs.json"}
 
 
 def sha256_file(path: str) -> str:

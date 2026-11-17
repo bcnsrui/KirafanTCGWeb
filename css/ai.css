@@ -15,6 +15,7 @@
 .ai-main {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   min-height: 0;
   padding: 10px 14px;
   gap: 8px;
@@ -159,7 +160,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 6px;
-  max-height: min(28vh, 220px);
+  max-height: 220px; /* FHD fixed */
   overflow: auto;
   padding-right: 2px;
 }
@@ -285,8 +286,9 @@
 
 .recipe-grid {
   flex: 1;
+  min-width: 0;
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   align-content: start;
   gap: 4px;
 }
@@ -303,6 +305,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .ai-footer-right {
@@ -321,7 +324,7 @@
 
 #random-opp {
   min-width: 0;
-  max-width: min(360px, 46vw);
+  max-width: 360px;
   font-size: 13px;
   white-space: nowrap;
 }
@@ -361,7 +364,7 @@
   padding: 24px 32px;
   max-width: 90%;
   color: #2a1a12;
-  font-size: clamp(28px, 4.2vw, 48px);
+  font-size: 42px;
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.35;

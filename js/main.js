@@ -7,6 +7,7 @@ import "./local-assets.js";
 import { LANG_STORE, getLang, setLang } from "./lang.js";
 import { applyI18n, t } from "./ui-i18n.js?v=i18n34";
 import "./presence.js";
+import { bindHomeCardsFit } from "./stage-scale.js?v=13";
 
 const VISIT_KEY = "kirafan.visit.pinged";
 
@@ -116,6 +117,7 @@ if (isTauri()) {
   }
 }
 makePetals(document.getElementById("petals"));
+bindHomeCardsFit();
 document.querySelectorAll(".home-card[data-action]").forEach((el) => {
   el.addEventListener("click", () => open(el.dataset.action));
 });

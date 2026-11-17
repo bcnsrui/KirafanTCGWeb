@@ -105,10 +105,11 @@ let loaded = null;
 export async function loadAI() {
   if (!loaded) {
     loaded = (async () => {
+      const { fetchData } = await import("../update.js");
       const [cards, meta, bin] = await Promise.all([
-        fetch("data/ai/cards.json").then((r) => r.json()),
-        fetch("data/ai/model.json").then((r) => r.json()),
-        fetch("data/ai/model.bin").then((r) => r.arrayBuffer()),
+        fetchData("data/ai/cards.json").then((r) => r.json()),
+        fetchData("data/ai/model.json").then((r) => r.json()),
+        fetchData("data/ai/model.bin").then((r) => r.arrayBuffer()),
       ]);
       const weights = new Float32Array(bin);
       const w = {};

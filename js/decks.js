@@ -1,19 +1,69 @@
 // Cards, the player's saved decks and the AI recipes, shared by the deck editor and the AI match screen.
 import { cardsDataUrl, seriesLabel } from "./lang.js";
 import { attrLabel, classLabel, t } from "./ui-i18n.js?v=i18n9";
+import { loadJson } from "./local-assets.js";
+import { isTauri } from "./runtime.js";
+import {
+  deleteStored, listStoredDir, readStoredText, writeStoredText,
+} from "./storage.js";
 
 export const STORE = "kirafan.decks";       // { current: name, decks: { name: { summoner, main } } }
 export const OLD_STORE = "kirafan.deck";     // (the single deck of the first version)
 export const FIRST_DECK = "내 덱";
+export const DECK_DIR = "Deck";
 export const CLASS_ORDER = ["전사", "마법사", "나이트", "승려", "알케미스트", "소환사"];
 // filter / list icons (assets/icons)
 export const ATTRIBUTE_ICONS = { 땅: "earth", 물: "water", 불: "fire", 바람: "wind", 해: "sun", 달: "moon" };
 export const CLASS_ICONS = { 전사: "fighter", 마법사: "magician", 나이트: "knight", 승려: "priest", 알케미스트: "alchemist" };
 export const LEVELS = [1, 2, 3];
 
+const CURRENT_FILE = `${DECK_DIR}/.current`;
+
+/** Windows-safe file stem from a deck name. */
+export function deckFileStem(name) {
+  return String(name || "")
+    .replace(/[<>:"/\\|?*\x00-\x1f]/g, "_")
+    .replace(/\.+$/g, "")
+    .trim() || "deck";
+}
+
+export function deckToYdk(deck) {
+  const lines = ["#created by Kirafan", "#main", ...(deck?.main || []), "#extra"];
+  if (deck?.summoner) lines.push(deck.summoner);
+  lines.push("!side", "");
+  return lines.join("\n");
+}
+
+/** Parse .ydk text (EDOPro-style). Unknown ids skipped when cards Map is given. */
+export function deckFromYdk(text, cards = null) {
+  const main = [];
+  let summoner = null;
+  let section = null;
+  for (const raw of String(text || "").split(/\r?\n/)) {
+    const line = raw.trim();
+    if (line === "#main" || line === "#extra" || line === "!side") {
+      section = line;
+      continue;
+    }
+    if (!/^\d+$/.test(line)) continue;
+    const id = Number(line);
+    if (cards) {
+      const card = cards.get(id);
+      if (!card) continue;
+      if (card.kind === "summoner" && !summoner) summoner = card.id;
+      else if (card.kind === "creamate" && section === "#main") main.push(card.id);
+    } else if (section === "#main") {
+      main.push(id);
+    } else if (section === "#extra" && !summoner) {
+      summoner = id;
+    }
+  }
+  return { summoner, main };
+}
+
 /** -> { rules: { maxCopies, mainSize }, cards: Map id -> card } (data/cards.json or data/en/) */
 export async function loadCards() {
-  const data = await (await fetch(cardsDataUrl())).json();
+  const data = await loadJson(cardsDataUrl());
   return { rules: { maxCopies: data.maxCopies, mainSize: data.mainSize }, cards: new Map(data.cards.map((c) => [c.id, c])) };
 }
 
@@ -21,7 +71,7 @@ export async function loadCards() {
  *  each recipe's cards in deck order; empty when no AI recipes were built (data/ai_decks.json) */
 export async function loadAiDecks(cards) {
   try {
-    const ai = await (await fetch("data/ai_decks.json")).json();
+    const ai = await loadJson("data/ai_decks.json");
     return {
       bots: ai.bots || {},
       decks: new Map((ai.decks || []).map((d) => {
@@ -53,8 +103,8 @@ export function readJson(key) {
   }
 }
 
-/** the player's saved decks as stored (read only): { current, decks: { name: deck } } */
-export function readLibrary(cards) {
+/** Browser localStorage library (sync). */
+export function readLibraryLocal(cards) {
   const saved = readJson(STORE);
   const decks = {};
   if (saved && saved.decks) {
@@ -63,6 +113,67 @@ export function readLibrary(cards) {
     decks[FIRST_DECK] = cleanDeck(cards, readJson(OLD_STORE));
   }
   return { current: saved && decks[saved.current] ? saved.current : Object.keys(decks)[0] || null, decks };
+}
+
+/** @deprecated use readLibraryAsync — sync browser-only fallback */
+export function readLibrary(cards) {
+  return readLibraryLocal(cards);
+}
+
+async function readLibraryFromDisk(cards) {
+  const files = await listStoredDir(DECK_DIR);
+  const ydk = files.filter((f) => f.toLowerCase().endsWith(".ydk"));
+  const decks = {};
+  for (const file of ydk) {
+    const name = file.replace(/\.ydk$/i, "");
+    const text = await readStoredText(`${DECK_DIR}/${file}`);
+    if (text == null) continue;
+    decks[name] = cleanDeck(cards, deckFromYdk(text, cards));
+  }
+  let current = (await readStoredText(CURRENT_FILE))?.trim() || null;
+  if (!current || !decks[current]) current = Object.keys(decks)[0] || null;
+  return { current, decks };
+}
+
+/** Load player decks: exe → Deck/*.ydk, browser → localStorage. Migrates browser store once. */
+export async function readLibraryAsync(cards) {
+  if (!isTauri()) return readLibraryLocal(cards);
+
+  let library = await readLibraryFromDisk(cards);
+  if (Object.keys(library.decks).length) return library;
+
+  // First run: migrate from WebView localStorage if present.
+  const migrated = readLibraryLocal(cards);
+  if (Object.keys(migrated.decks).length) {
+    await saveLibraryAsync(migrated);
+    return migrated;
+  }
+  return { current: FIRST_DECK, decks: { [FIRST_DECK]: { summoner: null, main: [] } } };
+}
+
+/** Persist player decks: exe → Deck/*.ydk + .current, browser → localStorage. */
+export async function saveLibraryAsync(library) {
+  if (!isTauri()) {
+    localStorage.setItem(STORE, JSON.stringify(library));
+    return;
+  }
+  const wanted = new Set();
+  for (const [name, deck] of Object.entries(library.decks || {})) {
+    const stem = deckFileStem(name);
+    const file = `${stem}.ydk`;
+    wanted.add(file);
+    await writeStoredText(`${DECK_DIR}/${file}`, deckToYdk(deck));
+  }
+  const current = library.current && library.decks?.[library.current]
+    ? library.current
+    : Object.keys(library.decks || {})[0] || FIRST_DECK;
+  await writeStoredText(CURRENT_FILE, current);
+
+  const lowerWanted = new Set([...wanted].map((f) => f.toLowerCase()));
+  for (const file of await listStoredDir(DECK_DIR)) {
+    if (!file.toLowerCase().endsWith(".ydk")) continue;
+    if (!lowerWanted.has(file.toLowerCase())) await deleteStored(`${DECK_DIR}/${file}`);
+  }
 }
 
 export function classRank(card) {
@@ -152,7 +263,9 @@ const TEXT_SIZES = { min: 11, max: 24, start: 13 };
 export function setupTextSize({ target = "card-info", prefix = "text", store = TEXT_SIZE_STORE, variable = "--card-text-size" } = {}) {
   const set = (size) => {
     const px = Math.min(TEXT_SIZES.max, Math.max(TEXT_SIZES.min, size));
-    document.getElementById(target).style.setProperty(variable, `${px}px`);
+    document.getElementById(target)?.style.setProperty(variable, `${px}px`);
+    // Also on :root so sibling panels (e.g. 기록 · 대화) can follow the same size
+    document.documentElement.style.setProperty(variable, `${px}px`);
     document.getElementById(`${prefix}-size-value`).textContent = px;
     document.getElementById(`${prefix}-smaller`).disabled = px <= TEXT_SIZES.min;
     document.getElementById(`${prefix}-bigger`).disabled = px >= TEXT_SIZES.max;

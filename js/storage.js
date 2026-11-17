@@ -44,14 +44,26 @@ export async function pickDataFolder() {
 
 export async function ensureDataPathReady() {
   if (!isTauri()) return { kind: "browser", path: null };
+  // Always beside the exe (Rust get_data_path creates data/pics/sound).
   let path = await getDataPath();
-  if (path) return { kind: "tauri", path };
-  return { kind: "tauri", path: null, needsPick: true };
+  if (!path) {
+    path = await defaultDataPath();
+    if (path) await setDataPath(path);
+  }
+  return { kind: "tauri", path: path || null };
 }
 
 function normalizeRel(rel) {
-  const path = String(rel || "").replace(/^\//, "");
-  if (path.startsWith("data/") || path.startsWith("pics/") || path.startsWith("sound/")) return path;
+  const path = String(rel || "").replace(/^\//, "").replace(/\\/g, "/");
+  if (
+    path.startsWith("data/")
+    || path.startsWith("pics/")
+    || path.startsWith("sound/")
+    || path.startsWith("Deck/")
+    || path.startsWith("Replay/")
+  ) {
+    return path;
+  }
   return `data/${path}`;
 }
 
@@ -118,4 +130,35 @@ export async function writeStored(rel, buf, sha256, contentType) {
 
 export async function hasStored(rel) {
   return (await storedHash(rel)) != null || (await readStored(rel)) != null;
+}
+
+/** List file names in a folder under the exe data root (Tauri only). */
+export async function listStoredDir(rel) {
+  if (!isTauri()) return [];
+  const root = await getDataPath();
+  if (!root) return [];
+  try {
+    return await invoke("list_data_dir", { root, rel: String(rel || "").replace(/^[/\\]+/, "") });
+  } catch {
+    return [];
+  }
+}
+
+export async function deleteStored(rel) {
+  if (!isTauri()) return;
+  const root = await getDataPath();
+  if (!root) return;
+  const path = normalizeRel(rel);
+  await invoke("delete_data_file", { root, rel: path });
+}
+
+export async function writeStoredText(rel, text) {
+  const bytes = new TextEncoder().encode(String(text ?? ""));
+  await writeStored(rel, bytes.buffer);
+}
+
+export async function readStoredText(rel) {
+  const buf = await readStored(rel);
+  if (!buf) return null;
+  return new TextDecoder().decode(buf);
 }

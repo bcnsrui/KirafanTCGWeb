@@ -6,7 +6,8 @@ import { applyI18n, roomStatusLabel, t } from "./ui-i18n.js?v=i18n4";
 const NICK_STORE = "kirafan.server.nick";
 const ROOM_ID_STORE = "kirafan.room.id";
 const ROOM_NAME_STORE = "kirafan.room.name";
-const NICK_MAX = 10;
+const ROOM_GATE_STORE = "kirafan.room.gate"; // `${roomId}:${nick}` after a valid enter/create
+const NICK_MAX = 20;
 const STATUS_WAITING = "대기중";
 
 /** @type {any[]} */
@@ -82,7 +83,7 @@ function renderRooms() {
     });
     tr.addEventListener("dblclick", () => {
       selectedId = room.id;
-      enterSelectedRoom();
+      enterSelectedRoom().catch(() => toast(t("server.toast.enterFail")));
     });
     return tr;
   }));
@@ -106,15 +107,55 @@ function selectedRoom() {
   return normalizeRooms(roomsCache).find((room) => room.id === selectedId) || null;
 }
 
-function enterSelectedRoom() {
-  persistNick();
+/** true when nick is already used as host / seat / spectator (cannot join as a second person). */
+function nickTakenInRoom(room, nick) {
+  if (!room || !nick) return false;
+  const host = String(room.host || "").trim();
+  if (host && nick === host) return true;
+  const seats = room.seats || {};
+  for (const seat of [seats[1], seats[2], seats["1"], seats["2"]]) {
+    if (seat && String(seat) === nick) return true;
+  }
+  for (const name of room.spectators || []) {
+    if (String(name) === nick) return true;
+  }
+  return false;
+}
+
+function roomGate(roomId, nick) {
+  return `${roomId}:${nick}`;
+}
+
+function markRoomGate(roomId, nick) {
+  sessionStorage.setItem(ROOM_GATE_STORE, roomGate(roomId, nick));
+}
+
+async function enterSelectedRoom() {
+  const nick = persistNick();
+  try {
+    roomsCache = await fetchRooms();
+    renderRooms();
+  } catch { /* use cache */ }
   const room = selectedRoom();
   if (!room) {
     toast(t("server.toast.noRooms"));
     return;
   }
+  const host = String(room.host || "").trim();
+  const gateOk = sessionStorage.getItem(ROOM_GATE_STORE) === roomGate(room.id, nick);
+  // Host nick: only the client that created/entered as host (gate) may rejoin.
+  if (host && nick === host && !gateOk) {
+    toast(t("server.toast.nickSameAsHost"));
+    return;
+  }
+  // Other seated / spectator nicks: allow only same-tab rejoin with matching gate.
+  if (nickTakenInRoom(room, nick) && !gateOk) {
+    toast(nick === host ? t("server.toast.nickSameAsHost") : t("server.toast.nickTaken"));
+    return;
+  }
   sessionStorage.setItem(ROOM_ID_STORE, room.id);
   sessionStorage.setItem(ROOM_NAME_STORE, room.name);
+  markRoomGate(room.id, nick);
   location.href = "room.html";
 }
 
@@ -141,6 +182,7 @@ async function createRoom() {
   selectedId = room.id;
   sessionStorage.setItem(ROOM_ID_STORE, room.id);
   sessionStorage.setItem(ROOM_NAME_STORE, name);
+  markRoomGate(room.id, nick);
   location.href = "room.html";
 }
 
@@ -153,7 +195,9 @@ document.getElementById("save-nick").addEventListener("click", saveNick);
 document.getElementById("refresh").addEventListener("click", () => {
   refreshRooms().catch(() => toast(t("server.toast.refreshFail")));
 });
-document.getElementById("enter").addEventListener("click", enterSelectedRoom);
+document.getElementById("enter").addEventListener("click", () => {
+  enterSelectedRoom().catch(() => toast(t("server.toast.enterFail")));
+});
 document.getElementById("create-room").addEventListener("click", () => {
   createRoom().catch(() => toast(t("server.toast.createFail")));
 });

@@ -1,10 +1,22 @@
 import { toast } from "./ui.js";
 import {
-  aiRecipeLabel, classCounts, deckProblems, loadAiDecks, loadCards, readLibrary, setupTextSize, writeCardInfo,
+  aiRecipeLabel, classCounts, deckProblems, loadAiDecks, loadCards, readLibraryAsync, setupTextSize, writeCardInfo,
 } from "./decks.js";
 import { loadSounds, playBgm } from "./sound.js";
 import { saveMatch } from "./match-store.js";
 import { applyI18n, t } from "./ui-i18n.js?v=i18n26";
+import { mediaUrl } from "./local-assets.js";
+import { bindFhdStage } from "./stage-scale.js?v=2";
+import { clearLocalDevCaches } from "./dev-cache.js?v=1";
+import { setupSideSettings } from "./side-settings.js";
+
+await clearLocalDevCaches();
+bindFhdStage();
+
+function setPic(el, rel) {
+  if (!el) return;
+  mediaUrl(rel).then((url) => { el.src = url; }).catch(() => { el.src = rel; });
+}
 
 const CHOICE_STORE = "kirafan.aiMatch";   // { level, aiDeck, myDeck, deckSource, randomOpp }
 const MY_DECK = "mine:";                  // option values: "mine:<name>" or "ai:<name>"
@@ -180,14 +192,14 @@ function ensureOppInSource() {
 
 // ---- drawing ------------------------------------------------------------
 function show(card) {
-  document.getElementById("preview").src = `pics/${card.id}.jpg`;
+  setPic(document.getElementById("preview"), `pics/${card.id}.jpg`);
   writeCardInfo(document.getElementById("card-info"), card);
 }
 
 function thumb(card) {
   const img = document.createElement("img");
   img.className = "card";
-  img.src = `pics/small/${card.id}.jpg`;
+  setPic(img, `pics/small/${card.id}.jpg`);
   img.alt = card.name;
   img.title = card.name;
   img.addEventListener("mouseenter", () => show(card));
@@ -417,7 +429,7 @@ function startGame() {
 async function start() {
   ({ rules, cards } = await loadCards());
   ai = await loadAiDecks(cards);
-  library = readLibrary(cards);
+  library = await readLibraryAsync(cards);
 
   let saved = {};
   try {
@@ -488,6 +500,7 @@ async function start() {
   });
 
   setupTextSize();
+  setupSideSettings();
   render();
   const first = cards.get(oppDeck()?.deck?.summoner);
   if (first) show(first);

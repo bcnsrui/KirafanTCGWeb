@@ -2,6 +2,7 @@ import { toast } from "./ui.js";
 import { loadSounds, playBgm } from "./sound.js";
 import { puzzlesDataUrl } from "./lang.js";
 import { applyI18n, t } from "./ui-i18n.js?v=i18n4";
+import { loadJson } from "./local-assets.js";
 
 const CLEARED_STORE = "kirafan.puzzles.cleared";   // (game.js keeps the ids of the puzzles solved here)
 
@@ -23,7 +24,7 @@ function cleared() {
 async function showList() {
   let puzzles;
   try {
-    puzzles = await (await fetch(puzzlesDataUrl())).json();
+    puzzles = await loadJson(puzzlesDataUrl());
   } catch {
     return toast(t("puzzle.loadFail"));
   }

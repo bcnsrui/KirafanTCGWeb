@@ -43,9 +43,14 @@ export const UPDATE_BASE = stored("updateBase", REPOS.data);
 
 /**
  * Match-record / auth / lobby / duel API base (no trailing slash).
- * Local: tools/api_server.py on 8787. Production (Railway): same origin ("").
+ * - Exe (Tauri): always the live web server so PC ↔ browser can play together
+ * - Browser localhost: tools/api_server.py on 8787
+ * - Browser production (Railway): same origin ("")
  */
+export const ONLINE_API_BASE = "https://kirafancardgame.com";
+
 function defaultApiBase() {
+  if (isTauri()) return ONLINE_API_BASE;
   try {
     const h = location.hostname;
     if (h === "127.0.0.1" || h === "localhost" || h === "[::1]") {

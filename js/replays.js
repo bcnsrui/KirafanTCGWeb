@@ -1,8 +1,15 @@
 /* Saved games for the replay viewer (replay.html, game.html?replay=<id>): what the board showed after every action
  * and the log's lines, nothing the rules engine works out again - a replay plays the same after the cards' scripts
- * change. A frame keeps only what changed since the one before (diff / apply). In IndexedDB, the newest MAX_KEPT. */
+ * change. A frame keeps only what changed since the one before (diff / apply).
+ * Browser: IndexedDB (newest MAX_KEPT). Exe: Replay/{id}.json beside the .exe. */
+
+import { isTauri } from "./runtime.js";
+import {
+  deleteStored, listStoredDir, readStoredText, writeStoredText,
+} from "./storage.js";
 
 export const FORMAT = 1;
+export const REPLAY_DIR = "Replay";
 const DB_NAME = "kirafan-replays";
 const STORE = "replays";
 const MAX_KEPT = 50;
@@ -27,17 +34,67 @@ async function request(mode, make) {
   });
 }
 
+async function listReplaysDisk() {
+  const files = await listStoredDir(REPLAY_DIR);
+  const out = [];
+  for (const file of files) {
+    if (!file.toLowerCase().endsWith(".json")) continue;
+    const text = await readStoredText(`${REPLAY_DIR}/${file}`);
+    if (text == null) continue;
+    try {
+      const replay = JSON.parse(text);
+      if (replay && typeof replay === "object") out.push(replay);
+    } catch { /* skip bad file */ }
+  }
+  return out.sort((a, b) => Number(b.id) - Number(a.id));
+}
+
+async function getReplayDisk(id) {
+  const text = await readStoredText(`${REPLAY_DIR}/${Number(id)}.json`);
+  if (text == null) return undefined;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
+}
+
+async function deleteReplayDisk(id) {
+  await deleteStored(`${REPLAY_DIR}/${Number(id)}.json`);
+}
+
+async function saveReplayDisk(replay) {
+  const all = await listReplaysDisk();
+  const taken = new Set(all.map((r) => Number(r.id)));
+  let id = Number(replay.id) || Date.now();
+  while (taken.has(id)) id++;
+  const saved = { ...replay, id };
+  await writeStoredText(`${REPLAY_DIR}/${id}.json`, JSON.stringify(saved));
+  const next = await listReplaysDisk();
+  for (const old of next.slice(MAX_KEPT)) await deleteReplayDisk(old.id);
+  return id;
+}
+
 /** the saved replays, newest first */
 export async function listReplays() {
+  if (isTauri()) return listReplaysDisk();
   const all = await request("readonly", (s) => s.getAll());
   return all.sort((a, b) => b.id - a.id);
 }
 
-export const getReplay = (id) => request("readonly", (s) => s.get(Number(id)));
-export const deleteReplay = (id) => request("readwrite", (s) => s.delete(Number(id)));
+export async function getReplay(id) {
+  if (isTauri()) return getReplayDisk(id);
+  return request("readonly", (s) => s.get(Number(id)));
+}
+
+export async function deleteReplay(id) {
+  if (isTauri()) return deleteReplayDisk(id);
+  return request("readwrite", (s) => s.delete(Number(id)));
+}
 
 /** keeps a replay (a new id if it has none, or its id is taken - an imported file); the oldest past MAX_KEPT go */
 export async function saveReplay(replay) {
+  if (isTauri()) return saveReplayDisk(replay);
   const taken = new Set((await listReplays()).map((r) => r.id));
   let id = Number(replay.id) || Date.now();
   while (taken.has(id)) id++;

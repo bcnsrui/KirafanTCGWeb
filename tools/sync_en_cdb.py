@@ -24,10 +24,18 @@ REPLACEMENTS = [
     (r"\[Summon\]", "[Summon]"),
     (r"Send 1 card of your hand or Battle Zone to Totteoki Zone\.",
      "Send 1 card from your hand or Battle Zone to the Totteoki Zone."),
-    (r"※ Please include only 1 Main Character in the Summoner Deck",
-     "※ Include only 1 Main Character."),
-    (r"※ Do not activate this card's effect",
-     "※ Do not activate this card's effect."),
+]
+
+# Removed from KO pack; strip leftover EN/JA deck notes on sync
+DISCLAIMER_RES = [
+    re.compile(
+        r"(?:\r?\n)*※\s*Include only 1 Main Character\.?(?:\r?\n)※\s*Do not activate this card's effect\.?\s*$",
+        re.I,
+    ),
+    re.compile(
+        r"(?:\r?\n)*※\s*Please include only 1 Main Character[^\n]*(?:\r?\n)※\s*Do not activate this card's effect\.?\s*$",
+        re.I,
+    ),
 ]
 
 # KR-only cards → English placeholders (name + short desc) when missing from EN
@@ -49,8 +57,10 @@ def polish(text: str) -> str:
     out = text.replace("\r\n", "\n").replace("\r", "\n")
     for pat, repl in REPLACEMENTS:
         out = re.sub(pat, repl, out, flags=re.IGNORECASE if "totteoki" in pat.lower() or "creamate" in pat.lower() or "battle zone" in pat.lower() else 0)
+    for pat in DISCLAIMER_RES:
+        out = pat.sub("", out)
     # Fix double periods from polish
-    out = out.replace("..", ".")
+    out = out.replace("..", ".").rstrip()
     return out
 
 

@@ -2,9 +2,22 @@ import { toast } from "./ui.js";
 import { applyI18n, attrLabel, classLabel, t } from "./ui-i18n.js?v=i18n9";
 import {
   ATTRIBUTE_ICONS, CLASS_ICONS, FIRST_DECK, LEVELS, OLD_STORE, STORE, aiRecipeLabel, classCounts, classRank, cleanDeck,
-  deckOrder, deckProblems, handOrder, loadAiDecks, loadCards, readJson, setupTextSize, writeCardInfo,
+  deckFromYdk, deckOrder, deckProblems, deckToYdk, handOrder, loadAiDecks, loadCards, readJson,
+  readLibraryAsync, saveLibraryAsync, setupTextSize, writeCardInfo,
 } from "./decks.js";
 import { loadSounds, playBgm, voice } from "./sound.js";
+import { mediaUrl } from "./local-assets.js";
+import { bindFhdStage } from "./stage-scale.js?v=2";
+import { clearLocalDevCaches } from "./dev-cache.js?v=1";
+import { setupSideSettings } from "./side-settings.js";
+
+await clearLocalDevCaches();
+bindFhdStage();
+
+function setPic(el, rel) {
+  if (!el) return;
+  mediaUrl(rel).then((url) => { el.src = url; }).catch(() => { el.src = rel; });
+}
 
 let rules = { maxCopies: 3, mainSize: 60 };
 let cards = new Map();          // id -> card (data/cards.json)
@@ -22,15 +35,16 @@ function clean(saved) {
   return cleanDeck(cards, saved);
 }
 
-function loadStored() {
-  const saved = readJson(STORE);
-  if (saved && saved.decks && Object.keys(saved.decks).length) {
-    library = { current: saved.current, decks: {} };
-    for (const [name, d] of Object.entries(saved.decks)) library.decks[name] = clean(d);
-    dropSeeded(saved.seeded || []);
-  } else {
-    library = { current: FIRST_DECK, decks: { [FIRST_DECK]: clean(readJson(OLD_STORE)) } };
-  }
+async function loadStored() {
+  const saved = await readLibraryAsync(cards);
+  library = { current: saved.current || FIRST_DECK, decks: {} };
+  for (const [name, d] of Object.entries(saved.decks || {})) library.decks[name] = clean(d);
+  // Browser-only: drop AI recipes that an older version seeded into localStorage.
+  try {
+    const raw = readJson(STORE);
+    if (raw?.seeded?.length) dropSeeded(raw.seeded);
+  } catch { /* ignore */ }
+  if (!Object.keys(library.decks).length) library.decks[FIRST_DECK] = { summoner: null, main: [] };
   if (!library.decks[library.current]) library.current = Object.keys(library.decks)[0];
   deck = copyOf(library.decks[library.current]);
 }
@@ -44,7 +58,7 @@ function dropSeeded(seeded) {
     if (recipe && same(library.decks[name], recipe)) delete library.decks[name];
   }
   if (!Object.keys(library.decks).length) library.decks[FIRST_DECK] = { summoner: null, main: [] };
-  persist();
+  void persist();
 }
 
 function sortMainInPlace(main) {
@@ -60,8 +74,8 @@ function same(a, b) {
   return !!a && !!b && a.summoner === b.summoner && a.main.join() === b.main.join();
 }
 
-function persist() {
-  localStorage.setItem(STORE, JSON.stringify(library));
+async function persist() {
+  await saveLibraryAsync(library);
 }
 
 /** the name the deck shows under: the AI recipe's or the player's deck's */
@@ -88,9 +102,10 @@ function saveDeck() {
   }
   library.decks[name] = copyOf(deck);
   dirty = false;
-  persist();
-  render();
-  toast(name === old ? t("deck.saved", { name }) : t("deck.renamed", { old, name }));
+  void persist().then(() => {
+    render();
+    toast(name === old ? t("deck.saved", { name }) : t("deck.renamed", { old, name }));
+  });
 }
 
 /** true when there is nothing unsaved, or the player agrees to drop it */
@@ -103,8 +118,7 @@ function open(name) {
   viewing = null;
   deck = copyOf(library.decks[name]);
   dirty = false;
-  persist();
-  render();
+  void persist().then(render);
 }
 
 function openAi(name) {
@@ -146,9 +160,10 @@ function saveAs() {
   library.current = name;
   viewing = null;
   dirty = false;
-  persist();
-  render();
-  toast(t("deck.savedAs", { name }));
+  void persist().then(() => {
+    render();
+    toast(t("deck.savedAs", { name }));
+  });
 }
 
 function deleteDeck() {
@@ -184,28 +199,11 @@ function remove(card) {
 
 // ---- .ydk files (EDOPro's deck format) --------------------------------
 function toYdk() {
-  const lines = ["#created by Kirafan Web", "#main", ...deck.main, "#extra"];
-  if (deck.summoner) lines.push(deck.summoner);
-  lines.push("!side", "");
-  return lines.join("\n");
+  return deckToYdk(deck);
 }
 
 function fromYdk(text) {
-  const main = [];
-  let summoner = null;
-  let section = null;
-  for (const raw of text.split(/\r?\n/)) {
-    const line = raw.trim();
-    if (line === "#main" || line === "#extra" || line === "!side") {
-      section = line;
-    } else if (/^\d+$/.test(line)) {
-      const card = cards.get(Number(line));
-      if (!card) continue;
-      if (card.kind === "summoner" && !summoner) summoner = card.id;
-      else if (card.kind === "creamate" && section === "#main") main.push(card.id);
-    }
-  }
-  return { summoner, main };
+  return deckFromYdk(text, cards);
 }
 
 function download(name, text) {
@@ -227,7 +225,7 @@ const SORTS = {
 function thumb(card, onClick) {
   const img = document.createElement("img");
   img.className = "card";
-  img.src = `pics/small/${card.id}.jpg`;
+  setPic(img, `pics/small/${card.id}.jpg`);
   img.alt = card.name;
   img.title = card.name;
   img.addEventListener("mouseenter", () => show(card));
@@ -240,7 +238,7 @@ function thumb(card, onClick) {
 }
 
 function show(card) {
-  document.getElementById("preview").src = `pics/${card.id}.jpg`;
+  setPic(document.getElementById("preview"), `pics/${card.id}.jpg`);
   writeCardInfo(document.getElementById("card-info"), card);
 }
 
@@ -376,7 +374,7 @@ function renderList() {
   list.replaceChildren(...all.map((card) => {
     const li = document.createElement("li");
     const img = document.createElement("img");
-    img.src = `pics/small/${card.id}.jpg`;
+    setPic(img, `pics/small/${card.id}.jpg`);
     img.alt = "";
     img.loading = "lazy";
     const text = document.createElement("span");
@@ -413,7 +411,7 @@ function renderList() {
 async function start() {
   ({ rules, cards } = await loadCards());
   ({ bots: aiBots, decks: aiDecks } = await loadAiDecks(cards));
-  loadStored();
+  await loadStored();
 
   document.getElementById("exit").addEventListener("click", () => {
     if (!leaveOk()) return;
@@ -453,6 +451,7 @@ async function start() {
   document.getElementById("delete-deck").addEventListener("click", deleteDeck);
   document.getElementById("sort").addEventListener("change", renderList);
   setupTextSize();
+  setupSideSettings();
 
   renderFilters();
   render();

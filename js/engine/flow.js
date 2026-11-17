@@ -119,9 +119,20 @@ Object.assign(Duel.prototype, {
   async chooseCards(p, cards, min, max, { cancelable = false, hint = this.hints[p] } = {}) {
     if (!cards.length) return [];
     max = Math.min(max, cards.length);
+    // 개막 성전 4장: same SelectMatchingCard as draw 0~1, but must pick exactly 4 — never cancel
+    if ((min === 4 && max === 4) || hint === 10050112 * 0x100000 + 4) cancelable = false;
     if (min >= cards.length && !cancelable) return [...cards];
-    const picked = await this.ask(p, { type: "cards", cards, min, max, cancelable, hint });
-    return picked ? picked.map((i) => cards[i]) : null;
+    // Non-cancelable picks: refuse cancel / under-min and ask again
+    for (;;) {
+      const picked = await this.ask(p, { type: "cards", cards, min, max, cancelable, hint });
+      if (picked === null) {
+        if (cancelable) return null;
+        continue;
+      }
+      if (picked.length >= min && picked.length <= max) return picked.map((i) => cards[i]);
+      if (!cancelable && min > 0) continue;
+      return picked.map((i) => cards[i]);
+    }
   },
 
   async chooseYesNo(p, desc) {
@@ -476,6 +487,8 @@ Object.assign(Duel.prototype, {
     const e = t.effect;
     if (t.continuous) {   // (a phase's continuous effect: it runs, no chain)
       this.consumeCount(e);
+      // UI sound (activate/): battle-start buffs etc. Static 패시브 never reach here.
+      this.emit("activate", { card: e.handler, player: t.player, desc: e.description, continuous: true });
       if (e.operation) await this.runLua(e.operation, [e, t.player, ...eventArgs(t.event)], e, t.player);
       await this.settle();
       return;

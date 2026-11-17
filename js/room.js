@@ -1,14 +1,21 @@
 import { toast } from "./ui.js";
 import { loadSounds, playBgm } from "./sound.js";
-import { aiRecipeLabel, classCounts, deckProblems, loadAiDecks, loadCards, readLibrary } from "./decks.js";
+import { aiRecipeLabel, classCounts, deckProblems, loadAiDecks, loadCards, readLibraryAsync } from "./decks.js";
 import { deleteRoom, fetchRooms, upsertRoom } from "./lobby-rooms.js";
 import { saveMatch } from "./match-store.js";
 import { applyI18n, t } from "./ui-i18n.js?v=i18n21";
+import { mediaUrl } from "./local-assets.js";
+
+function setPic(el, rel) {
+  if (!el) return;
+  mediaUrl(rel).then((url) => { el.src = url; }).catch(() => { el.src = rel; });
+}
 
 const NICK_STORE = "kirafan.server.nick";
 const ROOM_ID_STORE = "kirafan.room.id";
 const ROOM_NAME_STORE = "kirafan.room.name";
-const NICK_MAX = 10;
+const ROOM_GATE_STORE = "kirafan.room.gate";
+const NICK_MAX = 20;
 const ROOM_NAME_MAX = 20;
 const STATUS_WAITING = "대기중";
 const STATUS_PLAYING = "게임중";
@@ -281,6 +288,15 @@ async function loadRoomSettingsFromLobby() {
     seats[2] = null;
     return;
   }
+  const remoteHost = String(current.host || "").trim();
+  const gateOk = sessionStorage.getItem(ROOM_GATE_STORE) === `${roomId}:${me}`;
+  // Host nick without a valid lobby gate → duplicate host; kick back to the list.
+  if (remoteHost && me === remoteHost && !gateOk) {
+    toast(t("server.toast.nickSameAsHost"));
+    sessionStorage.removeItem(ROOM_ID_STORE);
+    location.href = "server.html";
+    return;
+  }
   applyRemoteRoom(current, { join: true });
   // 다시 들어오면 강퇴 목록에서 제외
   kickedPlayers.delete(me);
@@ -334,7 +350,7 @@ function recipesOf(level) {
 function thumb(card) {
   const img = document.createElement("img");
   img.className = "card";
-  img.src = `pics/small/${card.id}.jpg`;
+  setPic(img, `pics/small/${card.id}.jpg`);
   img.alt = card.name;
   img.title = card.name;
   return img;
@@ -1022,7 +1038,7 @@ async function fillDecks() {
   const mineSelect = document.getElementById("deck-select");
   const aiSelect = document.getElementById("ai-deck-select");
   ({ cards, rules } = await loadCards());
-  library = readLibrary(cards);
+  library = await readLibraryAsync(cards);
   ai = await loadAiDecks(cards);
 
   const mineNames = Object.keys(library.decks).sort((a, b) => a.localeCompare(b, "ko"));
@@ -1063,6 +1079,8 @@ document.getElementById("leave").addEventListener("click", () => {
     location.href = "server.html";
   };
   if (isHost()) {
+    sessionStorage.removeItem(ROOM_ID_STORE);
+    sessionStorage.removeItem(ROOM_GATE_STORE);
     removeLobbyRoom().finally(goLobby);
   } else {
     for (const n of [1, 2]) {
@@ -1073,6 +1091,7 @@ document.getElementById("leave").addEventListener("click", () => {
     setPlayerReady(me, false);
     spectating = false;
     sessionStorage.removeItem(ROOM_ID_STORE);
+    sessionStorage.removeItem(ROOM_GATE_STORE);
     Promise.resolve(syncLobbyRoom()).finally(goLobby);
   }
 });

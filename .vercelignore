@@ -1,0 +1,10 @@
+sound/
+data/ai/test/
+tools/
+server/
+**/__pycache__/
+**/*.pyc
+**/.git/
+local_api.sqlite
+data/local_api.sqlite
+*.sqlite

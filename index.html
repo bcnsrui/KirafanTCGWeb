@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="/favicon.png?v=3">
   <link rel="apple-touch-icon" href="/favicon.png?v=3">
   <title data-i18n="app.title">키라라 판타지아 카드게임</title>
-  <link rel="stylesheet" href="css/style.css?v=w14">
+  <link rel="stylesheet" href="css/style.css?v=w15">
   <script>
     /* 웹: 메인 복귀 시 무결성 화면 깜빡임 방지. exe는 실행마다 검사하므로 숨기지 않음 */
     (function () {
@@ -98,33 +98,35 @@
   </header>
 
   <main id="main-menu" class="home-menu booting">
-    <nav class="home-cards" data-i18n-aria="nav.main" aria-label="메인 메뉴">
-      <button class="home-card" data-action="server" type="button">
-        <img class="home-card-img" src="assets/home/menu-card-frame.png?v=2" alt="">
-        <img class="home-card-icon" src="assets/home/menu-icon-server.png" alt="">
-        <span class="home-card-label" data-i18n="nav.server">서버 대전</span>
-      </button>
-      <button class="home-card" data-action="ai" type="button">
-        <img class="home-card-img" src="assets/home/menu-card-frame.png?v=2" alt="">
-        <img class="home-card-icon" src="assets/home/menu-icon-ai.png" alt="">
-        <span class="home-card-label" data-i18n="nav.ai">AI 대전</span>
-      </button>
-      <button class="home-card" data-action="story" type="button">
-        <img class="home-card-img" src="assets/home/menu-card-frame.png?v=2" alt="">
-        <img class="home-card-icon" src="assets/home/menu-icon-story.png" alt="">
-        <span class="home-card-label" data-i18n="nav.puzzle">튜토리얼 + 퍼즐</span>
-      </button>
-      <button class="home-card" data-action="replay" type="button">
-        <img class="home-card-img" src="assets/home/menu-card-frame.png?v=2" alt="">
-        <img class="home-card-icon" src="assets/home/menu-icon-replay.png" alt="">
-        <span class="home-card-label" data-i18n="nav.replay">리플레이 열람</span>
-      </button>
-      <button class="home-card" data-action="deck" type="button">
-        <img class="home-card-img" src="assets/home/menu-card-frame.png?v=2" alt="">
-        <img class="home-card-icon" src="assets/home/menu-icon-deck.png" alt="">
-        <span class="home-card-label" data-i18n="nav.deck">덱 편집</span>
-      </button>
-    </nav>
+    <div class="home-cards-shell">
+      <nav class="home-cards" data-i18n-aria="nav.main" aria-label="메인 메뉴">
+        <button class="home-card" data-action="server" type="button">
+          <img class="home-card-img" src="assets/home/menu-card-frame.png?v=2" alt="">
+          <img class="home-card-icon" src="assets/home/menu-icon-server.png" alt="">
+          <span class="home-card-label" data-i18n="nav.server">서버 대전</span>
+        </button>
+        <button class="home-card" data-action="ai" type="button">
+          <img class="home-card-img" src="assets/home/menu-card-frame.png?v=2" alt="">
+          <img class="home-card-icon" src="assets/home/menu-icon-ai.png" alt="">
+          <span class="home-card-label" data-i18n="nav.ai">AI 대전</span>
+        </button>
+        <button class="home-card" data-action="story" type="button">
+          <img class="home-card-img" src="assets/home/menu-card-frame.png?v=2" alt="">
+          <img class="home-card-icon" src="assets/home/menu-icon-story.png" alt="">
+          <span class="home-card-label" data-i18n="nav.puzzle">튜토리얼 + 퍼즐</span>
+        </button>
+        <button class="home-card" data-action="replay" type="button">
+          <img class="home-card-img" src="assets/home/menu-card-frame.png?v=2" alt="">
+          <img class="home-card-icon" src="assets/home/menu-icon-replay.png" alt="">
+          <span class="home-card-label" data-i18n="nav.replay">리플레이 열람</span>
+        </button>
+        <button class="home-card" data-action="deck" type="button">
+          <img class="home-card-img" src="assets/home/menu-card-frame.png?v=2" alt="">
+          <img class="home-card-icon" src="assets/home/menu-icon-deck.png" alt="">
+          <span class="home-card-label" data-i18n="nav.deck">덱 편집</span>
+        </button>
+      </nav>
+    </div>
   </main>
 
   <div id="settings-backdrop" class="settings-backdrop" hidden></div>
@@ -162,6 +164,6 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <script type="module" src="js/main.js?v=i18n39"></script>
+  <script type="module" src="js/main.js?v=i18n40"></script>
 </body>
 </html>

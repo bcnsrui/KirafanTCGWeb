@@ -220,14 +220,22 @@ export class Duel {
   /** moves `card` (the engine's one move: every Duel.Send / Remove / Overlay / summon goes through here) */
   move(card, to, { player = card.owner, seq = null, pos = null, reason = 0, rp = 0, re = null, holder = null } = {}) {
     const C = this.C;
-    const from = { controller: card.controller, location: card.holder ? C.LOCATION_OVERLAY : card.location,
+    const host = card.holder;
+    const from = { controller: card.controller, location: host ? C.LOCATION_OVERLAY : card.location,
       sequence: card.sequence, position: card.position };
-    const leavesField = !card.holder && (card.location & C.LOCATION_ONFIELD);
+    const leavesField = !host && (card.location & C.LOCATION_ONFIELD);
+    // Battle creamate HP → village: emit before detach so UI can tell lethal vs chip damage
+    const hpHit = !!(host && to === C.LOCATION_REMOVED && host.location === C.LOCATION_MZONE
+      && !host.isType(C.TYPE_EXTRA));
     // (a pendulum monster leaving the field for the graveyard goes face-up to its extra deck: 쓰러진 크리에메이트 → 성전)
     if (leavesField && to === C.LOCATION_GRAVE && card.isType(C.TYPE_PENDULUM)) to = C.LOCATION_EXTRA;
     // (a token leaving the field is gone from the duel: 오리베 야스나's 비운의 인물?)
     if (leavesField && card.token && !holder && !(to & C.LOCATION_ONFIELD)) to = 0;
     this.removeFromPlace(card);
+    if (hpHit) {
+      const left = host.overlay.length;
+      this.emit("hpDamage", { card: host, left, lethal: left === 0 });
+    }
     if (leavesField && card.overlay.length && !holder && to !== C.LOCATION_EXTRA) {
       // (the cards under a card leaving the field go to the graveyard; to the extra deck they stay under it,
       // Kirafan2.hpleftop sends them to the village)
