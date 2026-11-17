@@ -42,6 +42,7 @@ ADMIN_EMAILS = {
 TOKEN_TTL = 60 * 60 * 24 * 30  # 30 days
 MAX_ROOMS = 30
 VISIT_WINDOW = 60 * 60 * 24  # 24h unique IP
+PRESENCE_TTL = 45  # seconds — no heartbeat → drop from concurrent
 MAX_REPLAY_BYTES = 2 * 1024 * 1024
 ADMIN_DIR = os.path.join(DATA_DIR, "admin")
 ADMIN_REPLAYS_DIR = os.path.join(ADMIN_DIR, "replays")
@@ -97,6 +98,12 @@ def init_db():
               last_seen REAL NOT NULL
             );
             CREATE INDEX IF NOT EXISTS idx_visits_last ON visits(last_seen);
+            CREATE TABLE IF NOT EXISTS presence (
+              session_id TEXT PRIMARY KEY,
+              ip_hash TEXT NOT NULL,
+              last_seen REAL NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_presence_last ON presence(last_seen);
             """
         )
         cols = {r[1] for r in conn.execute("PRAGMA table_info(users)")}
@@ -175,6 +182,53 @@ def record_visit(ip: str) -> dict:
     return {"ok": True, "recorded": True}
 
 
+def presence_ping(session_id: str, ip: str) -> dict:
+    sid = "".join(ch for ch in str(session_id or "") if ch.isalnum() or ch in "-_")[:64]
+    if not sid:
+        return {"ok": False, "error": "sessionId required"}
+    now = time.time()
+    key = ip_hash(ip) if ip else ""
+    with db() as conn:
+        conn.execute(
+            """
+            INSERT INTO presence(session_id, ip_hash, last_seen) VALUES(?,?,?)
+            ON CONFLICT(session_id) DO UPDATE SET
+              ip_hash=excluded.ip_hash,
+              last_seen=excluded.last_seen
+            """,
+            (sid, key, now),
+        )
+        # Drop stale rows so the table stays small
+        conn.execute("DELETE FROM presence WHERE last_seen < ?", (now - PRESENCE_TTL * 4,))
+    return {"ok": True}
+
+
+def presence_leave(session_id: str) -> dict:
+    sid = "".join(ch for ch in str(session_id or "") if ch.isalnum() or ch in "-_")[:64]
+    if not sid:
+        return {"ok": False}
+    with db() as conn:
+        conn.execute("DELETE FROM presence WHERE session_id=?", (sid,))
+    return {"ok": True}
+
+
+def concurrent_users() -> int:
+    """Unique IPs with a live heartbeat (multi-tab same IP counts as 1)."""
+    now = time.time()
+    with db() as conn:
+        row = conn.execute(
+            """
+            SELECT COUNT(DISTINCT ip_hash) AS c
+            FROM presence
+            WHERE last_seen >= ? AND ip_hash != ''
+            """,
+            (now - PRESENCE_TTL,),
+        ).fetchone()
+        # opportunistic cleanup
+        conn.execute("DELETE FROM presence WHERE last_seen < ?", (now - PRESENCE_TTL * 4,))
+    return int(row["c"])
+
+
 def visit_stats() -> dict:
     now = time.time()
     with db() as conn:
@@ -191,6 +245,8 @@ def visit_stats() -> dict:
         "uniqueTotal": int(total),
         "unique24h": int(last_24h),
         "unique7d": int(last_7d),
+        "concurrent": concurrent_users(),
+        "presenceTtlSec": PRESENCE_TTL,
         "windowHours": 24,
     }
 
@@ -674,6 +730,26 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/visit":
             try:
                 return self._json(200, record_visit(client_ip(self)))
+            except Exception as e:
+                return self._text(400, str(e))
+
+        if path == "/presence/ping":
+            try:
+                body = self._body()
+                return self._json(200, presence_ping(body.get("sessionId") or "", client_ip(self)))
+            except Exception as e:
+                return self._text(400, str(e))
+
+        if path == "/presence/leave":
+            try:
+                # sendBeacon may send text/plain — accept empty/JSON
+                n = int(self.headers.get("Content-Length") or 0)
+                raw = self.rfile.read(n) if n else b"{}"
+                try:
+                    body = json.loads(raw.decode() or "{}")
+                except Exception:
+                    body = {}
+                return self._json(200, presence_leave(body.get("sessionId") or ""))
             except Exception as e:
                 return self._text(400, str(e))
 

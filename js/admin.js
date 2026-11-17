@@ -34,6 +34,7 @@ async function loadStats() {
   }
   if (!res.ok) throw new Error(await res.text() || `stats ${res.status}`);
   const data = await res.json();
+  document.getElementById("stat-concurrent").textContent = String(data.concurrent ?? 0);
   document.getElementById("stat-24h").textContent = String(data.unique24h ?? 0);
   document.getElementById("stat-7d").textContent = String(data.unique7d ?? 0);
   document.getElementById("stat-total").textContent = String(data.uniqueTotal ?? 0);

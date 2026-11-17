@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="icon" href="/favicon.ico?v=3" sizes="any">
+  <link rel="icon" type="image/png" href="/favicon.png?v=3">
+  <link rel="apple-touch-icon" href="/favicon.png?v=3">
   <title data-i18n="server.title">서버 대전 - 키라라 판타지아 카드게임</title>
   <link rel="stylesheet" href="css/style.css?v=w7">
   <link rel="stylesheet" href="css/deck.css?v=23">
@@ -22,7 +25,7 @@
         <div class="server-field">
           <span data-i18n="common.nickname">닉네임</span>
           <div class="server-nick-row">
-            <input class="field wide" id="nickname" type="text" value="키라판플레이어" maxlength="10" autocomplete="off">
+            <input class="field wide" id="nickname" type="text" value="키라판플레이어" maxlength="20" autocomplete="off">
             <button class="menu-button small" type="button" id="save-nick" data-i18n="common.save">저장</button>
           </div>
         </div>
@@ -67,5 +70,6 @@
   <div id="toast" role="status" aria-live="polite"></div>
 
   <script type="module" src="js/server.js?v=i18n4"></script>
+  <script type="module" src="js/presence.js?v=1"></script>
 </body>
 </html>

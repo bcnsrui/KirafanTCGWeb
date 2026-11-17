@@ -110,6 +110,7 @@ python KirafanWeb\tools\build_manifest.py
 - URL: `https://(도메인)/admin.html` (메뉴에는 링크 없음)
 - Google 로그인 후 `ADMIN_EMAILS`에 있는 계정만 접속 집계·보관 리플레이 조회
 - 메인 화면 진입 시 `POST /visit` — 같은 IP는 24시간 내 1회로 집계
+- 실시간 동접: `POST /presence/ping` (20초 하트비트) · 탭 닫힘 시 `POST /presence/leave` (`sendBeacon`)
 - AI·서버 대전 리플레이는 `{DATA_DIR}/admin/replays/`에도 보관 (정적 URL로는 접근 불가)
 
 ### 3. 도메인

@@ -4,7 +4,7 @@
 
 import {
   checkAndApplyUpdates, ensureServiceWorker, installDataFetchHook, manifestRevisionToken, metaGet,
-} from "./update.js?v=i18n36";
+} from "./update.js?v=i18n37";
 import { isTauri } from "./runtime.js";
 import {
   defaultDataPath,
@@ -342,6 +342,10 @@ export async function runBootSequence() {
     stopDots();
     return result;
   } catch (err) {
+    // Keep overlay visible so a failed first download is not a blank home screen.
+    document.documentElement.classList.remove("boot-skip");
+    overlay?.classList.remove("hidden");
+    if (overlay) overlay.hidden = false;
     $("boot-status").textContent = err.message || String(err);
     $("boot-detail").textContent = t("boot.retryHint");
     stopDots();

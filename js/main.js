@@ -1,11 +1,12 @@
 import { API_BASE, EXE_DOWNLOAD_URL, VERSION } from "./config.js";
 import { toast } from "./ui.js";
-import { runBootSequence } from "./boot.js?v=i18n36";
+import { runBootSequence } from "./boot.js?v=i18n37";
 import { isTauri } from "./runtime.js";
 import { loadSounds, playBgm, setVolume, volume } from "./sound.js";
 import "./local-assets.js";
 import { LANG_STORE, getLang, setLang } from "./lang.js";
 import { applyI18n, t } from "./ui-i18n.js?v=i18n34";
+import "./presence.js";
 
 const VISIT_KEY = "kirafan.visit.pinged";
 
