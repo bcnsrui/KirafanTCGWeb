@@ -1,12 +1,12 @@
 import { toast } from "./ui.js";
 import {
-  ATTRIBUTE_ICONS, aiRecipeLabel, loadAiDecks, loadCards, setupTextSize, sortCodesLikeHand, writeCardInfo,
+  ATTRIBUTE_ICONS, aiRecipeLabel, loadAiDecks, loadCards, setupTextSize, writeCardInfo,
 } from "./decks.js";
-import { newDuel, describe } from "./engine/index.js";
-import { K, NOOP_DESCS } from "./engine/flow.js";
-import { puzzlePlayer, simplePlayer, SANCTUARY_HINT, SANCTUARY_ONE_HINT } from "./engine/players.js";
+import { newDuel, describe } from "./engine/index.js?v=hp2";
+import { K, NOOP_DESCS } from "./engine/flow.js?v=hp2";
+import { puzzlePlayer, simplePlayer, SANCTUARY_HINT, SANCTUARY_ONE_HINT } from "./engine/players.js?v=hp2";
 import { modelPlayer } from "./ai/agent.js";
-import { loadSounds, playBgm, setVolume, voice, volume } from "./sound.js";
+import { loadSounds, playBgm, playCue, setVolume, voice, volume } from "./sound.js?v=8";
 import { FORMAT, deleteReplay, diff, getReplay, saveReplay, unpack } from "./replays.js";
 import { makeMatchRecord, submitMatchRecord } from "./records.js";
 import { API_BASE } from "./config.js";
@@ -16,8 +16,35 @@ import {
 } from "./pvp.js";
 import { deleteRoom, fetchRooms } from "./lobby-rooms.js";
 import { currentNick, loadMatchData, saveMatch } from "./match-store.js";
-import { getLang, puzzlesDataUrl } from "./lang.js";
-import { applyI18n, t } from "./ui-i18n.js?v=i18n32";
+import { getLang, puzzlesDataUrl, setLang } from "./lang.js";
+import { applyI18n, t } from "./ui-i18n.js?v=i18n41";
+import { loadJson, mediaUrl } from "./local-assets.js";
+import { bindBoardFit, fitFieldContent } from "./stage-scale.js?v=11";
+import { clearLocalDevCaches } from "./dev-cache.js?v=2";
+
+await clearLocalDevCaches();
+bindBoardFit();
+
+/** Uniform board scale (1 at current design size). */
+function boardScale() {
+  const v = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--board-scale"));
+  return Number.isFinite(v) && v > 0 ? v : 1;
+}
+
+/** Center of `el` in `#board` local CSS px (undo shell scale). */
+function boardLocalCenter(boardRect, el) {
+  const r = el.getBoundingClientRect();
+  const s = boardScale();
+  return {
+    x: (r.left + r.width / 2 - boardRect.left) / s,
+    y: (r.top + r.height / 2 - boardRect.top) / s,
+  };
+}
+
+function setPic(el, rel) {
+  if (!el) return;
+  mediaUrl(rel).then((url) => { el.src = url; }).catch(() => { el.src = rel; });
+}
 
 const PHASES_KO = ["드로우", "스탠바이", "메인", "배틀", "엔드"];
 const PHASES_EN = ["Draw", "Standby", "Main", "Battle", "End"];
@@ -115,6 +142,8 @@ let me = 0;                // the player the page plays (0 moves first)
 let names = ["", ""];
 let menu = null;           // the main / battle phase menu waiting for a click: { decision, resolve }
 let picking = null;        // cards picked where they are: { decision, picked: [indices], mark, ... } (askOnBoard)
+/** Modal chooseCards session: { picked, confirm } — right-click confirms when something is picked */
+let chooseSession = null;
 const revealed = [false, false];   // the summoners shown before the duel (summonersEnter)
 const LAST_ALCHEMISTS = 3;
 const lastAlchemist = [[], []];    // per player the codes of the alchemists whose 돗테오키 존 effect came last (newest first)
@@ -134,7 +163,7 @@ let pendingSanctuaryLogs = [];   // conceal 중 flushSanctuary 보류분
 
 // ---- drawing ------------------------------------------------------------
 function show(card) {
-  document.getElementById("preview").src = `pics/${card.id}.jpg`;
+  setPic(document.getElementById("preview"), `pics/${card.id}.jpg`);
   writeCardInfo(document.getElementById("card-info"), card);
 }
 
@@ -150,7 +179,7 @@ function face(id, live = null) {
   const card = cards.get(id);
   const box = el("div", "card-face");
   const img = el("img");
-  img.src = `pics/small/${id}.jpg`;
+  setPic(img, `pics/small/${id}.jpg`);
   img.alt = card ? card.name : "";
   box.title = card ? card.name : "";
   box.append(img);
@@ -167,10 +196,15 @@ function leveled(id, live = null) {
   return box;
 }
 
-function back(side) {
+/** face-down card back; uses summoner art when known (hand / deck) */
+function back(side, summonerId = 0) {
   const box = el("div", "card-face");
   const img = el("img");
-  img.src = side === "op" ? "assets/cover2.jpg" : "assets/cover.jpg";
+  if (summonerId) {
+    setPic(img, `pics/small/${summonerId}.jpg`);
+  } else {
+    img.src = side === "op" ? "assets/cover2.jpg" : "assets/cover.jpg";
+  }
   img.alt = "";
   box.append(img);
   return box;
@@ -192,22 +226,132 @@ function stat(className, label, value, src) {
   return s;
 }
 
+/**
+ * Face-up pile lane (성전 / 돗테오키): side-by-side until full, then compress L→R.
+ * @param {number} [max] optional cap (돗테오키: 9)
+ */
+function faceUpLane(ids, className, title, max = 0) {
+  const lane = el("div", className);
+  lane.title = title;
+  const list = max > 0 ? ids.slice(0, max) : ids;
+  if (!list.length) {
+    lane.classList.add("empty");
+    return lane;
+  }
+  lane.style.setProperty("--sanct-span", String(Math.max(1, list.length - 1)));
+  for (let i = 0; i < list.length; i++) {
+    const c = face(list[i]);
+    c.style.zIndex = String(i + 1);
+    c.style.setProperty("--sanct-i", String(i));
+    lane.append(c);
+  }
+  return lane;
+}
+
+/** Village: fill left→right (~10 per row), then next row; surface shows at most 30. */
+const VILLAGE_ROW = 10;
+const VILLAGE_VISIBLE = 30;
+
+function villageLane(ids, title) {
+  const lane = el("div", "village-lane");
+  lane.title = title;
+  const list = ids.slice(0, VILLAGE_VISIBLE);
+  if (!list.length) {
+    lane.classList.add("empty");
+    return lane;
+  }
+  // Always lay out against a fixed 3-row grid so row 2 sits in the middle slot.
+  const gridRows = 3;
+  const cols = Math.min(VILLAGE_ROW, list.length);
+  lane.style.setProperty("--v-rows", String(gridRows));
+  lane.style.setProperty("--v-cols", String(cols));
+  lane.style.setProperty("--v-col-span", String(Math.max(1, cols - 1)));
+  lane.style.setProperty("--v-row-span", String(gridRows - 1));
+  for (let i = 0; i < list.length; i++) {
+    const col = i % VILLAGE_ROW;
+    const row = Math.floor(i / VILLAGE_ROW);
+    const c = face(list[i]);
+    c.style.zIndex = String(i + 1);
+    c.style.setProperty("--v-col", String(col));
+    c.style.setProperty("--v-row", String(row));
+    lane.append(c);
+  }
+  return lane;
+}
+
+function sanctuaryLane(ids, kind, title) {
+  return faceUpLane(ids, `sanctuary-lane ${kind}`, title);
+}
+
 /** other: the other player's side (its 성전 레벨, against this one's in 진실의 손의 시간) */
-function summonerBox(p, other) {
+function summonerBox(p, other, side = "me") {
   const box = el("div", "summoner-box");
-  box.append(el("div", "name", localizeSideName(p.name)));
-  if (p.truth) box.append(el("div", "truth", t("game.truthHand")));
+
+  const sanctuary = el("div", "sanctuary-zone");
+  if (concealOpeningSanctuary) sanctuary.classList.add("concealed");
+  const levelMark = el("div", "sanctuary-level-mark");
+  const sanctCount = p.placed.length + p.fallen.length;
+  levelMark.textContent = concealOpeningSanctuary
+    ? `${t("game.sanctuary")} ?`
+    : `${t("game.sanctuary")} ${sanctCount}`;
+  levelMark.title = concealOpeningSanctuary
+    ? t("game.concealSanctuary")
+    : t("game.pileTotal", { title: t("game.sanctuary"), n: sanctCount });
+  levelMark.classList.toggle("alert", !!p.truth && p.sanctuaryLevel >= other.sanctuaryLevel);
+  sanctuary.append(
+    sanctuaryLane(
+      concealOpeningSanctuary ? [] : p.placed,
+      "placed",
+      t("game.placedFromHand", { n: p.placed.length }),
+    ),
+    sanctuaryLane(
+      concealOpeningSanctuary ? [] : p.fallen,
+      "fallen",
+      t("game.fallenTitle", { n: p.fallen.length, lv: p.sanctuaryLevel }),
+    ),
+    levelMark, // overlays the seam between the two lanes
+  );
+  const owner = side === "op" ? t("game.opp") : t("game.me");
+  const headed = t("game.pileOf", { who: owner, pile: t("game.sanctuary") });
+  const sections = concealOpeningSanctuary ? null : [
+    { title: t("game.placedFromHand", { n: p.placed.length }), ids: p.placed },
+    { title: t("game.fallenTitle", { n: p.fallen.length, lv: p.sanctuaryLevel }), ids: p.fallen },
+  ];
+  if (sections) {
+    sanctuary.classList.add("clickable");
+    sanctuary.title = t("game.viewPile", { who: owner, pile: t("game.sanctuary") });
+    const key = `${side}:성전`;
+    sanctuary.addEventListener("click", () => togglePile(key, headed, sections));
+    if (openedPile === key) pileSections = () => fillPile(headed, sections);
+  } else {
+    sanctuary.title = t("game.concealSanctuary");
+  }
+  box.append(sanctuary);
+
+  // Under sanctuary: name spans full width, then (summoner | stats)
+  const foot = el("div", "summoner-foot");
+  const name = el("div", "name", localizeSideName(p.name));
+  name.title = localizeSideName(p.name);
+  const summonerCol = el("div", "summoner-col");
   const summoner = p.summoner ? face(p.summoner, p.summonerCard) : el("div", "slot support");
+  summoner.classList.add("summoner-face");
   if (p.entering) summoner.classList.add("entering");
-  box.append(summoner);
+  summonerCol.append(summoner);
+
   const stats = el("div", "stats");
+  const levelRow = el("div", "stat-row");
   const level = stat("sanctuary", t("game.sanctuaryLevel"), p.sanctuaryLevel, "assets/icons/sanctuary.png");
   // (in 진실의 손의 시간 a 성전 레벨 as high as the other's loses as this player's turn ends)
   level.classList.toggle("alert", !!p.truth && p.sanctuaryLevel >= other.sanctuaryLevel);
+  const deckStat = stat("deck", t("game.deckPile"), p.deck, "assets/icons/deck-book.png");
+  deckStat.title = t("game.pileTotal", { title: t("game.deckPile"), n: p.deck });
+  levelRow.append(level, deckStat);
   const stones = stat("stones", t("game.stoneLimit"), `${p.fieldLevel} / ${p.limit}`, "assets/icons/stones.png");
   stones.classList.toggle("alert", p.limit > 0 && p.fieldLevel >= p.limit);
-  stats.append(level, stones);
-  box.append(stats);
+  stats.append(levelRow, stones);
+  if (p.truth) stats.append(el("div", "truth", t("game.truthHand")));
+  foot.append(name, summonerCol, stats);
+  box.append(foot);
   return box;
 }
 
@@ -342,43 +486,51 @@ function pile(label, value, sections, side) {
 
 function piles(p, side) {
   const box = el("div", "piles");
-  const sanctuaryCount = p.placed.length + p.fallen.length;
-  const sanctuary = concealOpeningSanctuary ? null : [
-    { title: t("game.placedFromHand", { n: p.placed.length }), ids: p.placed },
-    { title: t("game.fallenTitle", { n: p.fallen.length, lv: p.sanctuaryLevel }), ids: p.fallen },
-  ];
-  const sanctuaryPile = pile(t("game.sanctuary"), concealOpeningSanctuary ? "?" : sanctuaryCount, sanctuary, side);
-  if (concealOpeningSanctuary) {
-    sanctuaryPile.title = t("game.concealSanctuary");
-    sanctuaryPile.classList.add("concealed");
-  }
-  box.append(sanctuaryPile, pile(t("game.village"), p.village.length, [{ ids: p.village }], side),
-    pile(t("game.deckPile"), p.deck), pile(t("game.handPile"), p.hand.length));
-  const gauge = el("button", "gauge");
   const owner = side === "op" ? t("game.opp") : t("game.me");
+
+  const gauge = el("button", "gauge");
   gauge.title = t("game.viewDotte", { who: owner });
   const title = icon("assets/icons/dotte-title.png", t("game.dotteTitle"));
   title.className = "gauge-title";
   const stars = icon("assets/icons/dotte-stars.png", "");
   stars.className = "gauge-stars";
+  const count = Math.min(Math.max(0, p.dotte.length), GAUGE_MAX);
+  const num = el("img", "gauge-count");
+  num.alt = String(count);
+  // Direct assets/ URL (setPic/mediaUrl would wrongly prefix data/)
+  num.src = `assets/icons/mission-num/MissionTextNum${count}.png?v=2`;
   const head = el("div", "gauge-head");
-  head.append(title, stars);
-  gauge.append(head, el("span", "gauge-label", t("game.dotteGaugeN", { n: p.dotte.length })));
-  const pips = el("div", "gauge-pips");
-  for (let i = 0; i < GAUGE_MAX; i++) pips.append(el("i", i < p.dotte.length ? "on" : ""));
-  gauge.append(pips);
+  head.append(title, stars, num);
+  // Face-up cards under the title (max 9)
+  const lane = faceUpLane(
+    p.dotte,
+    "gauge-lane",
+    t("game.dotteGaugeN", { n: Math.min(p.dotte.length, GAUGE_MAX) }),
+    GAUGE_MAX,
+  );
+  gauge.append(head, lane);
   const key = `${side}:돗테오키`;
   const headed = t("game.dotteOf", { who: owner });
   const sections = [{ title: t("game.dotteOrder"), ids: p.dotte }];
   gauge.addEventListener("click", () => togglePile(key, headed, sections));
   if (openedPile === key) pileSections = () => fillPile(headed, sections);
-  box.append(gauge);
-  const last = el("div", "last-alchemist");
-  last.title = t("game.alchemistTip");
-  const row = el("div", "last-alchemist-cards");
-  row.append(...Array.from({ length: LAST_ALCHEMISTS }, (_, i) => (p.alchemist[i] ? leveled(p.alchemist[i]) : el("div", "slot empty"))));
-  last.append(el("span", "", t("game.recentAlchemist")), row);
-  box.append(last);
+
+  // Under 돗테오키: larger face-up village box (div like sanctuary — button stacks/clips the badge)
+  const village = el("div", "village-pile clickable");
+  village.dataset.pile = "마을";
+  village.title = t("game.viewPile", { who: owner, pile: t("game.village") });
+  const villageMark = el("div", "pile-art-mark", `${t("game.village")} ${p.village.length}`);
+  village.append(
+    villageLane(p.village, t("game.village")),
+    villageMark, // overlays center over card art (same as sanctuary)
+  );
+  const vKey = `${side}:마을`;
+  const vHeaded = t("game.pileOf", { who: owner, pile: t("game.village") });
+  const vSections = [{ ids: p.village }];
+  village.addEventListener("click", () => togglePile(vKey, vHeaded, vSections));
+  if (openedPile === vKey) pileSections = () => fillPile(vHeaded, vSections);
+
+  box.append(gauge, village);
   return box;
 }
 
@@ -395,14 +547,28 @@ function drawRow(state, side) {
     }
     return slot;
   });
+  const supportZone = zone(t("game.supportZone"), support);
+  supportZone.classList.add("support-zone");
+  // Recent alchemist to the right of support
+  const last = el("div", "last-alchemist");
+  last.title = t("game.alchemistTip");
+  const alchRow = el("div", "last-alchemist-cards");
+  alchRow.append(...Array.from({ length: LAST_ALCHEMISTS }, (_, i) => (
+    p.alchemist[i] ? leveled(p.alchemist[i]) : el("div", "slot empty")
+  )));
+  last.append(el("span", "zone-label", t("game.recentAlchemist")), alchRow);
+  const supportRow = el("div", "support-row");
+  supportRow.append(supportZone, last);
+
   const row = document.getElementById(side === "me" ? "my-row" : "op-row");
   const zones = el("div", "zones");
   zones.append(zone(t("game.battleZone"), p.battle.map((b, i) => {
     const cell = battleSlot(b);
     cell.dataset.index = i;   // (left, middle, right as this player sees them: attackFx finds the cards so)
     return cell;
-  })), zone(t("game.supportZone"), support));
-  row.replaceChildren(summonerBox(p, state[side === "me" ? "op" : "me"]), zones, piles(p, side));
+  })), supportRow);
+  const other = state[side === "me" ? "op" : "me"];
+  row.replaceChildren(summonerBox(p, other, side), zones, piles(p, side));
 }
 
 let lastDrawn = null;   // the board drawn last: what changed since (cardFx)
@@ -413,18 +579,36 @@ let lastDrawn = null;   // the board drawn last: what changed since (cardFx)
  * ms }. */
 const ARRIVE_MS = 450;
 let arrivals = [];
+/** Latest time (performance.now) any board motion is expected to finish — replay waits for this. */
+let motionUntil = 0;
+
+function noteMotion(ms) {
+  const t = performance.now() + Math.max(0, ms);
+  if (t > motionUntil) motionUntil = t;
+}
+
+function motionWaitMs() {
+  return Math.max(0, motionUntil - performance.now());
+}
+
+function flyDurationMs(dx, dy, speed) {
+  return Math.max(FLY_MIN_MS, Math.hypot(dx, dy) / FLY_PX_MS) / Math.max(0.01, speed);
+}
 
 function handArrivals(before, state, speed) {
   const now = performance.now();
   if (before) {
-    const ms = ARRIVE_MS / speed;
+    const ms = ARRIVE_MS / Math.max(0.01, speed);
     const had = new Map();
     for (const c of before.me.hand) had.set(c.code, (had.get(c.code) || 0) + 1);
     const seen = new Map();
     for (const c of state.me.hand) {
       const nth = seen.get(c.code) || 0;
       seen.set(c.code, nth + 1);
-      if (nth >= (had.get(c.code) || 0)) arrivals.push({ code: c.code, nth, start: now, ms });
+      if (nth >= (had.get(c.code) || 0)) {
+        arrivals.push({ code: c.code, nth, start: now, ms });
+        noteMotion(ms);
+      }
     }
   } else arrivals = [];
   arrivals = arrivals.filter((a) => now - a.start < a.ms);
@@ -432,7 +616,7 @@ function handArrivals(before, state, speed) {
   for (const a of arrivals) {
     const box = mine.filter((x, i) => state.me.hand[i]?.code === a.code)[a.nth];
     if (!box) continue;
-    const dx = window.innerWidth - box.getBoundingClientRect().left;
+    const dx = (window.innerWidth - box.getBoundingClientRect().left) / boardScale();
     const move = box.animate([{ translate: `${dx}px 0` }, { translate: "0 0" }], { duration: a.ms, easing: "ease-out" });
     move.currentTime = now - a.start;
   }
@@ -454,12 +638,19 @@ function handPlaces() {
   const back = op.firstElementChild?.getBoundingClientRect();
   const box = op.getBoundingClientRect();
   const h = back ? back.height : box.height;
-  const place = (x) => (x ? { rect: x.getBoundingClientRect(), el: x, w: x.offsetWidth, h: x.offsetHeight } : null);
+  const place = (x) => {
+    if (!x) return null;
+    const rect = x.getBoundingClientRect();
+    return { rect, el: x, w: rect.width, h: rect.height };
+  };
   const field = (side) => {
     const row = document.getElementById(side === "me" ? "my-row" : "op-row");
+    const gaugeCards = [...(row?.querySelectorAll(".gauge-lane > .card-face") || [])];
     return {
       battle: [0, 1, 2].map((i) => place(row.querySelector(`.battle-cell[data-index="${i}"] .card-face`))),
       support: [0, 1, 2].map((i) => place(row.querySelector(`.slot[data-support="${i}"] .card-face`))),
+      // 돗테오키 gauge faces (oldest first) — for gauge → village flights
+      dotte: gaugeCards.map(place),
     };
   };
   return {
@@ -484,10 +675,33 @@ function landFlight(f) {
   if (card) card.style.visibility = "";
 }
 
+/** Face-up pile landing: { side, pile: "placed"|"fallen"|"dotte"|"village", index, code, ghost } */
+let sanctuaryFlights = [];
+
+function faceUpPileTarget(f) {
+  const row = document.getElementById(f.side === "me" ? "my-row" : "op-row");
+  let lane;
+  if (f.pile === "dotte") lane = row?.querySelector(".gauge-lane");
+  else if (f.pile === "village") lane = row?.querySelector(".village-lane");
+  else lane = row?.querySelector(`.sanctuary-lane.${f.pile}`);
+  const cards = lane?.querySelectorAll(":scope > .card-face");
+  if (!cards?.length) return null;
+  const i = Math.min(Math.max(0, f.index), cards.length - 1);
+  return cards[i] || null;
+}
+
+function landSanctuary(f) {
+  f.ghost.remove();
+  sanctuaryFlights = sanctuaryFlights.filter((x) => x !== f);
+  const card = faceUpPileTarget(f);
+  if (card) card.style.visibility = "";
+}
+
 /** the creamates new in the zones since `before` that left a hand: their flights (no before: none, at once) */
 function playFlights(before, state, speed, from, ahead = null) {
   if (!before) {
     for (const f of [...flights]) landFlight(f);
+    for (const f of [...sanctuaryFlights]) landSanctuary(f);
     document.querySelectorAll("#fly .leaving").forEach((x) => x.remove());
     return;
   }
@@ -523,19 +737,48 @@ function playFlights(before, state, speed, from, ahead = null) {
     const card = flightTarget(f);
     if (card) card.style.visibility = "hidden";
   }
+  for (const f of sanctuaryFlights) {
+    const card = faceUpPileTarget(f);
+    if (card) card.style.visibility = "hidden";
+  }
 }
 
-/* A card gone from a hand or a zone to a pile flies to it at the same steady speed, shrinking and fading as it
- * goes: to the 돗테오키 gauge (the 돗테오키 존), to the summoner card (the 성전: put in from the hand, or a battle
- * creamate fallen), to the 마을 pile (the support zone's at the end phase); those of one change all at once.
+/* A card gone from a hand or a zone to a pile flies to it at the same steady speed.
+ * 성전 / 돗테오키 / 마을: fly onto the face-up slot and land there (no fade-out).
+ * 돗테오키 → 마을: oldest first, staggered (VILLAGE_STAGGER_MS / speed).
  * Which card: one of the code the pile gained, gone from where that pile takes cards from (the opponent's hand
  * by its count, out of its middle). */
 const DEPART_TO = [
-  ["dotte", ".gauge", ["hand", "support", "battle"]],
-  ["fallen", ".summoner-box > :nth-last-child(2)", ["battle"]],
-  ["placed", ".summoner-box > :nth-last-child(2)", ["hand"]],
-  ["village", '.pile[data-pile="마을"]', ["support", "battle", "hand"]],
+  ["dotte", ".gauge-lane", ["hand", "support", "battle"]],
+  ["fallen", ".sanctuary-lane.fallen", ["battle"]],
+  ["placed", ".sanctuary-lane.placed", ["hand"]],
+  ["village", ".village-lane, .village-pile", ["dotte", "support", "battle", "hand"]],
 ];
+const FACE_UP_PILES = new Set(["placed", "fallen", "dotte", "village"]);
+/** Delay between 돗테오키 → 마을 flights at 1× speed (oldest first). */
+const VILLAGE_STAGGER_MS = 200;
+/** Delay between 체력(overlay) → 마을 flights at 1× speed (damage-processing order). */
+const HP_VILLAGE_STAGGER_MS = 100;
+
+/** Visual battle indices in engine MatchingGroup / damage order (seq 0→2→4).
+ *  Opponent's row is reversed on screen, so walk visual indices right→left. */
+function damageProcessOrder(side) {
+  return side === "me" ? [0, 1, 2] : [2, 1, 0];
+}
+
+/** Places for 체력 cards leaving battle creamates (one entry per HP lost), in damage order. */
+function hpVillageSources(before, state, from, side) {
+  const out = [];
+  for (const i of damageProcessOrder(side)) {
+    const was = before[side].battle[i];
+    const now = state[side].battle[i];
+    const place = from.field[side].battle[i];
+    if (!was || !place) continue;
+    const lost = now && now.id === was.id ? Math.max(0, was.hp - now.hp) : was.hp;
+    for (let n = 0; n < lost; n++) out.push(place);
+  }
+  return out;
+}
 
 /** ahead: the board coming next (a replay's next frame) - a battle creamate fallen there only on its way to the
  *  돗테오키 존 (the standby phase's: its 체력 cards go first) flies to the gauge */
@@ -558,27 +801,138 @@ function playDepartures(before, state, speed, from, gone, opHand, ahead) {
         if (code && still !== code && place) sources.push({ code, kind: zone, place });
       });
     }
+    // Cards that left the 돗테오키 gauge (oldest first) — for village landings
+    const gaugeLeft = count(state[side].dotte);
+    before[side].dotte.forEach((code, i) => {
+      if ((gaugeLeft.get(code) || 0) > 0) {
+        gaugeLeft.set(code, gaugeLeft.get(code) - 1);
+        return;
+      }
+      const places = from.field[side].dotte || [];
+      const place = places[Math.min(i, Math.max(0, places.length - 1))];
+      if (place) sources.push({ code, kind: "dotte", place });
+    });
+    const hpSources = hpVillageSources(before, state, from, side);
     let handLeft = side === "op" ? opHand : 0;
+    let villageFromDotte = 0;
+    let villageFromHp = 0;
     const row = document.getElementById(side === "me" ? "my-row" : "op-row");
     for (const [pile, target, kinds] of DEPART_TO) {
       const had = count(before[side][pile]);
       const to = row.querySelector(target);
-      for (const code of state[side][pile]) {
+      const ids = state[side][pile];
+      for (let idx = 0; idx < ids.length; idx++) {
+        const code = ids[idx];
         if ((had.get(code) || 0) > 0) {
           had.set(code, had.get(code) - 1);
           continue;
         }
         let i = -1;
         for (const kind of kinds) if ((i = sources.findIndex((s) => s.code === code && s.kind === kind)) >= 0) break;
-        const goes = pile === "fallen" && onToDotte(side, code) ? row.querySelector(".gauge") : to;
-        if (i >= 0) launchDeparture(sources.splice(i, 1)[0].place, goes, speed);
-        else if (handLeft > 0 && kinds.includes("hand")) {
-          handLeft--;
-          launchDeparture({ rect: from.op, el: leveled(code) }, to, speed);
+        const toGauge = pile === "fallen" && onToDotte(side, code);
+        const src = i >= 0 ? sources.splice(i, 1)[0] : null;
+        let fromHp = false;
+        let place = src?.place
+          || (handLeft > 0 && kinds.includes("hand") ? (handLeft--, { rect: from.op, el: leveled(code) }) : null);
+        // 체력 overlay → 마을: fly from the damaged creamate (damage order),
+        // already at village card size (not the battle creamate's size)
+        if (!place && pile === "village" && hpSources.length) {
+          const creamate = hpSources.shift();
+          const villageFace = row.querySelector(".village-lane > .card-face");
+          const vw = villageFace?.getBoundingClientRect();
+          place = {
+            rect: creamate.rect,
+            el: leveled(code),
+            w: vw?.width || creamate.w || creamate.rect.width,
+            h: vw?.height || creamate.h || creamate.rect.height,
+          };
+          fromHp = true;
+        }
+        if (!place) continue;
+        if (toGauge) {
+          // Card skipped fallen and went to 돗테오키 — land on the newest gauge slot
+          const di = Math.min(state[side].dotte.length - 1, GAUGE_MAX - 1);
+          if (di >= 0) launchSanctuaryFlight(place, { side, pile: "dotte", index: di, code }, speed);
+          else launchDeparture(place, row.querySelector(".gauge"), speed);
+        } else if (FACE_UP_PILES.has(pile)) {
+          const landIdx = pile === "village" ? Math.min(idx, VILLAGE_VISIBLE - 1)
+            : pile === "dotte" ? Math.min(idx, GAUGE_MAX - 1)
+            : idx;
+          let delay = 0;
+          if (pile === "village" && src?.kind === "dotte") {
+            delay = (villageFromDotte++ * VILLAGE_STAGGER_MS) / Math.max(0.01, speed);
+          } else if (pile === "village" && fromHp) {
+            delay = (villageFromHp++ * HP_VILLAGE_STAGGER_MS) / Math.max(0.01, speed);
+          }
+          launchSanctuaryFlight(place, { side, pile, index: landIdx, code }, speed, delay);
+        } else {
+          launchDeparture(place, to, speed);
         }
       }
     }
   }
+}
+
+/** Fly a card onto a face-up pile slot (성전 / 돗테오키 / 마을; no fade-out). */
+function launchSanctuaryFlight(place, f, speed, delayMs = 0) {
+  const fallbackOf = () => {
+    const row = document.getElementById(f.side === "me" ? "my-row" : "op-row");
+    if (f.pile === "dotte") return row?.querySelector(".gauge");
+    if (f.pile === "village") return row?.querySelector(".village-pile");
+    return row?.querySelector(`.sanctuary-lane.${f.pile}`);
+  };
+  const estimateFlightMs = () => {
+    const card = faceUpPileTarget(f);
+    const to = (card || fallbackOf())?.getBoundingClientRect();
+    if (!to) return FLY_MIN_MS / Math.max(0.01, speed);
+    const { rect } = place;
+    return flyDurationMs(
+      rect.left + rect.width / 2 - (to.left + to.width / 2),
+      rect.top + rect.height / 2 - (to.top + to.height / 2),
+      speed,
+    );
+  };
+  const flightMs = estimateFlightMs();
+  noteMotion(delayMs + flightMs);
+  const start = () => {
+    const card = faceUpPileTarget(f);
+    if (!card) {
+      sanctuaryFlights = sanctuaryFlights.filter((x) => x !== f);
+      return launchDeparture(place, fallbackOf(), speed);
+    }
+    const { rect, el: src } = place;
+    const to = card.getBoundingClientRect();
+    const ghost = (src || leveled(f.code)).cloneNode(true);
+    ghost.classList.add("flying");
+    ghost.classList.remove("playable", "picked", "leaving");
+    ghost.style.visibility = "";
+    const w = place.w || rect.width;
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    Object.assign(ghost.style, {
+      left: `${to.left}px`, top: `${to.top}px`, width: `${to.width}px`, height: `${to.height}px`,
+    });
+    document.getElementById("fly").append(ghost);
+    const dx = x - (to.left + to.width / 2);
+    const dy = y - (to.top + to.height / 2);
+    const startScale = Math.max(0.2, w / Math.max(1, to.width));
+    const ms = flyDurationMs(dx, dy, speed);
+    card.style.visibility = "hidden";
+    f.ghost = ghost;
+    f.end = performance.now() + ms;
+    if (!sanctuaryFlights.includes(f)) sanctuaryFlights.push(f);
+    ghost.animate(
+      [{ translate: `${dx}px ${dy}px`, scale: startScale, opacity: 1 }, { translate: "0 0", scale: 1, opacity: 1 }],
+      { duration: ms, easing: "linear" },
+    ).onfinish = () => landSanctuary(f);
+  };
+  // Hide the landing slot immediately so it does not flash before a staggered flight
+  const slot = faceUpPileTarget(f);
+  if (slot) slot.style.visibility = "hidden";
+  f.end = performance.now() + delayMs + flightMs;
+  if (!sanctuaryFlights.includes(f)) sanctuaryFlights.push(f);
+  if (delayMs > 0) setTimeout(start, delayMs);
+  else start();
 }
 
 function launchDeparture(place, to, speed) {
@@ -598,7 +952,8 @@ function launchDeparture(place, to, speed) {
   const end = to.getBoundingClientRect();
   const dx = end.left + end.width / 2 - x;
   const dy = end.top + end.height / 2 - y;
-  const ms = Math.max(FLY_MIN_MS, Math.hypot(dx, dy) / FLY_PX_MS) / speed;
+  const ms = flyDurationMs(dx, dy, speed);
+  noteMotion(ms);
   ghost.animate([
     { translate: "0 0", scale: 1, opacity: 1 },
     { translate: `${dx * 0.8}px ${dy * 0.8}px`, scale: 0.32, opacity: 1, offset: 0.8 },
@@ -616,7 +971,8 @@ function launchFlight(f, from, speed) {
   document.getElementById("fly").append(ghost);
   const dx = from.left + from.width / 2 - (to.left + to.width / 2);
   const dy = from.top + from.height / 2 - (to.top + to.height / 2);
-  const ms = Math.max(FLY_MIN_MS, Math.hypot(dx, dy) / FLY_PX_MS) / speed;
+  const ms = flyDurationMs(dx, dy, speed);
+  noteMotion(ms);
   card.style.visibility = "hidden";
   f.ghost = ghost;
   f.end = performance.now() + ms;
@@ -634,8 +990,9 @@ function draw(state, { fx = true, speed = 1, ahead = null } = {}) {
   pileSections = null;
   drawRow(state, "op");
   drawRow(state, "me");
+  requestAnimationFrame(() => fitFieldContent());
   if (pileSections) pileSections();
-  document.getElementById("op-hand").replaceChildren(...state.op.hand.map(() => back("op")));
+  document.getElementById("op-hand").replaceChildren(...state.op.hand.map(() => back("op", state.op.summoner)));
   document.getElementById("my-hand").replaceChildren(...state.me.hand.map((c) => leveled(c.code, c)));
   handArrivals(fx ? before : null, state, speed);
   playFlights(from && before, state, speed, from, ahead);
@@ -729,7 +1086,7 @@ function sideState(p) {
     hand: p === me ? sortHand(z.hand) : [...z.hand],
     alchemist: lastAlchemist[p],
     deck: z.deck.length,
-    village: sortCodesLikeHand(z.removed.map((c) => c.code), cards),
+    village: z.removed.map((c) => c.code), // oldest first; top face = last
     dotte: z.grave.map((c) => c.code),
     placed: concealOpeningSanctuary ? [] : (summoner ? summoner.overlay.map((c) => c.code) : []),
     fallen: fallen.map((c) => c.code),
@@ -909,17 +1266,14 @@ function attackFx(info, { speed = 1, second = false } = {}) {
   const cellOf = (side, i) => document.querySelector(`#${side === "me" ? "my-row" : "op-row"} .battle-cell[data-index="${i}"]`);
   const from = cellOf(info.from.side, info.from.index);
   // (no target: an attack straight at the player, the summoner card)
-  const summoner = document.querySelector(`#${info.foe === "me" ? "my-row" : "op-row"} .summoner-box > :nth-last-child(2)`);
+  const summoner = document.querySelector(`#${info.foe === "me" ? "my-row" : "op-row"} .summoner-box .summoner-face`);
   // (the enemies there now; a combo's second blow, those there as it was aimed - one may have fallen to it since)
   const enemies = [0, 1, 2].filter((i) => cellOf(info.foe, i)?.querySelector(".card-face"));
   const targets = info.all
     ? (info.places || enemies).map((i) => cellOf(info.foe, i)).filter(Boolean)
     : [info.to ? cellOf(info.to.side, info.to.index) : summoner].filter(Boolean);
   if (!from || !targets.length) return;
-  const center = (box) => {
-    const r = box.getBoundingClientRect();
-    return { x: r.left + r.width / 2 - board.left, y: r.top + r.height / 2 - board.top };
-  };
+  const center = (box) => boardLocalCenter(board, box);
   const a = center(from);
   const points = targets.map(center);
   const middle = { x: points.reduce((s, p) => s + p.x, 0) / points.length, y: points.reduce((s, p) => s + p.y, 0) / points.length };
@@ -942,15 +1296,20 @@ function attackFx(info, { speed = 1, second = false } = {}) {
     return { weapon, at };
   });
   const marks = targets.map((t) => {
-    const r = (t.querySelector(".card-face") || t.querySelector(".slot") || t).getBoundingClientRect();
+    const elTarget = t.querySelector(".card-face") || t.querySelector(".slot") || t;
+    const p = boardLocalCenter(board, elTarget);
     const mark = el("img", "fx-target");
     mark.src = `assets/attack/target-${info.attr}.png`;
-    mark.style.left = `${r.left + r.width / 2 - board.left}px`;
-    mark.style.top = `${r.top + r.height / 2 - board.top}px`;
+    mark.style.left = `${p.x}px`;
+    mark.style.top = `${p.y}px`;
     fx.append(mark);
     return mark;
   });
   swing = { parts, marks, since: performance.now(), then: info.combo ? { ...info, places: enemies } : null };
+  // Aim + hold + thrust (+ optional combo second blow)
+  let attackMs = (AIM_MS + HOLD_MS + THRUST_MS) / Math.max(0.01, speed);
+  if (info.combo) attackMs += (THRUST_MS * 0.6 + AIM_MS + HOLD_MS + THRUST_MS) / Math.max(0.01, speed);
+  noteMotion(attackMs);
 }
 
 // ---- what happened to a battle creamate ---------------------------------------------
@@ -983,35 +1342,38 @@ function cardFxAt(side, index, kinds, speed) {
   if (!face) return;
   const fx = document.getElementById("fx");
   const board = document.getElementById("board").getBoundingClientRect();
+  const mid = boardLocalCenter(board, face);
+  const s = boardScale();
   const r = face.getBoundingClientRect();
-  const x = r.left + r.width / 2 - board.left;
   const put = (className, src, y) => {
     const img = el("img", className);
     img.src = src;
-    img.style.left = `${x}px`;
+    img.style.left = `${mid.x}px`;
     img.style.top = `${y}px`;
     fx.append(img);
     return img;
   };
+  const fxMs = CARD_FX_MS / Math.max(0.01, speed);
+  noteMotion(kinds.includes("heart") ? fxMs + HEAL_TEXT_MS / Math.max(0.01, speed) : fxMs);
   for (const kind of kinds) {
-    const icon = put("fx-card", `assets/effects/${kind}.png`, r.top + r.height / 2 - board.top);
+    const icon = put("fx-card", `assets/effects/${kind}.png`, mid.y);
     icon.animate([
       { transform: "translate(-50%, -50%) scale(0.4)", opacity: 0 },
       { transform: "translate(-50%, -50%) scale(1.1)", opacity: 1, offset: 0.3 },
       { transform: "translate(-50%, -50%) scale(1)", opacity: 1, offset: 0.75 },
       { transform: "translate(-50%, -50%) scale(1.05)", opacity: 0 },
-    ], { duration: CARD_FX_MS / speed, easing: "ease-out" }).onfinish = () => icon.remove();
+    ], { duration: fxMs, easing: "ease-out" }).onfinish = () => icon.remove();
   }
   if (!kinds.includes("heart")) return;
   setTimeout(() => {
-    const text = put("fx-heal-text", "assets/effects/heal-text.png", r.top + r.height * 0.38 - board.top);
+    const text = put("fx-heal-text", "assets/effects/heal-text.png", mid.y - (r.height * 0.12) / s);
     text.animate([
       { transform: "translate(-50%, -50%) translateY(6px)", opacity: 0 },
       { transform: "translate(-50%, -50%) translateY(0)", opacity: 1, offset: 0.2 },
       { transform: "translate(-50%, -50%) translateY(-14px)", opacity: 1, offset: 0.6 },
       { transform: "translate(-50%, -50%) translateY(-30px)", opacity: 0 },
-    ], { duration: HEAL_TEXT_MS / speed, easing: "ease-out" }).onfinish = () => text.remove();
-  }, CARD_FX_MS / speed);
+    ], { duration: HEAL_TEXT_MS / Math.max(0.01, speed), easing: "ease-out" }).onfinish = () => text.remove();
+  }, fxMs);
 }
 
 /** a battle creamate's 돗테오키 that deals damage to the enemy, as the motion takes it (null: none) - its text:
@@ -1090,17 +1452,39 @@ function recordFrame(kept = null) {
   recorder.last = state;
 }
 
+/** Archive AI / server-PvP replays on the API (admin folder). Local save is separate.
+ *  Only games that reached 5+ turns are kept for admin. */
+function archiveReplayRemote(replay, match) {
+  const pvp = !!(match?.pvp || match?.roomId);
+  const ai = !!match?.ai && !pvp;
+  if (!pvp && !ai) return;
+  const turns = Number(replay?.turns ?? match?.turns ?? 0);
+  if (!(turns >= 5)) return;
+  const body = {
+    ...replay,
+    mode: pvp ? "pvp" : "ai",
+    roomId: match?.roomId || "",
+  };
+  fetch(`${API_BASE}/replays/archive`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  }).catch(() => {});
+}
+
 /** the game so far kept for the replay list (again at its end: the same id) */
 async function keepReplay(match, result) {
   flushSanctuary();
   recordFrame();
   if (!recorder.frames.length) return null;
+  const payload = {
+    id: recorder.id || Date.now(), format: FORMAT, date: new Date().toISOString(),
+    names: [...(me === 0 ? names : [names[1], names[0]])], myDeck: match.me.name, aiDeck: match.ai.name,
+    level: match.level, bot: match.bot || "", result, turns: duel.turn, frames: recorder.frames,
+  };
   try {
-    recorder.id = await saveReplay({
-      id: recorder.id || Date.now(), format: FORMAT, date: new Date().toISOString(),
-      names: [...(me === 0 ? names : [names[1], names[0]])], myDeck: match.me.name, aiDeck: match.ai.name,
-      level: match.level, bot: match.bot || "", result, turns: duel.turn, frames: recorder.frames,
-    });
+    recorder.id = await saveReplay(payload);
+    archiveReplayRemote({ ...payload, id: recorder.id }, match);
   } catch (err) {
     console.error(err);
     toast(t("replay.saveFail"));
@@ -1221,11 +1605,37 @@ function optionLabel(o) {
   if (o.kind === K.TO_BP) return t("game.toBattle");
   if (o.kind === K.BATTLE_TO_EP) return t("game.endTurn");
   if (o.kind === K.CHAIN_PASS) return t("duel.skip");
+  if (o.desc === DOTTE_EFFECT) return t("duel.dotteEffect");
   return effectText(o.desc) || t("duel.activateEffectShort");
 }
 
+/** chip color class for effect-choice bar: heal-single | heal-aoe | atk | status | draw | attack | other */
+function optionChipKind(o) {
+  if (o.kind === K.ATTACK) return "attack";
+  const label = optionLabel(o);
+  const effect = effectText(o.desc) || "";
+  const cardDesc = (o.card && cards.get(o.card.code)?.desc) || "";
+  const s = `${label}\n${effect}`;
+  if (/광역\s*회복|全体回復|area\s*heal|광역.*회복|회복.*광역|全体.*回復|all[-\s]?heal/i.test(s)
+    || (/광역|全体|aoe|전체/i.test(s) && /회복|heal|回復|recover/i.test(s))) return "heal-aoe";
+  if (/단일\s*회복|単体回復|single\s*heal|단일.*회복|회복.*단일|単体.*回復/i.test(s)
+    || (/단일|単体|single/i.test(s) && /회복|heal|回復|recover/i.test(s))) return "heal-single";
+  if (/회복|heal|回復|recover/i.test(s)) return "heal-single";
+  if (/공격력|攻撃力|\batk\b|attack\s*power|공격\s*력/i.test(s)) return "atk";
+  if (/상태이상|状態異常|status|경직|약화|침묵|혼란|불행|독|silence|stiff|weak|misfortune|hunger|배고픔/i.test(s)) {
+    return "status";
+  }
+  if (/드로우|ドロー|\bdraw\b/i.test(s)) return "draw";
+  // 드로우 카드의 「돗테오키 효과」는 하늘색
+  const isDotte = o.desc === DOTTE_EFFECT || /돗테오키|とっておき|totteoki/i.test(s);
+  if (isDotte && /드로우|ドロー|\bdraw\b/i.test(cardDesc)) return "draw";
+  return "other";
+}
+
 function closeMenu() {
-  document.getElementById("card-menu").hidden = true;
+  const list = document.getElementById("card-menu");
+  list.hidden = true;
+  list.classList.remove("ribbon", "cream", "flip-in");
 }
 
 /** a card the open menu has options for: it glows, and a click lists them */
@@ -1237,18 +1647,32 @@ function offerMenu(box, card) {
   box.addEventListener("click", (event) => {
     event.stopPropagation();
     const list = document.getElementById("card-menu");
-    list.replaceChildren(...options.map(({ o, i }) => {
-      const b = el("button", "menu-button small", optionLabel(o));
+    list.classList.remove("ribbon", "cream");
+    const n = options.length;
+    list.style.setProperty("--chip-total", String(n));
+    list.replaceChildren(...options.map(({ o, i }, order) => {
+      const kind = optionChipKind(o);
+      const b = el("button", `menu-button small effect-chip effect-chip--${kind}`, optionLabel(o));
+      // bottom → top page-flip: last option (bottom) first
+      b.style.setProperty("--chip-i", String(order));
       b.addEventListener("click", () => answerMenu(i));
       return b;
     }));
-    const board = document.getElementById("board").getBoundingClientRect();
+    const boardEl = document.getElementById("board");
+    const board = boardEl.getBoundingClientRect();
     const r = box.getBoundingClientRect();
+    const sc = boardScale();
     list.hidden = false;
+    // restart flip if the same menu is opened again
+    list.classList.remove("flip-in");
+    void list.offsetWidth;
+    list.classList.add("flip-in");
     const w = list.offsetWidth;
-    list.style.left = `${Math.min(Math.max(0, r.left - board.left + r.width / 2 - w / 2), board.width - w)}px`;
-    const top = r.top - board.top - list.offsetHeight - 6;
-    list.style.top = `${top > 0 ? top : r.bottom - board.top + 6}px`;
+    const cx = (r.left - board.left + r.width / 2) / sc;
+    const topLocal = (r.top - board.top) / sc - list.offsetHeight - 6;
+    const botLocal = (r.bottom - board.top) / sc + 6;
+    list.style.left = `${Math.min(Math.max(0, cx - w / 2), boardEl.clientWidth - w)}px`;
+    list.style.top = `${topLocal > 0 ? topLocal : botLocal}px`;
   });
 }
 
@@ -1553,13 +1977,28 @@ function placeName(c) {
   return side + (getLang() === "en" ? "card" : getLang() === "ja" ? "カード" : "카드");
 }
 
+/** Hide/show the shared cancel button; [hidden] alone can still paint with border-image buttons. */
+function setPickCancelVisible(cancel, visible) {
+  if (!cancel) return;
+  cancel.hidden = !visible;
+  if (visible) {
+    cancel.removeAttribute("hidden");
+    cancel.style.removeProperty("display");
+  } else {
+    cancel.setAttribute("hidden", "");
+    cancel.style.setProperty("display", "none", "important");
+  }
+}
+
 /** picking min..max cards: the sanctuary choices and the attack target say what they are for */
 function askCards(d) {
   const ids = d.cards.map((c) => c.code);
-  const opening = d.hint === SANCTUARY_HINT;
+  // Opening 4: hint id, or exact 4/4 pick (same SelectMatchingCard as draw 0~1, but min/max differ)
+  const opening = d.hint === SANCTUARY_HINT || (d.min === 4 && d.max === 4);
   if (opening) {
     concealOpeningSanctuary = true;
     if (openedPile?.endsWith(":성전")) closePile();
+    d = { ...d, cancelable: false };
   }
   const sanctuary = opening || d.hint === SANCTUARY_ONE_HINT;
   const attack = d.hint === ATTACK_HINT;
@@ -1622,16 +2061,23 @@ function offerPick(box, card) {
   return true;
 }
 
+function rightClickPickHint(kind) {
+  return kind === "attack" ? t("duel.rightClickAttack") : t("duel.rightClickPut");
+}
+
 function updatePickBar() {
-  const { picked, decision: d, status, okLabel, noneLabel } = picking;
+  const { picked, decision: d, status, okLabel, noneLabel, kind } = picking;
   const { text, warn } = status ? status(picked) : {};
   const line = document.getElementById("select-count");
   const range = d.min === d.max ? String(d.max) : `${d.min}~${d.max}`;
-  line.textContent = t("duel.pickCount", { cur: picked.length, range }) + (text ? ` · ${text}` : "");
-  line.classList.toggle("warn", !!warn);
   const ok = document.getElementById("select-ok");
   ok.disabled = picked.length < d.min || picked.length > d.max;
   ok.textContent = picked.length === 0 && d.min === 0 ? noneLabel : okLabel;
+  const hint = picked.length > 0 && !ok.disabled ? rightClickPickHint(kind) : "";
+  line.textContent = t("duel.pickCount", { cur: picked.length, range })
+    + (text ? ` · ${text}` : "")
+    + hint;
+  line.classList.toggle("warn", !!warn);
 }
 
 /** min..max of the decision's cards picked on the board and in the hand, where they are (null: cancelled).
@@ -1645,21 +2091,50 @@ function askOnBoard(d, { title, mark, kind, okLabel, status, noneLabel }) {
   const ok = document.getElementById("select-ok");
   const cancel = document.getElementById("select-cancel");
   cancel.textContent = t("game.cancel");
-  cancel.hidden = !d.cancelable;
+  setPickCancelVisible(cancel, !!d.cancelable);
   updatePickBar();
   bar.hidden = false;
   draw(boardState());
+  // draw() may refresh chrome — keep cancel suppressed for required picks
+  setPickCancelVisible(cancel, !!d.cancelable);
   return new Promise((resolve) => {
     const done = (value) => {
       picking = null;
       bar.hidden = true;
       ok.onclick = cancel.onclick = null;
+      setPickCancelVisible(cancel, false);
       draw(boardState());
       resolve(value);
     };
-    ok.onclick = () => done([...picking.picked]);
-    cancel.onclick = () => done(null);
+    ok.onclick = () => {
+      if (picking.picked.length < d.min || picking.picked.length > d.max) return;
+      done([...picking.picked]);
+    };
+    cancel.onclick = () => { if (d.cancelable) done(null); };
   });
+}
+
+/** Right-click shortcut: confirm 성전/돗테오키 (etc.) only when at least one card is picked. */
+function tryConfirmPickByRightClick(e) {
+  if (picking) {
+    const ok = document.getElementById("select-ok");
+    if (picking.picked.length > 0 && ok && !ok.disabled) {
+      e.preventDefault();
+      ok.click();
+      return true;
+    }
+    return false;
+  }
+  if (chooseSession) {
+    const ok = document.getElementById("choose-ok");
+    if (chooseSession.picked.length > 0 && ok && !ok.disabled) {
+      e.preventDefault();
+      ok.click();
+      return true;
+    }
+    return false;
+  }
+  return false;
 }
 
 /** asks for min..max of `ids`; resolves with the picked indices (null: cancelled).
@@ -1678,10 +2153,13 @@ function chooseCards({ title, note, ids, places, min, max, cancelable, mark, kin
   const update = () => {
     const { text, warn } = status ? status(picked) : {};
     const range = min === max ? String(max) : `${min}~${max}`;
-    line.textContent = t("duel.pickCount", { cur: picked.length, range }) + (text ? ` · ${text}` : "");
-    line.classList.toggle("warn", !!warn);
     ok.disabled = picked.length < min || picked.length > max;
     ok.textContent = picked.length === 0 && min === 0 ? emptyLabel : okLabel;
+    const hint = picked.length > 0 && !ok.disabled ? rightClickPickHint(kind) : "";
+    line.textContent = t("duel.pickCount", { cur: picked.length, range })
+      + (text ? ` · ${text}` : "")
+      + hint;
+    line.classList.toggle("warn", !!warn);
   };
   document.getElementById("choose-cards").replaceChildren(...ids.map((id, i) => {
     const button = el("button", "choose-card");
@@ -1700,16 +2178,25 @@ function chooseCards({ title, note, ids, places, min, max, cancelable, mark, kin
     return button;
   }));
   update();
-  cancel.hidden = !cancelable;
+  setPickCancelVisible(cancel, !!cancelable);
   box.hidden = false;
   return new Promise((resolve) => {
     const done = (value) => {
+      chooseSession = null;
       box.hidden = true;
       ok.onclick = cancel.onclick = null;
+      setPickCancelVisible(cancel, false);
       resolve(value);
     };
-    ok.onclick = () => done([...picked]);
-    cancel.onclick = () => done(null);
+    chooseSession = { picked, confirm: () => {
+      if (picked.length < min || picked.length > max) return;
+      done([...picked]);
+    } };
+    ok.onclick = () => {
+      if (picked.length < min || picked.length > max) return;
+      done([...picked]);
+    };
+    cancel.onclick = () => { if (cancelable) done(null); };
   });
 }
 
@@ -1780,11 +2267,16 @@ function setupPhaseButtons() {
   document.addEventListener("click", (e) => {
     if (!e.target.closest("#card-menu")) closeMenu();
   });
-  // (counter timing: battle start/end, attack, 돗테오키 — pass with a right click anywhere on the board)
-  document.getElementById("board").addEventListener("contextmenu", (e) => {
+  // 성전/돗테오키 등으로 카드 선택 중이면 우클릭 = 확인(선택이 있을 때만). 없으면 카운터 패스.
+  const onBoardContextMenu = (e) => {
+    if (tryConfirmPickByRightClick(e)) return;
     if (!menu || !menu.bar || duel.turnPlayer === me) return;
     e.preventDefault();
     answerMenu(menu.pass);
+  };
+  document.getElementById("board").addEventListener("contextmenu", onBoardContextMenu);
+  document.getElementById("choose")?.addEventListener("contextmenu", (e) => {
+    tryConfirmPickByRightClick(e);
   });
 }
 
@@ -1921,7 +2413,7 @@ function alchemistNotice(link) {
   const effect = dotteZoneText(link.card.code);
   const box = el("div", "notice panel");
   const img = el("img");
-  img.src = `pics/small/${link.card.code}.jpg`;
+  setPic(img, `pics/small/${link.card.code}.jpg`);
   img.alt = link.card.name;
   const body = el("div", "notice-text");
   const text = el("span", "", effect);
@@ -1967,7 +2459,7 @@ const ENTER_HOLD = 1200;   // ms a summoner's entrance lasts at least (without i
 
 /** before the duel: the first player's summoner comes out and says its line, then the second player's */
 async function summonersEnter() {
-  if (QUICK_START) {
+  if (QUICK_START || AUTO) {
     revealed[0] = revealed[1] = true;
     for (const p of [0, 1]) {
       const name = cards.get(duel.decks[p].summoner)?.name || t("log.summoner");
@@ -2486,7 +2978,7 @@ async function playMatch(match) {
     me = saved.me;
   } else {
     seed = (Math.random() * 0xffffffff) >>> 0 || 1;
-    const first = QUICK_START ? Math.random() < 0.5 : await coinToss();
+    const first = (QUICK_START || AUTO) ? Math.random() < 0.5 : await coinToss();
     me = first ? 0 : 1;
   }
   const store = {
@@ -2589,7 +3081,7 @@ function showHint(text) {
 }
 
 async function playPuzzle(id) {
-  const list = await (await fetch(puzzlesDataUrl())).json();
+  const list = await loadJson(puzzlesDataUrl());
   const puzzle = list.find((p) => p.id === Number(id));
   if (!puzzle) return toast(t("puzzle.missing"));
   document.getElementById("surrender").textContent = t("duel.surrenderPuzzle");
@@ -2642,6 +3134,16 @@ const SPEED_MAX = 3;
 async function viewReplay(id) {
   replaying = true;
   document.body.classList.add("replaying");
+  document.body.classList.remove("replay-hidden");
+  const hideBtn = document.getElementById("replay-hide");
+  const showBtn = document.getElementById("replay-show");
+  const setReplayPanelVisible = (visible) => {
+    document.body.classList.toggle("replay-hidden", !visible);
+    if (showBtn) showBtn.hidden = visible;
+  };
+  hideBtn?.addEventListener("click", () => setReplayPanelVisible(false));
+  showBtn?.addEventListener("click", () => setReplayPanelVisible(true));
+  setReplayPanelVisible(true);
   const exit = document.getElementById("surrender");
   exit.textContent = t("duel.exit");
   const progressKey = `kirafan.replay.at:${id}`;
@@ -2695,7 +3197,7 @@ async function viewReplay(id) {
     const actor = actors[at];
     if (actor && actor !== shownActor && cards.get(actor)) show(cards.get(actor));
     shownActor = actor;
-    if (sound) for (const [kind, code] of replay.frames[at].v || []) voice(kind, code);
+    if (sound) for (const [kind, code] of replay.frames[at].v || []) playCue(kind, code);
     // (an attack's motion as the replay comes to it - kept before the thrust was: thrust the frame after -;
     // back or a jump: none)
     const { k: aim, t: thrust } = replay.frames[at];
@@ -2730,11 +3232,13 @@ async function viewReplay(id) {
     direction = 0;
     mark();
   };
+  /** Wait at least STEP_MS, and until board motions (flights / attacks / fx) finish. */
+  const stepDelay = () => Math.max(STEP_MS / Math.max(0.01, speed), motionWaitMs());
   const tick = () => {
     const next = at + direction;
     if (next < 0 || next >= states.length) return stop();
     showFrame(next, { sound: direction === 1 });
-    timer = setTimeout(tick, STEP_MS / speed);
+    timer = setTimeout(tick, stepDelay());
   };
   const run = (dir) => {
     clearTimeout(timer);
@@ -2743,7 +3247,7 @@ async function viewReplay(id) {
     if (dir === -1 && at <= 0) showFrame(states.length - 1);
     direction = dir;
     mark();
-    timer = setTimeout(tick, STEP_MS / speed);
+    timer = setTimeout(tick, stepDelay());
   };
   const seek = (i, sound = false) => {
     stop();
@@ -2827,50 +3331,6 @@ function setupTabs() {
   }));
 }
 
-/* The card info (or the settings) and the log below share what the column leaves them: dragging the line
- * between them (in a replay the one under the card info or the one over the log, its panel keeping its own
- * height) gives one more and the other less, kept for the next game */
-const SPLIT_STORE = "kirafan.sideSplit";
-const SPLIT_MIN = 0.15;   // the least share either keeps
-function setupSideSplit() {
-  const side = document.querySelector(".game-page .side");
-  const feeds = side.querySelector(".feeds");
-  const apply = (share) => {
-    side.style.setProperty("--top-share", share);
-    side.style.setProperty("--feed-share", 1 - share);
-  };
-  let share = Number(localStorage.getItem(SPLIT_STORE));
-  if (!(share >= SPLIT_MIN && share <= 1 - SPLIT_MIN)) share = 0.5;
-  apply(share);
-  for (const handle of side.querySelectorAll(".side-split")) {
-    handle.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      try {
-        handle.setPointerCapture(e.pointerId);   // (the moves outside the thin line too)
-      } catch {
-        // (a pointer already gone)
-      }
-      handle.classList.add("dragging");
-      const top = side.querySelector(".tab-page:not([hidden])").getBoundingClientRect().height;
-      const both = top + feeds.getBoundingClientRect().height;
-      const move = (ev) => {
-        share = Math.min(1 - SPLIT_MIN, Math.max(SPLIT_MIN, (top + ev.clientY - e.clientY) / both));
-        apply(share);
-      };
-      const up = () => {
-        handle.classList.remove("dragging");
-        handle.removeEventListener("pointermove", move);
-        handle.removeEventListener("pointerup", up);
-        handle.removeEventListener("pointercancel", up);
-        localStorage.setItem(SPLIT_STORE, share.toFixed(3));
-      };
-      handle.addEventListener("pointermove", move);
-      handle.addEventListener("pointerup", up);
-      handle.addEventListener("pointercancel", up);
-    });
-  }
-}
-
 function setupChat() {
   const input = document.getElementById("chat-input");
   input.addEventListener("keydown", (e) => {
@@ -2897,30 +3357,115 @@ function setupVolume() {
   }
 }
 
+/** settings tab: language select (reload so card/UI packs match) */
+function setupLang() {
+  const sel = document.getElementById("settings-lang");
+  if (!sel) return;
+  sel.value = getLang();
+  sel.addEventListener("change", () => {
+    const prev = getLang();
+    const next = setLang(sel.value);
+    if (next !== prev) {
+      toast(next === "en" ? t("toast.langEn") : next === "ja" ? t("toast.langJa") : t("toast.langKo"));
+      setTimeout(() => location.reload(), 450);
+    } else {
+      toast(t("toast.langSaved"));
+    }
+  });
+}
+
 const isSummoner = (card) => card.isType(duel.C.TYPE_EXTRA);   // (an Xyz monster in EDOPro)
 
-/** the voice a creamate says when it comes out, activates an effect or attacks (the summoners' entrance is
- *  summonersEnter's) */
+/** HP-chip batch: one damage or one defeat per creamate (lethal detected as last HP leaves). */
+const hpSoundBatch = new Map();   // creamate → { code, lethal }
+const defeatFromHp = new WeakSet();
+let hpSoundFlush = 0;
+
+function flushHpSounds(say) {
+  hpSoundFlush = 0;
+  for (const [creamate, info] of hpSoundBatch) {
+    if (info.lethal) {
+      defeatFromHp.add(creamate);
+      say("defeat", info.code);
+    } else {
+      say("damage", info.code);
+    }
+  }
+  hpSoundBatch.clear();
+}
+
+/** Battle creamate 돗테오키 (MZONE) → sound/totteoki/. */
+function isTotteokiActivate(e) {
+  if (e.desc === DOTTE_EFFECT) return true;
+  const C = duel.C;
+  return !!(cards.get(e.card.code)?.battle && e.card.location === C.LOCATION_MZONE && !effectText(e.desc));
+}
+
+/** 알케미스트 돗테오키 존 효과 → sound/Alchemist/. */
+function isAlchemistActivate(e) {
+  const C = duel.C;
+  if (e.card.location !== C.LOCATION_GRAVE) return false;
+  const info = cards.get(e.card.code);
+  if (info?.class === "알케미스트") return true;
+  return !!(e.card.data?.race & 16);
+}
+
+/** 승려 회복 효과 → sound/recovery/ (돗테오키·비회복 효과와 별도). */
+function isRecoveryActivate(e) {
+  if (cards.get(e.card.code)?.class !== "승려") return false;
+  return /회복|回復|heal|recover/i.test(effectText(e.desc));
+}
+
+function activateVoiceKind(e) {
+  if (isTotteokiActivate(e)) return "totteoki";
+  if (isAlchemistActivate(e)) return "alchemist";
+  if (isRecoveryActivate(e)) return "recovery";
+  return "activate";
+}
+
+/** Voices / SFX: summon (소환·앨리스 변신), attack, totteoki/, Alchemist/ (알케미스트 존),
+ *  recovery/, activate/ (스킬), HP damage / fall (destroy/). 패시브(상시)는 발동 이벤트 없음.
+ *  Lethal → defeat only. */
 function soundOf(e) {
-  const say = (kind, code) => {
-    voice(kind, code);
+  const say = (kind, code = 0) => {
+    playCue(kind, code);
     recorder.cues.push([kind, code]);   // (said again as the replay comes to it)
   };
   if (e.type === "summon") {
     if (!isSummoner(e.card)) say("summon", e.card.code);
   }
-  else if (e.type === "activate" && !NOOP_DESCS.has(e.desc)) say("activate", e.card.code);
+  // 앨리스 카터릿 ↔ 다크니스: 변신 후 카드 코드로 summon/ (파일 없으면 무음)
+  else if (e.type === "transform") say("summon", e.to ?? e.card.code);
   else if (e.type === "attack") say("attack", e.attacker.code);
+  else if (e.type === "activate" && !NOOP_DESCS.has(e.desc)) {
+    say(activateVoiceKind(e), e.card.code);
+  }
+  else if (e.type === "hpDamage") {
+    const cur = hpSoundBatch.get(e.card) || { code: e.card.code, lethal: false };
+    if (e.lethal) cur.lethal = true;
+    cur.code = e.card.code;
+    hpSoundBatch.set(e.card, cur);
+    if (!hpSoundFlush) hpSoundFlush = setTimeout(() => flushHpSounds(say), 0);
+  }
+  // Fall without prior hpDamage batch (rare); skip if defeat already played for this chip
+  else if (e.type === "destroyed" && !isSummoner(e.card)) {
+    if (defeatFromHp.has(e.card)) return;
+    const pending = hpSoundBatch.get(e.card);
+    if (pending) {
+      pending.lethal = true;
+      return;
+    }
+    say("defeat", e.card.code);
+  }
 }
 
 async function start() {
   ({ cards } = await loadCards());
-  setupTextSize();
-  setupTextSize({ target: "feed", prefix: "log", store: "kirafan.logTextSize", variable: "--log-text-size" });
+  setupTextSize(); // 카드 정보 · 기록 · 대화 share --card-text-size
   setupTabs();
-  setupSideSplit();
   setupChat();
   setupVolume();
+  setupLang();
   await loadSounds();
   setupPhaseButtons();
   document.getElementById("pile-list-close").addEventListener("click", closePile);

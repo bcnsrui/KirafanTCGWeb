@@ -1,14 +1,28 @@
-import { EXE_DOWNLOAD_URL, VERSION } from "./config.js";
+import { API_BASE, EXE_DOWNLOAD_URL, VERSION } from "./config.js";
 import { toast } from "./ui.js";
-import { runBootSequence } from "./boot.js?v=i18n32";
+import { runBootSequence } from "./boot.js?v=i18n36";
 import { isTauri } from "./runtime.js";
 import { loadSounds, playBgm, setVolume, volume } from "./sound.js";
+import "./local-assets.js";
 import { LANG_STORE, getLang, setLang } from "./lang.js";
-import { applyI18n, t } from "./ui-i18n.js?v=i18n32";
+import { applyI18n, t } from "./ui-i18n.js?v=i18n34";
+
+const VISIT_KEY = "kirafan.visit.pinged";
+
+/** Main-screen entry: server counts unique IP / 24h. sessionStorage avoids repeat spam. */
+function pingVisit() {
+  try {
+    if (sessionStorage.getItem(VISIT_KEY) === "1") return;
+    sessionStorage.setItem(VISIT_KEY, "1");
+  } catch { /* ignore */ }
+  const url = `${API_BASE}/visit`;
+  fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })
+    .catch(() => {});
+}
 
 const PETALS = 18;
 const NICK_STORE = "kirafan.server.nick";
-const NICK_MAX = 10;
+const NICK_MAX = 20;
 
 function defaultNick() {
   return t("common.defaultNick");
@@ -143,4 +157,5 @@ runBootSequence().then(async (result) => {
   }
   await loadSounds();
   playBgm("menu");
+  pingVisit();
 });

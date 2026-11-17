@@ -34,14 +34,24 @@ PORT = int(os.environ.get("PORT") or os.environ.get("API_PORT") or "8787")
 SERVE_STATIC = os.environ.get("SERVE_STATIC", "").strip().lower() in ("1", "true", "yes", "on")
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
 SESSION_SECRET = os.environ.get("SESSION_SECRET", "kirafan-dev-secret-change-me").encode()
+ADMIN_EMAILS = {
+    e.strip().lower()
+    for e in os.environ.get("ADMIN_EMAILS", "").split(",")
+    if e.strip()
+}
 TOKEN_TTL = 60 * 60 * 24 * 30  # 30 days
 MAX_ROOMS = 30
+VISIT_WINDOW = 60 * 60 * 24  # 24h unique IP
+MAX_REPLAY_BYTES = 2 * 1024 * 1024
+ADMIN_DIR = os.path.join(DATA_DIR, "admin")
+ADMIN_REPLAYS_DIR = os.path.join(ADMIN_DIR, "replays")
 
 # Paths that must never be served as static files
 _STATIC_BLOCK = (
     "/data/local_api.sqlite",
     "/data/lobby_rooms.json",
     "/data/duels",
+    "/data/admin",
     "/tools/",
     "/server/",
     "/.vercel/",
@@ -54,7 +64,7 @@ def db():
 
 
 def init_db():
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    os.makedirs(os.path.dirname(DB_PATH) or ".", exist_ok=True)
     with db() as conn:
         conn.executescript(
             """
@@ -62,6 +72,7 @@ def init_db():
               google_sub TEXT PRIMARY KEY,
               name TEXT NOT NULL,
               picture TEXT,
+              email TEXT NOT NULL DEFAULT '',
               created_at TEXT NOT NULL,
               last_seen_at TEXT NOT NULL
             );
@@ -80,8 +91,17 @@ def init_db():
               UNIQUE(google_sub, client_id)
             );
             CREATE INDEX IF NOT EXISTS idx_matches_sub ON matches(google_sub, played_at DESC);
+            CREATE TABLE IF NOT EXISTS visits (
+              ip_hash TEXT PRIMARY KEY,
+              first_seen REAL NOT NULL,
+              last_seen REAL NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_visits_last ON visits(last_seen);
             """
         )
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(users)")}
+        if "email" not in cols:
+            conn.execute("ALTER TABLE users ADD COLUMN email TEXT NOT NULL DEFAULT ''")
 
 
 def b64url(data: bytes) -> str:
@@ -97,15 +117,136 @@ def b64url_decode(s: str) -> bytes:
     return base64.urlsafe_b64decode(s + pad)
 
 
-def make_token(sub: str, name: str) -> str:
+def make_token(sub: str, name: str, email: str = "") -> str:
     payload = json.dumps(
-        {"sub": sub, "name": name, "exp": int(time.time()) + TOKEN_TTL},
+        {
+            "sub": sub,
+            "name": name,
+            "email": (email or "").strip().lower(),
+            "exp": int(time.time()) + TOKEN_TTL,
+        },
         separators=(",", ":"),
         ensure_ascii=False,
     ).encode()
     body = b64url(payload)
     sig = b64url(hmac.new(SESSION_SECRET, body.encode(), hashlib.sha256).digest())
     return f"{body}.{sig}"
+
+
+def is_admin_email(email: str) -> bool:
+    if not ADMIN_EMAILS:
+        return False
+    return (email or "").strip().lower() in ADMIN_EMAILS
+
+
+def client_ip(handler: BaseHTTPRequestHandler) -> str:
+    forwarded = (handler.headers.get("X-Forwarded-For") or "").split(",")[0].strip()
+    if forwarded:
+        return forwarded
+    return handler.client_address[0] if handler.client_address else ""
+
+
+def ip_hash(ip: str) -> str:
+    raw = f"{ip}|{SESSION_SECRET.decode('utf-8', errors='ignore')}".encode()
+    return hashlib.sha256(raw).hexdigest()
+
+
+def record_visit(ip: str) -> dict:
+    """Same IP within 24h counts as one visit. Returns {ok, recorded}."""
+    if not ip:
+        return {"ok": True, "recorded": False}
+    key = ip_hash(ip)
+    now = time.time()
+    with db() as conn:
+        row = conn.execute(
+            "SELECT last_seen FROM visits WHERE ip_hash=?", (key,)
+        ).fetchone()
+        if row and (now - float(row["last_seen"])) < VISIT_WINDOW:
+            return {"ok": True, "recorded": False}
+        if row:
+            conn.execute(
+                "UPDATE visits SET last_seen=? WHERE ip_hash=?", (now, key)
+            )
+        else:
+            conn.execute(
+                "INSERT INTO visits(ip_hash, first_seen, last_seen) VALUES(?,?,?)",
+                (key, now, now),
+            )
+    return {"ok": True, "recorded": True}
+
+
+def visit_stats() -> dict:
+    now = time.time()
+    with db() as conn:
+        total = conn.execute("SELECT COUNT(*) AS c FROM visits").fetchone()["c"]
+        last_24h = conn.execute(
+            "SELECT COUNT(*) AS c FROM visits WHERE last_seen >= ?",
+            (now - VISIT_WINDOW,),
+        ).fetchone()["c"]
+        last_7d = conn.execute(
+            "SELECT COUNT(*) AS c FROM visits WHERE last_seen >= ?",
+            (now - VISIT_WINDOW * 7,),
+        ).fetchone()["c"]
+    return {
+        "uniqueTotal": int(total),
+        "unique24h": int(last_24h),
+        "unique7d": int(last_7d),
+        "windowHours": 24,
+    }
+
+
+def replay_meta_from_file(path: str) -> dict | None:
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if not isinstance(data, dict):
+            return None
+        return {
+            "id": data.get("id") or os.path.splitext(os.path.basename(path))[0],
+            "date": data.get("date") or "",
+            "mode": data.get("mode") or "",
+            "result": data.get("result") or "",
+            "turns": data.get("turns") or 0,
+            "names": data.get("names") or [],
+            "myDeck": data.get("myDeck") or "",
+            "aiDeck": data.get("aiDeck") or "",
+            "level": data.get("level") or 0,
+            "bot": data.get("bot") or "",
+            "bytes": os.path.getsize(path),
+        }
+    except Exception:
+        return None
+
+
+def list_admin_replays() -> list:
+    if not os.path.isdir(ADMIN_REPLAYS_DIR):
+        return []
+    out = []
+    for name in os.listdir(ADMIN_REPLAYS_DIR):
+        if not name.endswith(".json"):
+            continue
+        meta = replay_meta_from_file(os.path.join(ADMIN_REPLAYS_DIR, name))
+        if meta:
+            meta["file"] = name
+            out.append(meta)
+    out.sort(key=lambda m: str(m.get("date") or ""), reverse=True)
+    return out
+
+
+def save_admin_replay(data: dict) -> dict:
+    os.makedirs(ADMIN_REPLAYS_DIR, exist_ok=True)
+    rid = str(data.get("id") or int(time.time() * 1000))
+    safe = "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in rid)
+    mode = str(data.get("mode") or "duel").strip() or "duel"
+    base = f"{safe}_{mode}"
+    path = os.path.join(ADMIN_REPLAYS_DIR, f"{base}.json")
+    n = 0
+    while os.path.exists(path):
+        n += 1
+        path = os.path.join(ADMIN_REPLAYS_DIR, f"{base}_{n}.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False)
+    return {"ok": True, "file": os.path.basename(path), "id": data.get("id")}
 
 
 def read_token(token: str):
@@ -216,10 +357,12 @@ def _safe_static_path(url_path: str) -> str | None:
         return None
     if parts and parts[0] in ("tools", "server", ".vercel", "node_modules"):
         return None
-    if parts[:2] == ["data", "duels"] or (len(parts) >= 2 and parts[0] == "data" and parts[1] in (
-        "local_api.sqlite",
-        "lobby_rooms.json",
-    )):
+    if parts[:2] == ["data", "duels"] or parts[:2] == ["data", "admin"] or (
+        len(parts) >= 2 and parts[0] == "data" and parts[1] in (
+            "local_api.sqlite",
+            "lobby_rooms.json",
+        )
+    ):
         return None
     candidate = os.path.normpath(os.path.join(WEB, *parts))
     if not candidate.startswith(os.path.normpath(WEB) + os.sep) and candidate != os.path.normpath(WEB):
@@ -305,6 +448,32 @@ class Handler(BaseHTTPRequestHandler):
             return None
         return read_token(h[7:].strip())
 
+    def _require_admin(self):
+        auth = self._auth()
+        if not auth:
+            self._text(401, "unauthorized")
+            return None
+        email = (auth.get("email") or "").strip().lower()
+        if not email:
+            with db() as conn:
+                row = conn.execute(
+                    "SELECT email FROM users WHERE google_sub=?",
+                    (auth["sub"],),
+                ).fetchone()
+            email = ((row["email"] if row else "") or "").strip().lower()
+        if not is_admin_email(email):
+            self._text(403, "forbidden")
+            return None
+        return {**auth, "email": email}
+
+    def _raw_body(self, max_bytes: int):
+        n = int(self.headers.get("Content-Length") or 0)
+        if n <= 0:
+            return b""
+        if n > max_bytes:
+            raise ValueError(f"body too large ({n} > {max_bytes})")
+        return self.rfile.read(n)
+
     def do_OPTIONS(self):
         self.send_response(204)
         self._cors()
@@ -321,15 +490,57 @@ class Handler(BaseHTTPRequestHandler):
                 return self._text(401, "unauthorized")
             with db() as conn:
                 row = conn.execute(
-                    "SELECT google_sub, name, picture FROM users WHERE google_sub=?",
+                    "SELECT google_sub, name, picture, email FROM users WHERE google_sub=?",
                     (auth["sub"],),
                 ).fetchone()
             if not row:
                 return self._text(401, "unknown user")
+            email = (row["email"] or auth.get("email") or "").strip().lower()
             return self._json(
                 200,
-                {"sub": row["google_sub"], "name": row["name"], "picture": row["picture"] or ""},
+                {
+                    "sub": row["google_sub"],
+                    "name": row["name"],
+                    "picture": row["picture"] or "",
+                    "email": email,
+                    "admin": is_admin_email(email),
+                },
             )
+
+        if path == "/admin/stats":
+            if not self._require_admin():
+                return
+            return self._json(200, visit_stats())
+
+        if path == "/admin/replays":
+            if not self._require_admin():
+                return
+            return self._json(200, {"replays": list_admin_replays()})
+
+        if path.startswith("/admin/replays/"):
+            if not self._require_admin():
+                return
+            rid = unquote(path[len("/admin/replays/") :])
+            if not rid or ".." in rid or "/" in rid or "\\" in rid:
+                return self._text(400, "bad id")
+            # allow file name or raw id — try exact file, then prefix match
+            candidates = []
+            if rid.endswith(".json"):
+                candidates.append(os.path.join(ADMIN_REPLAYS_DIR, rid))
+            else:
+                candidates.append(os.path.join(ADMIN_REPLAYS_DIR, f"{rid}.json"))
+                if os.path.isdir(ADMIN_REPLAYS_DIR):
+                    for name in os.listdir(ADMIN_REPLAYS_DIR):
+                        if name.startswith(str(rid)) and name.endswith(".json"):
+                            candidates.append(os.path.join(ADMIN_REPLAYS_DIR, name))
+            for cand in candidates:
+                if os.path.isfile(cand):
+                    try:
+                        with open(cand, "r", encoding="utf-8") as f:
+                            return self._json(200, json.load(f))
+                    except Exception as e:
+                        return self._text(500, str(e))
+            return self._text(404, "not found")
 
         if path == "/matches/summary":
             auth = self._auth()
@@ -426,27 +637,67 @@ class Handler(BaseHTTPRequestHandler):
                     return self._text(400, "idToken required")
                 info = verify_google_id_token(id_token, client_id or GOOGLE_CLIENT_ID)
                 sub = info["sub"]
-                name = info.get("name") or info.get("email") or "player"
+                email = (info.get("email") or "").strip().lower()
+                name = info.get("name") or email or "player"
                 picture = info.get("picture") or ""
                 now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
                 with db() as conn:
                     conn.execute(
                         """
-                        INSERT INTO users(google_sub, name, picture, created_at, last_seen_at)
-                        VALUES(?,?,?,?,?)
+                        INSERT INTO users(google_sub, name, picture, email, created_at, last_seen_at)
+                        VALUES(?,?,?,?,?,?)
                         ON CONFLICT(google_sub) DO UPDATE SET
                           name=excluded.name,
                           picture=excluded.picture,
+                          email=excluded.email,
                           last_seen_at=excluded.last_seen_at
                         """,
-                        (sub, name, picture, now, now),
+                        (sub, name, picture, email, now, now),
                     )
-                token = make_token(sub, name)
-                return self._json(200, {"token": token, "sub": sub, "name": name, "picture": picture})
+                token = make_token(sub, name, email)
+                return self._json(
+                    200,
+                    {
+                        "token": token,
+                        "sub": sub,
+                        "name": name,
+                        "picture": picture,
+                        "email": email,
+                        "admin": is_admin_email(email),
+                    },
+                )
             except urllib.error.HTTPError as e:
                 return self._text(401, f"google verify failed: {e.code}")
             except Exception as e:
                 return self._text(401, f"google verify failed: {e}")
+
+        if path == "/visit":
+            try:
+                return self._json(200, record_visit(client_ip(self)))
+            except Exception as e:
+                return self._text(400, str(e))
+
+        if path == "/replays/archive":
+            try:
+                raw = self._raw_body(MAX_REPLAY_BYTES)
+                if not raw:
+                    return self._text(400, "empty body")
+                data = json.loads(raw.decode())
+                if not isinstance(data, dict):
+                    return self._text(400, "object required")
+                if "frames" not in data:
+                    return self._text(400, "frames required")
+                try:
+                    turns = int(data.get("turns") or 0)
+                except (TypeError, ValueError):
+                    turns = 0
+                if turns < 5:
+                    return self._json(200, {"ok": True, "skipped": True, "reason": "turns<5"})
+                return self._json(201, save_admin_replay(data))
+            except ValueError as e:
+                return self._text(413, str(e))
+            except Exception as e:
+                return self._text(400, str(e))
 
         if path == "/matches":
             auth = self._auth()
@@ -575,9 +826,12 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     os.makedirs(DATA_DIR, exist_ok=True)
     os.makedirs(DUELS_DIR, exist_ok=True)
+    os.makedirs(ADMIN_REPLAYS_DIR, exist_ok=True)
     init_db()
     if not GOOGLE_CLIENT_ID:
         print("warning: GOOGLE_CLIENT_ID is empty — /auth/google will reject until set")
+    if not ADMIN_EMAILS:
+        print("warning: ADMIN_EMAILS is empty — /admin/* will return 403")
     httpd = ThreadingHTTPServer((HOST, PORT), Handler)
     mode = "static+api" if SERVE_STATIC else "api-only"
     print(f"Kirafan {mode} http://{HOST}:{PORT}  db={DB_PATH}  web={WEB}")

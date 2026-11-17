@@ -45,14 +45,91 @@ export function metaGet() {
   }
 }
 
-function metaSet(manifest) {
+function metaSet(manifest, extra = {}) {
+  const prev = metaGet() || {};
   localStorage.setItem(META_KEY, JSON.stringify({
     generatedAt: manifest.generatedAt,
     count: Object.keys(manifest.files || {}).length,
     hashes: Object.fromEntries(
       Object.entries(manifest.files || {}).map(([k, v]) => [k, v.sha256]),
     ),
+    packs: extra.packs !== undefined ? extra.packs : (prev.packs || {}),
   }));
+}
+
+/** Live / exe / force-remote: prefer zip packs. Localhost disk stays file-by-file skip. */
+function useAssetPacks(forceRemote) {
+  if (isTauri()) return true;
+  if (forceRemote) return true;
+  return !isLocalDevHost();
+}
+
+function packNameForPath(path) {
+  if (path.startsWith("sound/")) return "sound";
+  if (path.startsWith("pics/small/")) return "data";
+  if (path.startsWith("pics/")) return "pics";
+  if (path.startsWith("data/")) return "data";
+  return null;
+}
+
+function packUrl(manifest, packInfo) {
+  const base = (manifest.sources?.packs || REPOS_FALLBACK_PACKS).replace(/\/$/, "");
+  const file = String(packInfo.file || "").replace(/^\//, "");
+  return `${base}/${file}`;
+}
+
+const REPOS_FALLBACK_PACKS = "https://raw.githubusercontent.com/bcnsrui/KirafanTCG/main";
+
+async function downloadAndApplyPack(manifest, name, packInfo, onProgress) {
+  const { unzipSync } = await import("./vendor/fflate.js");
+  const url = bustRemoteCache(packUrl(manifest, packInfo));
+  onProgress?.({
+    status: "downloading",
+    message: `팩 다운로드 ${name}.zip`,
+    current: packInfo.file,
+    sizeLabel: formatBytes(packInfo.size || 0),
+  });
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`pack ${name} HTTP ${res.status}`);
+  const buf = new Uint8Array(await res.arrayBuffer());
+  const hash = await sha256(buf.buffer);
+  if (packInfo.sha256 && hash !== packInfo.sha256) {
+    throw new Error(`pack ${name} 무결성 불일치`);
+  }
+  onProgress?.({
+    status: "downloading",
+    message: `팩 압축 해제 ${name}.zip`,
+    current: packInfo.file,
+  });
+  const files = unzipSync(buf);
+  let written = 0;
+  const entries = Object.entries(files);
+  for (let i = 0; i < entries.length; i++) {
+    const [nameInZip, data] = entries[i];
+    if (!data || !data.length) continue; // skip dirs
+    const path = normalizeRel(nameInZip.replace(/^\/+/, ""));
+    if (!(path.startsWith("data/") || path.startsWith("pics/") || path.startsWith("sound/"))) {
+      continue;
+    }
+    const expect = manifest.files?.[path];
+    const ab = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+    const fileHash = await sha256(ab);
+    if (expect?.sha256 && fileHash !== expect.sha256) {
+      throw new Error(`${path}: pack 내 무결성 불일치`);
+    }
+    await writeStored(path, ab, fileHash, guessType(path));
+    written++;
+    if (i % 20 === 0 || i + 1 === entries.length) {
+      onProgress?.({
+        status: "downloading",
+        message: `팩 저장 ${name} ${i + 1}/${entries.length}`,
+        current: path,
+        updated: written,
+      });
+      await new Promise((r) => setTimeout(r, 0));
+    }
+  }
+  return { written, hash };
 }
 
 async function loadManifestJson(url) {
@@ -131,6 +208,15 @@ function formatBytes(n) {
  * @param {(info: object) => void} onProgress
  * @returns {Promise<object>}
  */
+function isLocalDevHost() {
+  try {
+    const h = location.hostname;
+    return h === "127.0.0.1" || h === "localhost" || h === "[::1]";
+  } catch {
+    return false;
+  }
+}
+
 export async function checkAndApplyUpdates(onProgress) {
   const report = (status, message, extra = {}) => {
     const info = { status, message, updated: 0, checked: 0, bytesDone: 0, bytesTotal: 0, ...extra };
@@ -175,9 +261,37 @@ export async function checkAndApplyUpdates(onProgress) {
     return report("ok", "받을 파일 없음", { checked: 0, updated: 0, revision });
   }
 
+  // Local web_server: files are already on disk — don't fill Cache Storage / re-hash hundreds of pics.
+  // (Force remote integrity with localStorage updateUseLocal=0.)
+  let forceRemote = false;
+  try { forceRemote = localStorage.getItem("updateUseLocal") === "0"; } catch { /* ignore */ }
+  if (!isTauri() && isLocalDevHost() && !forceRemote) {
+    metaSet(manifest);
+    installDataFetchHook();
+    await ensureServiceWorker().catch(() => null);
+    return report("ok", "로컬 개발 — 디스크 파일 사용", {
+      checked: entries.length,
+      updated: 0,
+      revision,
+    });
+  }
+
   const need = [];
   let bytesTotal = 0;
-  for (const [rel, info] of entries) {
+  for (let i = 0; i < entries.length; i++) {
+    const [rel, info] = entries[i];
+    if (i % 8 === 0 || i + 1 === entries.length) {
+      onProgress?.({
+        status: "checking",
+        message: `파일 확인 중… ${i + 1} / ${entries.length}`,
+        checked: i + 1,
+        index: i + 1,
+        total: entries.length,
+        current: normalizeRel(rel),
+      });
+      // Yield so the boot UI can paint
+      await new Promise((r) => setTimeout(r, 0));
+    }
     const path = normalizeRel(rel);
     const have = await storedHash(path);
     if (!have || have !== info.sha256) {
@@ -207,6 +321,53 @@ export async function checkAndApplyUpdates(onProgress) {
 
   let updated = 0;
   let bytesDone = 0;
+  const packHashes = { ...(prev?.packs || {}) };
+  const packs = manifest.packs || {};
+  /** Missing ≤ this many files in a pack → fetch those files one-by-one (not the whole zip). */
+  const PACK_FILE_THRESHOLD = 20;
+
+  // Live: zip pack only when many files in that pack are missing/outdated.
+  // Small diffs (e.g. ≤20) stay per-file so a tiny update does not re-download 30–90MB.
+  if (useAssetPacks(forceRemote) && Object.keys(packs).length) {
+    const missingByPack = {};
+    for (const [path] of need) {
+      const pn = packNameForPath(path);
+      if (!pn || !packs[pn]) continue;
+      (missingByPack[pn] ||= []).push(path);
+    }
+    for (const [name, paths] of Object.entries(missingByPack)) {
+      const packInfo = packs[name];
+      if (!packInfo?.file || !packInfo?.sha256) continue;
+      if (paths.length <= PACK_FILE_THRESHOLD) {
+        onProgress?.({
+          status: "downloading",
+          message: `${name}: 변경 ${paths.length}개 → 개별 다운로드`,
+          current: packInfo.file,
+          updated,
+        });
+        continue;
+      }
+      try {
+        const result = await downloadAndApplyPack(manifest, name, packInfo, onProgress);
+        packHashes[name] = result.hash || packInfo.sha256;
+        updated += result.written;
+        bytesDone += packInfo.size || 0;
+      } catch (err) {
+        console.warn(`pack ${name} failed, falling back to files:`, err);
+      }
+    }
+    // Recompute leftovers after packs
+    const still = [];
+    for (const row of need) {
+      const [path, info] = row;
+      const have = await storedHash(path);
+      if (!have || have !== info.sha256) still.push(row);
+    }
+    need.length = 0;
+    need.push(...still);
+    bytesTotal = need.reduce((s, [, info]) => s + (info.size || 0), 0);
+  }
+
   for (let i = 0; i < need.length; i++) {
     const [path, info] = need[i];
     onProgress?.({
@@ -260,7 +421,7 @@ export async function checkAndApplyUpdates(onProgress) {
     }
   }
 
-  metaSet(manifest);
+  metaSet(manifest, { packs: packHashes });
   installDataFetchHook();
   await ensureServiceWorker().catch(() => null);
   return report("ok", updated ? `${updated}개 파일 저장 (${formatBytes(bytesDone)})` : "데이터 최신", {
@@ -310,12 +471,18 @@ export function installDataFetchHook() {
           if (isLocalHost && p.includes("/pics/")) return orig(input, init);
           if (isTauri()) {
             const buf = await readStored(rel);
-            if (buf) return new Response(buf);
-          } else {
-            const cache = await caches.open(CACHE_NAME);
-            const hit = await cache.match(u.href) || await cache.match(u.href.split("?")[0]);
-            if (hit) return hit;
+            if (buf) {
+              return new Response(buf, {
+                status: 200,
+                headers: { "Content-Type": guessType(rel) },
+              });
+            }
+            // Disk miss: GitHub raw (not the empty embedded www/data).
+            return orig(bustRemoteCache(assetUrl(rel, fileSource(rel, {}))), init);
           }
+          const cache = await caches.open(CACHE_NAME);
+          const hit = await cache.match(u.href) || await cache.match(u.href.split("?")[0]);
+          if (hit) return hit;
         }
       }
     } catch { /* fall through */ }

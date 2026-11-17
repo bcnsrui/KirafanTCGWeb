@@ -59,7 +59,13 @@ export async function refreshSession() {
       return null;
     }
     const me = await res.json();
-    const next = { ...s, name: me.name, picture: me.picture || "" };
+    const next = {
+      ...s,
+      name: me.name,
+      picture: me.picture || "",
+      email: me.email || s.email || "",
+      admin: !!me.admin,
+    };
     setSession(next);
     return next;
   } catch {
@@ -192,6 +198,8 @@ export async function loginWithGoogle() {
     name: data.name || "",
     picture: data.picture || "",
     sub: data.sub || "",
+    email: data.email || "",
+    admin: !!data.admin,
   };
   setSession(session);
   return session;

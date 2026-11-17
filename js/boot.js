@@ -4,14 +4,14 @@
 
 import {
   checkAndApplyUpdates, ensureServiceWorker, installDataFetchHook, manifestRevisionToken, metaGet,
-} from "./update.js?v=i18n32";
+} from "./update.js?v=i18n36";
 import { isTauri } from "./runtime.js";
 import {
   defaultDataPath,
-  ensureDataPathReady,
-  pickDataFolder,
   setDataPath,
 } from "./storage.js";
+import { getLang, setLang } from "./lang.js";
+import { applyI18n, t } from "./ui-i18n.js?v=i18n34";
 
 const BOOT_DONE_KEY = "kirafan-boot-done";
 /** After one successful check, main-menu round-trips in this tab must not re-run. */
@@ -104,6 +104,34 @@ function clearCheckedFlag() {
   document.documentElement.classList.remove("boot-skip");
 }
 
+function syncBootLangButtons() {
+  const cur = getLang();
+  document.querySelectorAll(".boot-lang-btn").forEach((btn) => {
+    const on = btn.dataset.lang === cur;
+    btn.classList.toggle("is-active", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+}
+
+let bootLangBound = false;
+function bindBootLangButtons() {
+  if (bootLangBound) return;
+  const root = document.querySelector(".boot-lang");
+  if (!root) return;
+  bootLangBound = true;
+  syncBootLangButtons();
+  root.addEventListener("click", (e) => {
+    const btn = e.target.closest(".boot-lang-btn");
+    if (!btn || !root.contains(btn)) return;
+    const prev = getLang();
+    const next = setLang(btn.dataset.lang);
+    syncBootLangButtons();
+    if (next === prev) return;
+    // Keep ?boot=… so design/demo preview stays after reload
+    location.reload();
+  });
+}
+
 function hideBootUi() {
   const overlay = $("boot-overlay");
   if (overlay) {
@@ -142,41 +170,14 @@ function stopDots() {
   delete el.dataset.running;
 }
 
+/** exe: always use folder next to the .exe (data/pics/sound). No picker. */
 async function ensureExePath() {
   if (!isTauri()) return true;
-  const state = await ensureDataPathReady();
-  if (state.path) return true;
-
-  showSetup(true);
-  return new Promise((resolve) => {
-    const defPromise = defaultDataPath();
-    defPromise.then((def) => {
-      $("boot-path-suggest").textContent = def || "";
-    });
-
-    const onDefault = async () => {
-      const path = (await defPromise) || (await defaultDataPath());
-      if (!path) return;
-      await setDataPath(path);
-      cleanup();
-      showSetup(false);
-      resolve(true);
-    };
-    const onPick = async () => {
-      const path = await pickDataFolder();
-      if (!path) return;
-      await setDataPath(path);
-      cleanup();
-      showSetup(false);
-      resolve(true);
-    };
-    const cleanup = () => {
-      $("boot-use-default").removeEventListener("click", onDefault);
-      $("boot-pick-folder").removeEventListener("click", onPick);
-    };
-    $("boot-use-default").addEventListener("click", onDefault);
-    $("boot-pick-folder").addEventListener("click", onPick);
-  });
+  const path = await defaultDataPath();
+  if (!path) throw new Error("실행 파일 폴더를 확인할 수 없습니다");
+  await setDataPath(path);
+  showSetup(false);
+  return true;
 }
 
 /**
@@ -186,17 +187,11 @@ async function ensureExePath() {
  */
 export async function runBootSequence() {
   const overlay = $("boot-overlay");
+  bindBootLangButtons();
+  applyI18n(overlay || document);
 
   if (isTauri()) {
-    const state = await ensureDataPathReady();
-    if (!state.path) {
-      overlay?.classList.remove("hidden");
-      if (overlay) overlay.hidden = false;
-      document.documentElement.classList.remove("boot-skip");
-      showSetup(false);
-      startDots();
-      await ensureExePath();
-    }
+    await ensureExePath();
   }
 
   const bootParam = new URLSearchParams(location.search).get("boot");
@@ -232,11 +227,11 @@ export async function runBootSequence() {
           const pct = (i / steps) * 100;
           const idx = Math.min(total, Math.round((i / steps) * total));
           setProgress(pct);
-          $("boot-status").textContent = `다운로드 ${idx} / ${total}`;
+          $("boot-status").textContent = t("boot.downloading", { index: idx, total });
           $("boot-detail").textContent = `${samples[i % samples.length]} · ${(pct * 0.478).toFixed(1)} MB / 47.8 MB`;
           if (i >= steps) {
             setProgress(100);
-            $("boot-status").textContent = "완료";
+            $("boot-status").textContent = t("boot.done");
             $("boot-detail").textContent = "";
             setTimeout(resolve, 450);
             return;
@@ -244,7 +239,7 @@ export async function runBootSequence() {
           setTimeout(tick, 70);
         };
         setProgress(0);
-        $("boot-status").textContent = "다운로드 0 / 528";
+        $("boot-status").textContent = t("boot.downloading", { index: 0, total });
         $("boot-detail").textContent = samples[0];
         setTimeout(tick, 80);
       });
@@ -254,7 +249,7 @@ export async function runBootSequence() {
     }
 
     setProgress(24);
-    $("boot-status").textContent = "다운로드 128 / 528";
+    $("boot-status").textContent = t("boot.downloading", { index: 128, total: 528 });
     $("boot-detail").textContent = "sound/BGM/duel/bgm_battle_1_0.mp3 · 12.4 MB / 47.8 MB";
     return { status: "design", message: "디자인 미리보기" };
   }
@@ -298,25 +293,34 @@ export async function runBootSequence() {
   showSetup(false);
   startDots();
   setProgress(0);
-  $("boot-status").textContent = "파일 목록 확인 중…";
+  $("boot-status").textContent = t("boot.checking");
   $("boot-detail").textContent = "";
 
   try {
     const result = await checkAndApplyUpdates((info) => {
-      if (info.status === "downloading") {
+      if (info.status === "checking") {
+        $("boot-status").textContent = info.total
+          ? t("boot.checkingProgress", { index: info.index, total: info.total })
+          : (info.message || t("boot.checking"));
+        $("boot-detail").textContent = info.current || "";
+        if (info.total) setProgress((info.index / info.total) * 30);
+      } else if (info.status === "downloading") {
         if (info.total) {
-          $("boot-status").textContent = `다운로드 ${info.index} / ${info.total}`;
+          $("boot-status").textContent = t("boot.downloading", {
+            index: info.index,
+            total: info.total,
+          });
           const byCount = (info.index / info.total) * 100;
           const byBytes = info.bytesTotal ? (info.bytesDone / info.bytesTotal) * 100 : byCount;
-          setProgress(Math.max(byCount, byBytes));
+          setProgress(30 + Math.max(byCount, byBytes) * 0.7);
         } else {
-          $("boot-status").textContent = "다운로드 중…";
+          $("boot-status").textContent = t("boot.downloadingBusy");
         }
         $("boot-detail").textContent = [info.current || info.message, info.sizeLabel]
           .filter(Boolean)
           .join(" · ");
       } else if (info.status === "ok") {
-        $("boot-status").textContent = info.message || "완료";
+        $("boot-status").textContent = info.message || t("boot.done");
         $("boot-detail").textContent = "";
         setProgress(100);
       } else {
@@ -333,13 +337,13 @@ export async function runBootSequence() {
       return result;
     }
     // Incomplete / error: stay on overlay — do not enter main menu
-    $("boot-status").textContent = result.message || "다운로드 실패";
-    $("boot-detail").textContent = "새로고침 후 다시 받아 주세요";
+    $("boot-status").textContent = result.message || t("boot.fail");
+    $("boot-detail").textContent = t("boot.retryHint");
     stopDots();
     return result;
   } catch (err) {
     $("boot-status").textContent = err.message || String(err);
-    $("boot-detail").textContent = "새로고침 후 다시 받아 주세요";
+    $("boot-detail").textContent = t("boot.retryHint");
     stopDots();
     return { status: "error", message: err.message || String(err) };
   }

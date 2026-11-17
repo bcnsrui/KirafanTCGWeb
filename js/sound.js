@@ -1,6 +1,8 @@
 /* Sound: the background music by situation and the creamates' voices (EDOPro's sound/, listed in
  * data/sounds.json), each with its own volume kept in localStorage. */
 
+import { loadJson, mediaUrl } from "./local-assets.js";
+
 const VOLUME_STORE = { bgm: "kirafan.volume.bgm", voice: "kirafan.volume.voice" };
 const VOLUME_START = { bgm: 0.5, voice: 0.8 };
 
@@ -11,7 +13,7 @@ let waiting = null;        // music the browser would not start before a click
 export async function loadSounds() {
   if (!manifest) {
     try {
-      manifest = await (await fetch("data/sounds.json")).json();
+      manifest = await loadJson("data/sounds.json");
     } catch {
       manifest = { bgm: {}, voice: {}, effects: [] };
     }
@@ -51,11 +53,19 @@ export function playBgm(situation) {
   const files = manifest?.bgm[situation];
   if (!files || !files.length) return;
   const name = files[Math.floor(Math.random() * files.length)];
-  const audio = new Audio(`sound/BGM/${situation}/${encodeURIComponent(name)}`);
+  const rel = `sound/BGM/${situation}/${name}`;
+  const audio = new Audio();
   audio.loop = situation !== "win" && situation !== "lose";
   audio.volume = volume("bgm");
   music = { audio, situation };
-  start(audio);
+  mediaUrl(rel).then((url) => {
+    if (music?.audio !== audio) return;
+    audio.src = url;
+    start(audio);
+  }).catch(() => {
+    audio.src = rel;
+    start(audio);
+  });
 }
 
 export function stopBgm() {
@@ -64,17 +74,57 @@ export function stopBgm() {
   music = null;
 }
 
-/** a creamate's line when it is summoned / activates an effect / attacks (silent for a card without one);
- *  resolves once it has been said (at once when there is none or it cannot play) */
-export function voice(kind, code) {
-  if (!manifest?.voice[kind]?.includes(code)) return Promise.resolve(false);
+function playFile(rel) {
   const v = volume("voice");
   if (v <= 0) return Promise.resolve(false);
-  const audio = new Audio(`sound/${kind}/${code}.mp3`);
-  audio.volume = v;
-  return new Promise((resolve) => {
+  return mediaUrl(rel).then((url) => new Promise((resolve) => {
+    const audio = new Audio(url);
+    audio.volume = v;
     audio.addEventListener("ended", () => resolve(true));
     audio.addEventListener("error", () => resolve(false));
     audio.play().catch(() => resolve(false));
+  })).catch(() => Promise.resolve(false));
+}
+
+/** Folder on disk for a voice kind (defeat→destroy/, alchemist→Alchemist/). */
+function voiceDir(kind) {
+  if (kind === "defeat") return "destroy";
+  if (kind === "alchemist") return "Alchemist";
+  return kind;
+}
+
+/** a creamate's line when it is summoned / activates / totteoki / attacks / falls (silent if missing);
+ *  resolves once it has been said (at once when there is none or it cannot play) */
+export function voice(kind, code) {
+  if (!manifest?.voice[kind]?.includes(code)) return Promise.resolve(false);
+  return playFile(`sound/${voiceDir(kind)}/${code}.mp3`);
+}
+
+/** duel SFX (attack.wav, activate.wav, destroyed.mp3, …); `name` may be stem or full filename */
+export function sfx(name) {
+  const files = manifest?.effects || [];
+  const want = String(name || "").toLowerCase();
+  if (!want) return Promise.resolve(false);
+  const file = files.find((f) => {
+    const lower = f.toLowerCase();
+    return lower === want || lower.startsWith(`${want}.`) || lower.replace(/\.[^.]+$/, "") === want;
   });
+  if (!file) return Promise.resolve(false);
+  return playFile(`sound/${file}`);
+}
+
+/** chant if present, else the matching SFX (EDOPro: chants override effect sounds) */
+const CUE_SFX = {
+  attack: "attack",
+  activate: "activate",
+  totteoki: "activate",
+  alchemist: "activate",
+  recovery: "gainlp",
+  summon: "specialsummon",
+  defeat: "destroyed",
+  damage: "damage",
+};
+
+export function playCue(kind, code) {
+  return voice(kind, code).then((ok) => (ok ? true : sfx(CUE_SFX[kind] || kind)));
 }

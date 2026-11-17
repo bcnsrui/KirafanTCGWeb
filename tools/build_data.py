@@ -127,11 +127,16 @@ AUDIO = (".mp3", ".wav", ".ogg")
 def sounds():
     """sound/ (EDOPro's sounds: background music by situation, the creamates' voices by card code, effects) copied
     to the page, and data/sounds.json listing them: {"bgm": {situation: [files]}, "voice": {summon / activate /
-    attack: [codes]}, "effects": [names]}."""
+    attack / totteoki / alchemist / recovery / defeat: [codes]}, "effects": [names]}.
+    Folder sound/destroy/ → defeat; sound/Alchemist/ → alchemist."""
     src = os.path.join(GAME, "sound")
     dst = os.path.join(WEB, "sound")
     out = {"bgm": {}, "voice": {}, "effects": []}
     copied = 0
+    voice_kinds = (
+        "summon", "activate", "attack", "totteoki", "recovery", "damage",
+        "defeat", "destroy", "Alchemist", "alchemist",
+    )
     for root, _, files in os.walk(src):
         rel = os.path.relpath(root, src)
         for name in files:
@@ -146,10 +151,17 @@ def sounds():
             parts = rel.replace("\\", "/").split("/")
             if parts[0] == "BGM" and len(parts) > 1:
                 out["bgm"].setdefault(parts[1], []).append(name)
-            elif parts[0] in ("summon", "activate", "attack"):
+            elif parts[0] in voice_kinds:
                 code = os.path.splitext(name)[0]
                 if code.isdigit():
-                    out["voice"].setdefault(parts[0], []).append(int(code))
+                    folder = parts[0]
+                    if folder == "destroy":
+                        kind = "defeat"
+                    elif folder.lower() == "alchemist":
+                        kind = "alchemist"
+                    else:
+                        kind = folder
+                    out["voice"].setdefault(kind, []).append(int(code))
             elif rel == ".":
                 out["effects"].append(name)
     for v in out["bgm"].values():

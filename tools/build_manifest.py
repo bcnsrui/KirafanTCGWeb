@@ -91,14 +91,26 @@ def main() -> int:
                     }
         add_tree(files, os.path.join(WEB, "sound"), "sound", "sound")
 
+    packs = {}
+    packs_meta_path = os.path.join(WEB, "data", "packs.json")
+    if os.path.isfile(packs_meta_path):
+        try:
+            with open(packs_meta_path, encoding="utf-8") as f:
+                packs_doc = json.load(f)
+            packs = packs_doc.get("packs") or {}
+        except Exception as exc:
+            print(f"warning: could not read packs.json: {exc}")
+
     manifest = {
         "version": 1,
         "generatedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "files": dict(sorted(files.items())),
+        "packs": packs,
         "sources": {
             "data": "https://raw.githubusercontent.com/bcnsrui/KirafanTCG/main/web",
             "pics": "https://raw.githubusercontent.com/bcnsrui/KirafanTCG/main",
             "sound": "https://raw.githubusercontent.com/bcnsrui/KirafanTCG/main",
+            "packs": "https://raw.githubusercontent.com/bcnsrui/KirafanTCG/main",
         },
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
@@ -109,7 +121,7 @@ def main() -> int:
     by = {}
     for info in files.values():
         by[info["source"]] = by.get(info["source"], 0) + 1
-    print(f"wrote {OUT} ({len(files)} files: {by})")
+    print(f"wrote {OUT} ({len(files)} files: {by}; packs {list(packs)})")
     return 0
 
 

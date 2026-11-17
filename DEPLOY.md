@@ -47,6 +47,27 @@ KirafanAI\.venv\Scripts\python.exe KirafanWeb\tools\build_manifest.py
 푸시할 때: `KirafanWeb/data/` → `KirafanTCG/web/data/`,  
 `KirafanWeb/pics/small/` → `KirafanTCG/web/pics/small/`
 
+### 라이브 초반 다운로드 (zip 팩)
+
+로컬(`127.0.0.1`)은 디스크 파일을 그대로 쓰고, **라이브/exe**는 GitHub의 zip 팩을 받아 풀습니다.
+
+```powershell
+python KirafanWeb\tools\build_asset_packs.py
+python KirafanWeb\tools\build_manifest.py
+```
+
+업로드 (`_upload/KirafanTCG/`):
+
+| 경로 | 내용 |
+|------|------|
+| `packs/sound.zip` | 보이스·BGM·SFX |
+| `packs/pics.zip` | 카드 이미지 |
+| `packs/data.zip` | `data/*` + `pics/small` (ai/test 제외) |
+| `packs/packs.json` | 팩 해시 |
+| `web/data/manifest.json` | 파일 목록 + `packs` 메타 |
+
+개별 `sound/`·`pics/` 파일도 올려 두면 팩 실패 시 파일 단위로 폴백합니다.
+
 ### 올리지 마세요
 
 - `data/ai/test/` (검증용, 100MB+)
@@ -79,9 +100,17 @@ KirafanAI\.venv\Scripts\python.exe KirafanWeb\tools\build_manifest.py
 | `SERVE_STATIC` | `1` |
 | `DATA_DIR` | `/data` |
 | `SESSION_SECRET` | 긴 랜덤 문자열 |
-| `GOOGLE_CLIENT_ID` | (선택) OAuth 웹 클라이언트 ID |
+| `GOOGLE_CLIENT_ID` | 관리자 로그인용 OAuth 웹 클라이언트 ID |
+| `ADMIN_EMAILS` | 관리자 구글 이메일 (콤마 구분, 소문자 비교) |
 
 `PORT`는 Railway가 넣습니다.
+
+### 관리자
+
+- URL: `https://(도메인)/admin.html` (메뉴에는 링크 없음)
+- Google 로그인 후 `ADMIN_EMAILS`에 있는 계정만 접속 집계·보관 리플레이 조회
+- 메인 화면 진입 시 `POST /visit` — 같은 IP는 24시간 내 1회로 집계
+- AI·서버 대전 리플레이는 `{DATA_DIR}/admin/replays/`에도 보관 (정적 URL로는 접근 불가)
 
 ### 3. 도메인
 

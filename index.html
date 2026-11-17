@@ -3,8 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="icon" href="/favicon.ico?v=3" sizes="any">
+  <link rel="icon" type="image/png" href="/favicon.png?v=3">
+  <link rel="apple-touch-icon" href="/favicon.png?v=3">
   <title data-i18n="app.title">키라라 판타지아 카드게임</title>
-  <link rel="stylesheet" href="css/style.css?v=w13">
+  <link rel="stylesheet" href="css/style.css?v=w14">
   <script>
     /* 웹: 메인 복귀 시 무결성 화면 깜빡임 방지. exe는 실행마다 검사하므로 숨기지 않음 */
     (function () {
@@ -28,8 +31,21 @@
     <div class="boot-art" aria-hidden="true"></div>
 
     <div class="boot-top">
-      <p id="boot-status" class="boot-status" data-i18n="boot.ready">준비 중…</p>
-      <p id="boot-detail" class="boot-detail"></p>
+      <div class="boot-top-main">
+        <p id="boot-status" class="boot-status" data-i18n="boot.ready">준비 중…</p>
+        <p id="boot-detail" class="boot-detail"></p>
+      </div>
+      <div class="boot-lang" role="group" data-i18n-aria="common.language" aria-label="언어 설정">
+        <button type="button" class="boot-lang-btn" data-lang="ko" data-i18n-title="lang.ko" data-i18n-aria="lang.ko" title="한국어" aria-label="한국어">
+          <img src="assets/ui/flag-ko.svg" alt="">
+        </button>
+        <button type="button" class="boot-lang-btn" data-lang="ja" data-i18n-title="lang.ja" data-i18n-aria="lang.ja" title="日本語" aria-label="日本語">
+          <img src="assets/ui/flag-jp.svg" alt="">
+        </button>
+        <button type="button" class="boot-lang-btn" data-lang="en" data-i18n-title="lang.en" data-i18n-aria="lang.en" title="English" aria-label="English">
+          <img src="assets/ui/flag-us.svg" alt="">
+        </button>
+      </div>
     </div>
 
     <div id="boot-setup" class="boot-setup" hidden>
@@ -121,7 +137,7 @@
       <label class="settings-row">
         <span data-i18n="common.nickname">닉네임</span>
         <div class="settings-nick">
-          <input class="field" id="settings-nick" type="text" maxlength="10" autocomplete="off">
+          <input class="field" id="settings-nick" type="text" maxlength="20" autocomplete="off">
           <button type="button" class="menu-button small" id="settings-nick-save" data-i18n="common.save">저장</button>
         </div>
       </label>
@@ -146,6 +162,6 @@
 
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <script type="module" src="js/main.js?v=i18n32"></script>
+  <script type="module" src="js/main.js?v=i18n37"></script>
 </body>
 </html>

@@ -3,10 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="icon" href="/favicon.ico?v=3" sizes="any">
+  <link rel="icon" type="image/png" href="/favicon.png?v=3">
+  <link rel="apple-touch-icon" href="/favicon.png?v=3">
   <title data-i18n="app.title">대전 - 키라라 판타지아 카드게임</title>
-  <link rel="stylesheet" href="css/style.css?v=w7">
-  <link rel="stylesheet" href="css/deck.css?v=30">
-  <link rel="stylesheet" href="css/game.css?v=w20">
+  <link rel="stylesheet" href="css/style.css?v=w21">
+  <link rel="stylesheet" href="css/deck.css?v=34">
+  <link rel="stylesheet" href="css/game.css?v=w111">
 </head>
 <body class="window-theme window-theme-fill">
   <div id="duel-background" aria-hidden="true"></div>
@@ -17,6 +20,7 @@
       <img id="preview" class="preview" alt="" src="">
       <div class="tabs">
         <button class="tab active" data-tab="info" data-i18n="game.cardInfo">카드 정보</button>
+        <button class="tab" data-tab="log" data-i18n="game.logChat">기록 · 대화</button>
         <button class="tab" data-tab="settings" data-i18n="game.settings">설정</button>
         <span class="text-size">
           <button class="size-button" id="text-smaller" data-i18n="common.textSizeMinus" data-i18n-title="common.textSmaller" title="글자 작게">가-</button>
@@ -25,6 +29,10 @@
         </span>
       </div>
       <div class="tab-page card-info panel" id="card-info" data-page="info"></div>
+      <div class="tab-page panel feed chat" id="feed" data-page="log" hidden>
+        <ol id="duel-log"></ol>
+        <input id="chat-input" class="field" maxlength="120" data-i18n-placeholder="game.chatPlaceholder" placeholder="메시지를 입력하고 Enter">
+      </div>
       <div class="tab-page panel settings" data-page="settings" hidden>
         <p data-i18n="game.sound">사운드</p>
         <label class="volume">
@@ -37,12 +45,21 @@
           <input type="range" id="volume-bgm" min="0" max="100" step="5">
           <b id="volume-bgm-value"></b>
         </label>
+        <p data-i18n="common.language">언어 설정</p>
+        <label class="volume settings-lang">
+          <select class="field" id="settings-lang" data-i18n-aria="common.language" aria-label="언어 설정">
+            <option value="ko" data-i18n="lang.ko">한국어</option>
+            <option value="ja" data-i18n="lang.ja">日本語</option>
+            <option value="en" data-i18n="lang.en">English</option>
+          </select>
+        </label>
       </div>
-      <!-- dragged: the card info and the log below take more or less of the column (a replay's panel keeps its own) -->
-      <div class="side-split upper" role="separator" aria-orientation="horizontal" title="드래그해서 높이 조절"></div>
       <!-- a saved game shown again (game.html?replay=<id>): its controls -->
       <div class="replay-panel panel" id="replay-panel">
-        <div class="replay-head"><b data-i18n="game.replayPanel">리플레이</b> <span id="replay-title"></span></div>
+        <div class="replay-head">
+          <span class="replay-head-title"><b data-i18n="game.replayPanel">리플레이</b> <span id="replay-title"></span></span>
+          <button type="button" class="size-button" id="replay-hide" data-i18n="game.replayHide" data-i18n-title="game.replayHide" title="리플레이 창 숨기기">숨기기</button>
+        </div>
         <input type="range" id="replay-seek" min="0" max="0" value="0" data-i18n-aria="game.replayPlay" aria-label="재생 위치">
         <div class="replay-row">
           <span id="replay-where"></span>
@@ -62,25 +79,11 @@
           <button class="size-button" id="replay-last" data-i18n-title="game.replayLast" title="끝으로">⏭</button>
         </div>
       </div>
-      <div class="side-split lower" role="separator" aria-orientation="horizontal" title="드래그해서 높이 조절"></div>
-      <!-- the lower half: the duel log and the chat in one list -->
-      <div class="feeds">
-        <div class="feed panel chat" id="feed">
-          <div class="feed-title">
-            <span data-i18n="game.logChat">기록 · 대화</span>
-            <span class="text-size">
-              <button class="size-button" id="log-smaller" data-i18n="common.textSizeMinus" data-i18n-title="common.textSmaller" title="글자 작게">가-</button>
-              <span id="log-size-value"></span>
-              <button class="size-button" id="log-bigger" data-i18n="common.textSizePlus" data-i18n-title="common.textBigger" title="글자 크게">가+</button>
-            </span>
-          </div>
-          <ol id="duel-log"></ol>
-          <input id="chat-input" class="field" maxlength="120" data-i18n-placeholder="game.chatPlaceholder" placeholder="메시지를 입력하고 Enter">
-        </div>
-      </div>
+      <button type="button" class="replay-show size-button" id="replay-show" hidden data-i18n="game.replayShow" data-i18n-title="game.replayShow" title="리플레이 창 표시">리플레이 표시</button>
     </section>
 
-    <!-- right: the board, the opponent above and me below -->
+    <!-- right: fixed-ratio field scaled to fit; left column stays fluid -->
+    <div class="board-shell">
     <section class="board" id="board">
       <button class="menu-button small surrender" id="surrender" data-i18n="duel.surrender">항복하고 나가기</button>
       <div class="hand op" id="op-hand"></div>
@@ -131,7 +134,7 @@
       <div class="notices" id="notices"></div>
 
       <!-- what a clicked card can do now -->
-      <div class="card-menu panel" id="card-menu" hidden></div>
+      <div class="card-menu" id="card-menu" hidden></div>
 
       <!-- picking cards that are on the board or in the hand: they are clicked where they are -->
       <div class="select-bar panel" id="select-bar" hidden>
@@ -143,6 +146,7 @@
         </span>
       </div>
     </section>
+    </div><!-- /.board-shell -->
   </div>
 
   <div class="pile-list panel" id="pile-list" hidden>
@@ -151,9 +155,10 @@
   </div>
 
   <div id="toast" role="status" aria-live="polite"></div>
+
   <!-- a creamate on its way from a hand to its place (playFlights) -->
   <div class="fly" id="fly" aria-hidden="true"></div>
 
-  <script type="module" src="js/game.js?v=i18n32"></script>
+  <script type="module" src="js/game.js?v=i18n111"></script>
 </body>
 </html>
