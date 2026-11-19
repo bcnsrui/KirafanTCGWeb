@@ -4,7 +4,7 @@
 
 import {
   checkAndApplyUpdates, ensureServiceWorker, installDataFetchHook, manifestRevisionToken, metaGet,
-} from "./update.js?v=i18n37";
+} from "./update.js?v=i18n39";
 import { isTauri } from "./runtime.js";
 import {
   defaultDataPath,

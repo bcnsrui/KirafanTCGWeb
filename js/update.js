@@ -437,7 +437,7 @@ export async function ensureServiceWorker() {
   if (isTauri()) return null; // WebView2 + custom protocol: SW optional
   if (!("serviceWorker" in navigator)) return null;
   // ?v= bumps the script URL so browsers pick up CACHE_NAME changes
-  const reg = await navigator.serviceWorker.register("./sw.js?v=6", { scope: "./" });
+  const reg = await navigator.serviceWorker.register("./sw.js?v=7", { scope: "./" });
   await navigator.serviceWorker.ready;
   if (reg.waiting) reg.waiting.postMessage?.({ type: "SKIP_WAITING" });
   return reg;
@@ -465,10 +465,9 @@ export function installDataFetchHook() {
           && !p.endsWith("/manifest.json")) {
           // pathname may be /data/... — map to relative key
           const rel = p.replace(/^.*\/(data|pics|sound)\//, (_, k) => `${k}/`);
-          // Localhost: let pics hit the disk server (SW is also network-first for pics).
-          // Cached packs still apply for data/sound and for Tauri.
+          // Localhost: prefer disk for pics+data (puzzle/script edits). Cache still for sound / Tauri.
           const isLocalHost = u.hostname === "127.0.0.1" || u.hostname === "localhost" || u.hostname === "[::1]";
-          if (isLocalHost && p.includes("/pics/")) return orig(input, init);
+          if (isLocalHost && (p.includes("/pics/") || p.includes("/data/"))) return orig(input, init);
           if (isTauri()) {
             const buf = await readStored(rel);
             if (buf) {

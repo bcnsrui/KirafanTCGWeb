@@ -1,7 +1,7 @@
 /* Serves updated packs from Cache Storage when present; otherwise network.
  * pics/: same-origin first, then cache, then GitHub raw (Railway shell has no art). */
 
-const CACHE_NAME = "kirafan-data-v6";
+const CACHE_NAME = "kirafan-data-v7";
 const GH_TCG = "https://raw.githubusercontent.com/bcnsrui/KirafanTCG/main";
 
 self.addEventListener("install", () => {
@@ -41,13 +41,15 @@ self.addEventListener("fetch", (event) => {
   if (!(p.includes("/data/") || p.includes("/pics/") || p.includes("/sound/"))) return;
   if (p.endsWith("/manifest.json")) return;
 
-  const isPic = p.includes("/pics/");
+  // pics + data: same-origin network first (local puzzle/script edits, fresh deploys).
+  // sound: keep cache-first (large, rarely edited).
+  const networkFirst = p.includes("/pics/") || p.includes("/data/");
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
     const gh = githubAssetUrl(p);
 
-    if (isPic) {
+    if (networkFirst) {
       try {
         const res = await fetch(event.request, { cache: "no-store" });
         if (res && res.ok) {

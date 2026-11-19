@@ -1,7 +1,7 @@
 /* The game's flow: events and the effects they start, chains, the windows where players may act, the turn
  * (draw, standby, main, battle, end) and the battle. The order follows ocgcore's, so the questions the
  * players get (`ask`) come as they do in EDOPro. */
-import { Duel, START_HAND } from "./duel.js";
+import { Duel, START_HAND } from "./duel.js?v=standby2";
 
 /** option kinds: the numbers of the learning AI's kirafan_ai.core.messages (K_*) */
 export const K = {
@@ -272,7 +272,15 @@ Object.assign(Duel.prototype, {
     for (const card of this.cards) {
       if (card.controller !== p || !card.location) continue;
       for (const e of card.effects) {
-        if (this.canActivate(e, p, mode)) out.push({ kind, card, effect: e, desc: e.description, noop: NOOP_DESCS.has(e.description) });
+        if (this.canActivate(e, p, mode)) {
+          // Summoner ignition/quick (hand sort, empty chain, …): never for AI — only RealistTime
+          // (forced TRIGGER_F) may "use" the summoner, and that is not an idle option.
+          const summonerNoop = card.isType(this.C.TYPE_EXTRA);
+          out.push({
+            kind, card, effect: e, desc: e.description,
+            noop: summonerNoop || NOOP_DESCS.has(e.description),
+          });
+        }
       }
     }
     return out;
@@ -285,7 +293,7 @@ Object.assign(Duel.prototype, {
       limit: null, event, fieldId: card.fieldId };
     this.consumeCount(e);
     this.building = link;
-    this.emit("activate", { card, player: p, desc: e.description });
+    this.emit("activate", { card, player: p, desc: e.description, code: e.code });
     if (this.onActivate) await this.onActivate(link);   // (the page may show what is activated before its targets)
     const args = [e, p, ...eventArgs(event)];
     try {
@@ -488,7 +496,10 @@ Object.assign(Duel.prototype, {
     if (t.continuous) {   // (a phase's continuous effect: it runs, no chain)
       this.consumeCount(e);
       // UI sound (activate/): battle-start buffs etc. Static 패시브 never reach here.
-      this.emit("activate", { card: e.handler, player: t.player, desc: e.description, continuous: true });
+      // `code` lets the UI mute battle-end phase triggers (EVENT_PHASE+PHASE_BATTLE).
+      this.emit("activate", {
+        card: e.handler, player: t.player, desc: e.description, continuous: true, code: e.code,
+      });
       if (e.operation) await this.runLua(e.operation, [e, t.player, ...eventArgs(t.event)], e, t.player);
       await this.settle();
       return;
@@ -587,9 +598,11 @@ Object.assign(Duel.prototype, {
   uniqueOk(card, p) {
     const u = card.unique;
     if (!u) return true;
-    const matches = (c) => (u.filter ? this.check(u.filter, [c], null, p) : c.code === card.code);
+    const loc = u.loc || this.C.LOCATION_ONFIELD;
+    const code = u.code || card.code;
+    const matches = (c) => (u.filter ? this.check(u.filter, [c], null, p) : c.code === code);
     if (!matches(card)) return true;
-    return !this.fieldCards(p, u.s ? u.loc : 0, u.o ? u.loc : 0).some((c) => c !== card && c.faceup && matches(c));
+    return !this.fieldCards(p, u.s ? loc : 0, u.o ? loc : 0).some((c) => c !== card && c.faceup && matches(c));
   },
 
   async summon(card, p) {
@@ -657,6 +670,9 @@ Object.assign(Duel.prototype, {
       this.emit("battle", { attacker: card, target });
       this.raise(C.EVENT_DAMAGE_STEP_END, both.filter((c) => c.location === C.LOCATION_MZONE), { rp: p });
       await this.settle();
+      // ocgcore: leaving damage step clears RESET_PHASE|PHASE_DAMAGE (e.g. tutorial CANNOT_TRIGGER)
+      this.resetPhase(C.PHASE_DAMAGE);
+      this.resetPhase(C.PHASE_DAMAGE_CAL);
     }
     this.phase = C.PHASE_BATTLE_STEP;
     this.attacker = null;
@@ -700,6 +716,11 @@ Object.assign(Duel.prototype, {
     this.raise(C.EVENT_PREDRAW, [], { ep: this.turnPlayer });
     await this.settle();
     await this.processTriggers();
+    // Duel.SkipPhase during PREDRAW (e.g. 성전 튜토리얼 turn 3) — skip draw + EVENT_PHASE+PHASE_DRAW
+    if (this.skips(C.PHASE_DRAW)) {
+      this.resetPhase(C.PHASE_DRAW);
+      return;
+    }
     const count = this.playerAffected(this.turnPlayer, C.EFFECT_DRAW_COUNT);
     const n = count.length ? Number(this.value(count[0], [])) : this.turn > 1 ? 1 : 0;
     if (n > 0) this.draw(this.turnPlayer, n, C.REASON_RULE);

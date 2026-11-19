@@ -1,7 +1,7 @@
 /* Resolve data/pics/sound for browser (cache/SW) vs exe (disk next to .exe).
  * Import this early on every page so fetch() is hooked. */
 
-import { installDataFetchHook, fetchData } from "./update.js";
+import { installDataFetchHook, fetchData } from "./update.js?v=i18n39";
 import { getDataPath } from "./storage.js";
 import { isTauri } from "./runtime.js";
 import { assetUrl } from "./config.js";

@@ -47,6 +47,12 @@
   height: var(--fhd-h);
   transform: scale(var(--fhd-scale, 1));
   transform-origin: 0 0;
+  /* Hide until JS fit — avoids full-size flash then jump (deck / AI / etc.) */
+  visibility: hidden;
+}
+
+.fhd-stage.is-fitted {
+  visibility: visible;
 }
 
 .fhd-stage > .game-page,
@@ -332,6 +338,12 @@ body {
   transform: scale(var(--home-scale, 1));
   transform-origin: 0 0;
   will-change: transform;
+  /* Hide until JS fit runs — avoids full-size flash at top-left then jump to center */
+  visibility: hidden;
+}
+
+.home-cards.is-fitted {
+  visibility: visible;
 }
 
 .home-card {

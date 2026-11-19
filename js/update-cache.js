@@ -1,6 +1,6 @@
 /* Shared cache key helpers (avoid circular imports between update.js and storage.js). */
 
-export const CACHE_NAME = "kirafan-data-v6";
+export const CACHE_NAME = "kirafan-data-v7";
 
 export function cacheKey(rel) {
   const path = rel.replace(/^\//, "");

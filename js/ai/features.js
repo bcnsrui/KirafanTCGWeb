@@ -1206,7 +1206,14 @@ export function encode(view, decision, db) {
     opts.push(f);
     optIds.push([o.kind, cardVocab, vocab.get(dcode) || 0, dcode ? Math.min(didx, 31) : 0, ptr]);
   });
-  if (noop.every((x) => x)) noop = noop.map(() => 0);
+  // If every option is noop, unmask non-summoner ones only (summoner activates stay blocked).
+  if (noop.every((x) => x)) {
+    const summoner = new Set([10050110, 10050111, 10050112, 10050113, 10050114, 10050115, 10050116, 10050117]);
+    noop = decision.options.map((o) => (
+      ACTIVATE_KINDS.has(o.kind) && o.card && summoner.has(o.card[0]) ? 1 : 0
+    ));
+    if (noop.every((x) => x)) noop = noop.map(() => 0);
+  }
   return { g, cards, card_codes: codes, opts, opt_ids: optIds, noop,
     hint: [vocab.get(hintCode) || 0, hintCode ? descIndex(decision.hint) : 0] };
 }

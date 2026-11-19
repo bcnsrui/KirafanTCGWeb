@@ -4,11 +4,11 @@
  *   const winner = await duel.play([{ main, summoner }, { main, summoner }]);   // player 0 moves first
  *
  * A player is { human?, ask(duel, decision) -> answer } (flow.js: the decisions and their answers). */
-import { Duel } from "./duel.js";
-import "./actions.js";
-import "./flow.js";
-import "./puzzle.js";
-import { createRuntime } from "./runtime.js";
+import { Duel } from "./duel.js?v=standby2";
+import "./actions.js?v=standby2";
+import "./flow.js?v=standby2";
+import "./puzzle.js?v=standby2";
+import { createRuntime } from "./runtime.js?v=standby2";
 import { engineDataUrl, getLang } from "../lang.js";
 
 let data = null;

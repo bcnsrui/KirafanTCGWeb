@@ -1,13 +1,13 @@
 import { API_BASE, EXE_DOWNLOAD_URL, VERSION } from "./config.js";
 import { toast } from "./ui.js";
-import { runBootSequence } from "./boot.js?v=i18n37";
+import { runBootSequence } from "./boot.js?v=i18n39";
 import { isTauri } from "./runtime.js";
 import { loadSounds, playBgm, setVolume, volume } from "./sound.js";
-import "./local-assets.js";
+import "./local-assets.js?v=4";
 import { LANG_STORE, getLang, setLang } from "./lang.js";
 import { applyI18n, t } from "./ui-i18n.js?v=i18n34";
 import "./presence.js";
-import { bindHomeCardsFit } from "./stage-scale.js?v=13";
+import { bindHomeCardsFit } from "./stage-scale.js?v=14";
 
 const VISIT_KEY = "kirafan.visit.pinged";
 
@@ -155,6 +155,8 @@ runBootSequence().then(async (result) => {
   // 다운로드 실패/미완료면 오버레이에 머물고 메인 메뉴를 열지 않음
   if (result?.status === "error") return;
   document.getElementById("main-menu").classList.remove("booting");
+  // Re-fit after boot overlay/layout settles (first paint used to jump from top-left).
+  requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
   if (location.search.includes("boot=demo")) {
     history.replaceState(null, "", "index.html");
   }

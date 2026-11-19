@@ -2,8 +2,8 @@ import { toast } from "./ui.js";
 import {
   ATTRIBUTE_ICONS, aiRecipeLabel, loadAiDecks, loadCards, setupTextSize, writeCardInfo,
 } from "./decks.js";
-import { newDuel, describe } from "./engine/index.js?v=hp3";
-import { K, NOOP_DESCS } from "./engine/flow.js?v=hp3";
+import { newDuel, describe } from "./engine/index.js?v=standby2";
+import { K, NOOP_DESCS } from "./engine/flow.js?v=standby2";
 import { puzzlePlayer, simplePlayer, SANCTUARY_HINT, SANCTUARY_ONE_HINT } from "./engine/players.js?v=hp2";
 import { modelPlayer } from "./ai/agent.js";
 import { loadSounds, playBgm, playCue, setVolume, voice, volume } from "./sound.js?v=8";
@@ -18,12 +18,12 @@ import { deleteRoom, fetchRooms } from "./lobby-rooms.js";
 import { currentNick, loadMatchData, saveMatch } from "./match-store.js";
 import { getLang, puzzlesDataUrl, setLang } from "./lang.js";
 import { applyI18n, t } from "./ui-i18n.js?v=i18n42";
-import { loadJson, mediaUrl } from "./local-assets.js";
-import { bindBoardFit, fitFieldContent } from "./stage-scale.js?v=11";
-import { clearLocalDevCaches } from "./dev-cache.js?v=2";
+import { loadJson, mediaUrl } from "./local-assets.js?v=4";
+import { bindBoardFit, fitFieldContent } from "./stage-scale.js?v=14";
+import { clearLocalDevCaches } from "./dev-cache.js?v=3";
 
-await clearLocalDevCaches();
 bindBoardFit();
+await clearLocalDevCaches();
 
 /** Uniform board scale (1 at current design size). */
 function boardScale() {
@@ -1617,10 +1617,10 @@ function optionChipKind(o) {
   const cardDesc = (o.card && cards.get(o.card.code)?.desc) || "";
   const s = `${label}\n${effect}`;
   if (/광역\s*회복|全体回復|area\s*heal|광역.*회복|회복.*광역|全体.*回復|all[-\s]?heal/i.test(s)
-    || (/광역|全体|aoe|전체/i.test(s) && /회복|heal|回復|recover/i.test(s))) return "heal-aoe";
+    || (/광역|全体|aoe|전체/i.test(s) && /회복|heal|回復|recover|리커버리|リカバリー/i.test(s))) return "heal-aoe";
   if (/단일\s*회복|単体回復|single\s*heal|단일.*회복|회복.*단일|単体.*回復/i.test(s)
-    || (/단일|単体|single/i.test(s) && /회복|heal|回復|recover/i.test(s))) return "heal-single";
-  if (/회복|heal|回復|recover/i.test(s)) return "heal-single";
+    || (/단일|単体|single/i.test(s) && /회복|heal|回復|recover|리커버리|リカバリー/i.test(s))) return "heal-single";
+  if (/회복|heal|回復|recover|리커버리|リカバリー/i.test(s)) return "heal-single";
   if (/공격력|攻撃力|\batk\b|attack\s*power|공격\s*력/i.test(s)) return "atk";
   if (/상태이상|状態異常|status|경직|약화|침묵|혼란|불행|독|silence|stiff|weak|misfortune|hunger|배고픔/i.test(s)) {
     return "status";
@@ -2227,7 +2227,7 @@ async function askYesNo(d) {
         ? `${nameOf(d.card)}の効果を発動しますか？\n${effectText(d.desc)}`
         : `${nameOf(d.card)}의 효과를 발동할까요?\n${effectText(d.desc)}`)
     : describe(d.desc) || (getLang() === "en" ? "Proceed?" : getLang() === "ja" ? "実行しますか？" : "할까요?");
-  return askPrompt(t("duel.confirm"), text, [{ label: t("duel.no"), value: 1 }, { label: t("duel.yes"), value: 0, primary: true }]);
+  return askPrompt(t("duel.confirm"), text, [{ label: t("duel.yes"), value: 0, primary: true }, { label: t("duel.no"), value: 1 }]);
 }
 
 async function askNumber(d) {
@@ -3119,10 +3119,15 @@ async function playPuzzle(id) {
   });
   me = 0;
   revealed[0] = revealed[1] = true;
-  duel = await newDuel({ players: [human, puzzlePlayer({ delay: AI_DELAY })] });
+  // --@aiLevel N in puzzle lua (e.g. 속박=4) → learning AI; else SIMPLE_AI
+  const aiLevel = Number(puzzle.aiLevel) || 0;
+  const opp = aiLevel >= 1 && aiLevel <= 4
+    ? await modelPlayer({ level: aiLevel, delay: AI_DELAY })
+    : puzzlePlayer({ delay: AI_DELAY });
+  duel = await newDuel({ players: [human, opp] });
   window.kirafanDuel = duel;
   duel.decks = [{ summoner: 0 }, { summoner: 0 }];
-  names = [t("puzzle.me"), t("puzzle.opp")];
+  names = [t("puzzle.me"), aiLevel ? t("game.aiLabel", { level: t("ai.levelN", { n: aiLevel }), bot: "" }) : t("puzzle.opp")];
   duel.listeners.push((e) => {
     logEntry(e);
     noticeEvent(e);
@@ -3412,6 +3417,11 @@ let hpSoundFlush = 0;
 
 function flushHpSounds(say) {
   hpSoundFlush = 0;
+  // Standby Dotteeop: overlays leave when a creamate is sent to 돗테오키 — not damage/fall
+  if (duel.phase === duel.C.PHASE_STANDBY) {
+    hpSoundBatch.clear();
+    return;
+  }
   for (const [creamate, info] of hpSoundBatch) {
     if (info.lethal) {
       defeatFromHp.add(creamate);
@@ -3423,14 +3433,26 @@ function flushHpSounds(say) {
   hpSoundBatch.clear();
 }
 
-/** Battle creamate 돗테오키 (MZONE) → sound/totteoki/. */
+/** Shared totteoki labels: "돗테오키 효과를 발동한다" / "돗테오키 효과" / "두번째 돗테오키 효과". */
+const DOTTE_VOICE_DESCS = new Set([
+  DOTTE_EFFECT,
+  10050113 * 0x100000 + 4,
+  10050113 * 0x100000 + 5,
+]);
+
+/** 돗테오키 게이지 사용·「돗테오키 효과」로 표기된 효과 → sound/totteoki/.
+ *  (카드 문구에 '돗테오키 게이지'만 있는 스킬은 여기 넣지 않음 — activate/recovery 사용) */
 function isTotteokiActivate(e) {
-  if (e.desc === DOTTE_EFFECT) return true;
+  if (DOTTE_VOICE_DESCS.has(e.desc)) return true;
+  const text = effectText(e.desc) || "";
+  // Exact totteoki-effect label only — not "돗테오키 게이지+1" flavor on normal skills
+  if (/돗테오키\s*효과|とっておき効果|(?:^|[^가-힣])totteoki(?:\s*effect)?$/i.test(text.trim())) return true;
   const C = duel.C;
-  return !!(cards.get(e.card.code)?.battle && e.card.location === C.LOCATION_MZONE && !effectText(e.desc));
+  // Battle creamate field totteoki often has a blank description id
+  return !!(cards.get(e.card.code)?.battle && e.card.location === C.LOCATION_MZONE && !text);
 }
 
-/** 알케미스트 돗테오키 존 효과 → sound/Alchemist/. */
+/** 알케미스트 돗테오키 존(묘지) 발동 → sound/Alchemist/ (게이지 돗테오키는 위에서 totteoki). */
 function isAlchemistActivate(e) {
   const C = duel.C;
   if (e.card.location !== C.LOCATION_GRAVE) return false;
@@ -3439,10 +3461,11 @@ function isAlchemistActivate(e) {
   return !!(e.card.data?.race & 16);
 }
 
-/** 승려 회복 효과 → sound/recovery/ (돗테오키·비회복 효과와 별도). */
+/** 승려 회복 스킬 → sound/recovery/ (돗테오키 게이지 효과는 totteoki가 우선). */
 function isRecoveryActivate(e) {
   if (cards.get(e.card.code)?.class !== "승려") return false;
-  return /회복|回復|heal|recover/i.test(effectText(e.desc));
+  // 나츠 메구미 등: 문구가 「리커버리/リカバリー」인 부여 스킬도 회복으로 본다
+  return /회복|回復|heal|recover|리커버리|リカバリー/i.test(effectText(e.desc));
 }
 
 function activateVoiceKind(e) {
@@ -3467,9 +3490,19 @@ function soundOf(e) {
   else if (e.type === "transform") say("summon", e.to ?? e.card.code);
   else if (e.type === "attack") say("attack", e.attacker.code);
   else if (e.type === "activate" && !NOOP_DESCS.has(e.desc)) {
+    // Summoner sounds only: summon/ (등장) + summoner/ (진실의 손의 시간). Nothing else.
+    if (isSummoner(e.card)) {
+      if (!e.continuous) say("summoner", e.card.code); // RealistTime (also PHASE_BATTLE)
+      return;
+    }
+    // 배틀 페이즈 종료시 (drawtrigger / guagetrigger / card text "(배틀 페이즈 종료시)" …): silent
+    const C = duel.C;
+    if (e.code === C.EVENT_PHASE + C.PHASE_BATTLE) return;
     say(activateVoiceKind(e), e.card.code);
   }
   else if (e.type === "hpDamage") {
+    // Standby Dotteeop / rule chip dump: never queue defeat/damage voices
+    if (duel.phase === duel.C.PHASE_STANDBY) return;
     const cur = hpSoundBatch.get(e.card) || { code: e.card.code, lethal: false };
     if (e.lethal) cur.lethal = true;
     cur.code = e.card.code;
@@ -3478,6 +3511,8 @@ function soundOf(e) {
   }
   // Fall without prior hpDamage batch (rare); skip if defeat already played for this chip
   else if (e.type === "destroyed" && !isSummoner(e.card)) {
+    // Standby: send battle creamate to 돗테오키 존 (pendulum may pass EXTRA) — not a real fall
+    if (duel.phase === duel.C.PHASE_STANDBY) return;
     if (defeatFromHp.has(e.card)) return;
     const pending = hpSoundBatch.get(e.card);
     if (pending) {

@@ -113,7 +113,7 @@ export function sfx(name) {
   return playFile(`sound/${file}`);
 }
 
-/** creamate chant only — no EDOPro default wav fallback when a line is missing */
+/** creamate / summoner chant only — no EDOPro default wav fallback when a line is missing */
 export function playCue(kind, code) {
   return voice(kind, code);
 }

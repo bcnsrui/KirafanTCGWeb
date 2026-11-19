@@ -4,14 +4,14 @@ import {
 } from "./decks.js";
 import { loadSounds, playBgm } from "./sound.js";
 import { saveMatch } from "./match-store.js";
-import { applyI18n, t } from "./ui-i18n.js?v=i18n26";
+import { applyI18n, t } from "./ui-i18n.js?v=i18n27";
 import { mediaUrl } from "./local-assets.js";
-import { bindFhdStage } from "./stage-scale.js?v=2";
+import { bindFhdStage } from "./stage-scale.js?v=14";
 import { clearLocalDevCaches } from "./dev-cache.js?v=1";
 import { setupSideSettings } from "./side-settings.js";
 
-await clearLocalDevCaches();
 bindFhdStage();
+await clearLocalDevCaches();
 
 function setPic(el, rel) {
   if (!el) return;

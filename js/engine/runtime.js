@@ -4,7 +4,7 @@
  *
  * Lua integers are 32-bit here (EDOPro's are 64-bit): flags above 0x7fffffff (RESET_CHAIN) arrive negative and
  * are read back unsigned, and aux.Stringid makes a float (code * 2^20 + index, the same number). */
-import { Card, Effect, EMZONE } from "./duel.js";
+import { Card, Effect, EMZONE } from "./duel.js?v=standby2";
 
 /** Lua run right after a card's script, changing it for the page: the two 앨리스 카터릿 turn into each other at the
  *  battle phase's end (the card itself changes, Duel._Transform) where EDOPro takes one out of the duel and
@@ -570,7 +570,15 @@ export class Runtime {
       return ret(L, link.targets.some((t) => t.card === c && t.fieldId === c.fieldId));
     });
     cdef("SetUniqueOnField", (L, c) => {
-      c.unique = { s: n(L, 2), o: n(L, 3), filter: rt.ref(L, 4), loc: u(L, 5) };
+      // EDOPro: arg4 is either a code or a filter function; omitted loc means LOCATION_ONFIELD
+      const isFn = lua.lua_type(L, 4) === lua.LUA_TFUNCTION;
+      c.unique = {
+        s: n(L, 2),
+        o: n(L, 3),
+        filter: isFn ? rt.ref(L, 4) : null,
+        code: isFn ? 0 : n(L, 4),
+        loc: u(L, 5) || C.LOCATION_ONFIELD,
+      };
       return 0;
     });
 

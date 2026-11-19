@@ -2,7 +2,7 @@
  * the Debug library (Debug.AddCard ... Debug.ReloadFieldEnd, runtime.js), talks through Debug.ShowHint and sets
  * its own ends with effects of the duel (Duel.RegisterEffect, aux.BeginPuzzle); then the turns as usual, from
  * player 0's first, without the opening deal. */
-import { Duel, EMZONE } from "./duel.js";
+import { Duel, EMZONE } from "./duel.js?v=standby2";
 import { DuelEnd } from "./flow.js";
 
 Object.assign(Duel.prototype, {

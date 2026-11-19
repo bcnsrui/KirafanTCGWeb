@@ -126,7 +126,7 @@
 
 .volume input {
   width: 100%;
-  accent-color: #b070f0;
+  accent-color: #c07848;
 }
 
 .volume b {
@@ -146,29 +146,50 @@
   font-size: 15px;
 }
 
-/* (in the board's top right corner, out of the way of the hand) */
-.board .surrender:disabled {
+/* (board top-right — same pill as phase button; beat .window-theme .menu-button.small) */
+.window-theme .board .menu-button.surrender:disabled,
+.board .menu-button.surrender:disabled {
   opacity: 0.45;
+  filter: grayscale(0.25);
+  box-shadow: none;
   pointer-events: none;
   cursor: default;
 }
-.board .surrender {
+.window-theme .board .menu-button.surrender,
+.board .menu-button.surrender,
+#surrender {
   position: absolute;
   z-index: 3;
   top: 6px;
   right: 6px;
-  height: 40px;
-  padding: 0 18px;
-  font-size: 15px;
-  /* Parent .board is CSS-scaled: border-image leaves a 1px fringe — clip it */
-  overflow: hidden;
+  height: 43px;
+  padding: 0 26px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #f2d060;
+  border-image: none !important;
+  border-radius: 22px;
+  background: linear-gradient(#e88888, #c05060);
+  color: var(--text, #fff8ee);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: visible;
   outline: none;
-  box-shadow: none !important;
-  filter: none !important;
-  border-color: #f3ebe0; /* same as CommonButton fill if a seam peeks */
-  clip-path: inset(0.75px round 11px);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  box-shadow: 0 0 10px rgba(232, 136, 136, 0.45);
+  filter: none;
+  clip-path: none;
+}
+.window-theme .board .menu-button.surrender:hover,
+.window-theme .board .menu-button.surrender:focus-visible,
+#surrender:hover,
+#surrender:focus-visible {
+  filter: brightness(1.06);
+}
+.window-theme .board .menu-button.surrender:active,
+#surrender:active {
+  filter: brightness(0.96);
 }
 
 /* ---- the board (fixed design size; shell scales it uniformly) ---- */
@@ -195,6 +216,11 @@
   border-image: none !important;
   box-shadow: none !important;
   backdrop-filter: none !important;
+  visibility: hidden;
+}
+
+.board.is-fitted {
+  visibility: visible;
 }
 
 /* ScreenWindow on card info + settings + duel log + replay; other panels keep compact plate */
@@ -1909,9 +1935,11 @@ body.replaying #chat-input {
   min-height: 150px;
   box-sizing: border-box;
   padding: 30px 96px 20px 22px;
+  /* frame.png 중앙과 동일 색(#fffde4). fill 없이 안만 단색 — 늘어난 슬라이스/필터 격자·색 단차 방지 */
+  background: #fffde4;
   border: 26px solid transparent;
-  border-image: url("../assets/story/frame.png") 26 fill / 26px stretch;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+  border-image: url("../assets/story/frame.png") 26 / 26px stretch;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
   cursor: pointer;
   animation: story-in 0.18s ease-out;
 }

@@ -44,6 +44,7 @@ export function bindFhdStage(root = document) {
   const apply = () => {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
+    if (vw < 2 || vh < 2) return;
     const s = scaleFor(vw, vh, FHD_W, FHD_H);
     const left = (vw - FHD_W * s) / 2;
     const top = (vh - FHD_H * s) / 2;
@@ -52,6 +53,7 @@ export function bindFhdStage(root = document) {
       el.style.setProperty("--fhd-scale", String(s));
       el.style.left = `${left}px`;
       el.style.top = `${top}px`;
+      el.classList.add("is-fitted");
     }
   };
 
@@ -85,6 +87,7 @@ export function bindHomeCardsFit(root = document) {
   const apply = () => {
     const rw = shell.clientWidth;
     const rh = shell.clientHeight;
+    if (rw < 2 || rh < 2) return; // boot/overlay: shell not laid out yet — wait for RO/resize
     const s = scaleFor(rw, rh, HOME_CARDS_W, HOME_CARDS_H) * HOME_FIT;
     const left = (rw - HOME_CARDS_W * s) / 2;
     const top = (rh - HOME_CARDS_H * s) / 2;
@@ -95,6 +98,7 @@ export function bindHomeCardsFit(root = document) {
     stage.style.left = `${left}px`;
     stage.style.top = `${top}px`;
     stage.style.transform = `scale(${s})`;
+    stage.classList.add("is-fitted");
   };
 
   apply();
@@ -123,7 +127,8 @@ export function bindBoardFit(root = document) {
   const apply = () => {
     const rw = shell.clientWidth;
     const rh = shell.clientHeight;
-    const aspectW = rh > 0 ? Math.round(BOARD_H * (rw / rh)) : BOARD_W_MIN;
+    if (rw < 2 || rh < 2) return;
+    const aspectW = Math.round(BOARD_H * (rw / rh));
     const designW = Math.min(BOARD_W_MAX, Math.max(BOARD_W_MIN, aspectW));
     const s = scaleFor(rw, rh, designW, BOARD_H);
     const left = (rw - designW * s) / 2;
@@ -135,6 +140,7 @@ export function bindBoardFit(root = document) {
     board.style.left = `${left}px`;
     board.style.top = `${top}px`;
     board.style.transform = `scale(${s})`;
+    board.classList.add("is-fitted");
     requestAnimationFrame(() => fitFieldContent(root));
   };
 

@@ -1,6 +1,6 @@
 /* What the Lua scripts do to cards (Duel.Draw, Duel.Remove, Duel.SpecialSummon ...): each moves cards through
  * Duel.move and raises the events ocgcore raises for that action, handled once the action is over. */
-import { Duel } from "./duel.js";
+import { Duel } from "./duel.js?v=standby2";
 
 const list = (x) => (x ? (Array.isArray(x) ? x : [x]) : []);
 
@@ -146,6 +146,7 @@ Object.assign(Duel.prototype, {
     const C = this.C;
     const summoned = [];
     for (const c of this.inOperationOrder(cards)) {
+      if (!this.uniqueOk(c, targetPlayer)) continue;
       const zones = this.freeZones(targetPlayer, C.LOCATION_MZONE)
         .filter((s) => s < 5 || c.isType(C.TYPE_EXTRA));   // (the extra monster zones: the summoner)
       if (!zones.length) continue;

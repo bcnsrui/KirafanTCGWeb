@@ -124,6 +124,8 @@ export class Duel {
   // ---- cards and zones -------------------------------------------------------------
   newCard(code, owner) {
     const card = new Card(this, this.cards.length + 1, code, owner);
+    // TYPE_TOKEN (비운의 인물, 슈가 10050011 …): leave the duel when off the field
+    card.token = card.isType(this.C.TYPE_TOKEN);
     this.cards.push(card);
     this.making = true;
     try {
@@ -234,7 +236,10 @@ export class Duel {
     this.removeFromPlace(card);
     if (hpHit) {
       const left = host.overlay.length;
-      this.emit("hpDamage", { card: host, left, lethal: left === 0 });
+      // Standby Dotteeop (and other REASON_RULE chip dumps) are not combat damage/fall
+      if (!(reason & C.REASON_RULE)) {
+        this.emit("hpDamage", { card: host, left, lethal: left === 0 });
+      }
     }
     if (leavesField && card.overlay.length && !holder && to !== C.LOCATION_EXTRA) {
       // (the cards under a card leaving the field go to the graveyard; to the extra deck they stay under it,

@@ -1,0 +1,1147 @@
+[
+  {
+    "ko": "★클레어\n에토와리아에 오신 것을 환영합니다!",
+    "en": "★Claire\nWelcome to Etoilia!",
+    "ja_cur": "★クレア\nWelcome to Etoilia!"
+  },
+  {
+    "ko": "★클레어\n만나서 반갑습니다\n저는 클레어라고 합니다!\n부족하지만 아무쪼록 잘 부탁드립니다!",
+    "en": "★Claire\nNice to meet you\nMy name is Claire!\nIt's not enough, but please take care of it!",
+    "ja_cur": "★クレア\nNice to meet you\nMy name is Claire!\nIt's not enough, but please take care of it!"
+  },
+  {
+    "ko": "★클레어\n자, 드디어 앞으로 아득한 모험길이 시작될거에요\n기대돼요~! 두근두근 설레여요~!",
+    "en": "★Claire\nNow, the long adventure ahead will finally begin.\nI’m looking forward to it~! I'm so excited~!",
+    "ja_cur": "★クレア\nNow, the long adventure ahead will finally begin.\nI’m looking forward to it~! I'm so excited~!"
+  },
+  {
+    "ko": "★클레어\n모험이라고 하면 서로 도와 함께 여행을 하는 것이에요\n동료가 꼭 필요하죠!",
+    "en": "★Claire\nAdventure means traveling together and helping each other.\nYou need company!",
+    "ja_cur": "★クレア\nAdventure means traveling together and helping each other.\nYou need company!"
+  },
+  {
+    "ko": "★클레어\n앞으로 만날 동료분들은 함께 모험만 하는 것이 아니에요\n모험하지 않을 땐 저도 살고있는 마을에서 함께 지낼 수 있거든요!",
+    "en": "★Claire\nThe allies I'll meet in the future don't just go on adventures together.\nWhen I'm not going on adventures, I can stay together in the Village where I live!",
+    "ja_cur": "★クレア\nThe allies I'll meet in the future don't just go on adventures together.\nWhen I'm not going on adventures, I can stay together in the 里 where I live!"
+  },
+  {
+    "ko": "★클레어\n즐겁게 이야기하거나 함께 쇼핑하거나...\n이런 일이나 저런 일도...",
+    "en": "★Claire\nTalking happily or shopping together...\nThis or that...",
+    "ja_cur": "★クレア\nTalking happily or shopping together...\nThis or that..."
+  },
+  {
+    "ko": "★클레어\n네?\n어떻게하면 동료를 만날 수 있냐고요?",
+    "en": "★Claire\nyes?\nHow do I meet allies?",
+    "ja_cur": "★クレア\nyes?\nHow do I meet allies?"
+  },
+  {
+    "ko": "★클레어\n그건 말이죠 바로!\n'소환'을 함으로써 그런 멋진 동료들이 와주실거예요!\n저도 이 열쇠의 힘을 사용해서 도와드릴게요",
+    "en": "★Claire\nThat's right!\nBy ‘summoning’, such wonderful allies will come!\nI will also use the power of this key to help you.",
+    "ja_cur": "★クレア\nThat's right!\nBy ‘summoning’, such wonderful allies will come!\nI will also use the power of this key to help you."
+  },
+  {
+    "ko": "★클레어\n열심히 할테니까 잘 부탁드려요!\n그럼 바로 함께 동료를...\n크리에메이트를 소환해 보도록하죠!",
+    "en": "★Claire\nI will work hard, so please take care of me!\nThen, let's summon a friend together...\nCreamate!",
+    "ja_cur": "★クレア\nI will work hard, so please take care of me!\nThen, let's summon a friend together...\nクリエメイト!"
+  },
+  {
+    "ko": "★클레어\n그럼 게임 시작부터 배워보도록 할까요?\n제 옆에 있는 하늘색 3/4 표시가 보이시나요?\n제가 현재 사용할 수 있는 성채석 갯수는 4개에요",
+    "en": "★Claire\nShall we learn from the start of the game?\nDo you see the light-blue 3/4 next to me?\nThe number of Castle Stones I can use right now is 4",
+    "ja_cur": "★クレア\nShall we learn from the start of the game?\nDo you see the light-blue 3/4 next to me?\nThe number of 城石 I can use right now is 4"
+  },
+  {
+    "ko": "★클레어\n성채석 한도는 성전에 있는 카드 수와 같아요!\n원래 드로우 페이즈는 서로의 첫번째 턴에는 할 수 없지만 튜토리얼이니 진행해 볼게요!",
+    "en": "★Claire\nYour Castle Stone limit equals the number of cards in the Sanctuary!\nNormally neither side gets a Draw Phase on turn 1, but since this is a tutorial, we'll proceed!",
+    "ja_cur": "★クレア\nYour 城石 limit equals the number of cards in the 聖典!\nNormally neither side gets a ドローフェイズ on turn 1, but since this is a tutorial, we'll proceed!"
+  },
+  {
+    "ko": "★클레어\n드로우 페이즈에는 3장을 드로우하고 패에서 카드 1장을 성전으로 보낼 수 있어요!\n성전의 카드가 너무 많다고 생각되면 성전에 카드를 놓지 않을 수도 있답니다",
+    "en": "★Claire\nIn the Draw Phase you draw 3 cards and may send 1 card from your hand to the Sanctuary!\nIf you think there are already too many Sanctuary cards, you can choose not to place one",
+    "ja_cur": "★クレア\nIn the ドローフェイズ you draw 3 cards and may send 1 card from your hand to the 聖典!\nIf you think there are already too many 聖典 cards, you can choose not to place one"
+  },
+  {
+    "ko": "★클레어\n반대로 상대도 패를 1장 성전으로 보낼 수 있는데\n지금 상대는 패에 카드가 없어 할 수 없네요",
+    "en": "★Claire\nYour opponent can also send 1 card from hand to the Sanctuary,\nbut they have no cards in hand right now, so they can't",
+    "ja_cur": "★クレア\nYour opponent can also send 1 card from hand to the 聖典,\nbut they have no cards in hand right now, so they can't"
+  },
+  {
+    "ko": "★클레어\n흠... 카드를 놓지 않으셨네요\n자신 필드의 크리에메이트의 레벨 합계는\n성채석 한도를 넘을 수 없답니다.",
+    "en": "★Claire\nHmm... you didn't place a card\nThe total Level of Creamates on your field\ncannot exceed your Castle Stone limit.",
+    "ja_cur": "★クレア\nHmm... you didn't place a card\nThe total Level of クリエメイト on your field\ncannot exceed your 城石 limit."
+  },
+  {
+    "ko": "★클레어\n따라서 레벨 1 승려 세분이 필드에서 성채석 3개를 사용하고 있어서\n지금은 레벨 1 크리에메이트밖에 소환할 수 없어요",
+    "en": "★Claire\nSo, since three level 1 Priests are using 3 Castle Stones on the field,\nI can only summon level 1 Creamate right now.",
+    "ja_cur": "★クレア\nSo, since three level 1 Priests are using 3 城石 on the field,\nI can only summon level 1 クリエメイト right now."
+  },
+  {
+    "ko": "★클레어\n원하는 동료분을 소환해주세요!\n참고로 패는 클래스, 레벨, 속성별로 자동 정렬돼요.\n(전사-마법사-나이트-승려-알케미스트순으로 정렬돼요)",
+    "en": "★Claire\nPlease summon the ally you want!\nBy the way, your hand auto-sorts by class, level, and attribute.\n(Sorted Warrior–Mage–Knight–Priest–Alchemist)",
+    "ja_cur": "★クレア\nPlease summon the ally you want!\nBy the way, your hand auto-sorts by class, level, and attribute.\n(Sorted Warrior–Mage–Knight–Priest–Alchemist)"
+  },
+  {
+    "ko": "★클레어\n자신 필드의 크리에메이트의 레벨 합계는\n성채석 한도를 넘을 수 없답니다.",
+    "en": "★Claire\nThe total Level of Creamates on your field\ncannot exceed your Castle Stone limit.",
+    "ja_cur": "★クレア\nThe total Level of クリエメイト on your field\ncannot exceed your 城石 limit."
+  },
+  {
+    "ko": "★클레어\n따라서 레벨 1 승려 세분이 필드에서 성채석 3개를 사용하고 있어서\n지금은 레벨 2 이하의 크리에메이트만 소환할 수 있어요",
+    "en": "★Claire\nSo the three Level 1 Priests on the field are using 3 Castle Stones,\nand right now you can only summon Creamates of Level 2 or lower",
+    "ja_cur": "★クレア\nSo the three Level 1 Priests on the field are using 3 城石,\nand right now you can only summon クリエメイト of Level 2 or lower"
+  },
+  {
+    "ko": "★클레어\n배틀 크리에메이트(전사+마법사+나이트)는 배틀 존에\n서포트 크리에메이트(승려+알케미스트)는 서포트 존에\n소환할 수 있어요",
+    "en": "★Claire\nBattle Creamate (Warrior + Wizard + Knight) is in the Battle Zone.\nSupport Creamate (Priest + Alchemist) is in the Support Zone.\nI can summon",
+    "ja_cur": "★クレア\nBattle クリエメイト (Warrior + Wizard + Knight) is in the バトルゾーン.\nSupport クリエメイト (Priest + Alchemist) is in the サポートゾーン.\nI can summon"
+  },
+  {
+    "ko": "★클레어\n만약 배틀 페이즈 개시시에 배틀 존에 아무도 없다면\n패에서 배틀 크리에메이트를 소환해야만해요\n소환하지 못하면 자신의 패배가 되니 주의해주세요!!",
+    "en": "★Claire\nIf there is no one in the Battle Zone at the start of the Battle Phase, you must summon Battle Creamate from your\nhand. If you fail to summon\n, you will lose, so be careful!!",
+    "ja_cur": "★クレア\nIf there is no one in the バトルゾーン at the start of the バトルフェイズ, you must summon Battle クリエメイト from your\nhand. If you fail to summon\n, you will lose, so be careful!!"
+  },
+  {
+    "ko": "★클레어\n사에 씨를 소환하셨네요\n통상 공격과 돗테오키 효과를 사용하면\n카렌 씨는 달속성이어서 이기실 수 있을거예요!",
+    "en": "★Claire\nYou summoned Sae.\nIf you use normal attacks and the Totteoki effect,\nKaren is a moon attribute, so you should be able to win!",
+    "ja_cur": "★クレア\nYou summoned Sae.\nIf you use normal attacks and the とっておき effect,\nKaren is a moon attribute, so you should be able to win!"
+  },
+  {
+    "ko": "★클레어\n사에 씨의 왼쪽 아래의 노란색 검은 해속성이고 공격력이 1이란 뜻이에요\n오른쪽 하트 표시는 현재체력 3 / 최대체력 3이라는 뜻이예요",
+    "en": "★Claire\nThe yellow orb at the bottom left on Sae means Sun attribute and ATK 1\nThe heart on the right means current HP 3 / max HP 3",
+    "ja_cur": "★クレア\nThe yellow orb at the bottom left on Sae means Sun attribute and 攻撃力 1\nThe heart on the right means current 体力 3 / max 体力 3"
+  },
+  {
+    "ko": "★클레어\n소환되면 최대 체력만큼 덱에서 카드를\n사에 씨의 아래에 겹쳐서 체력 카드로 사용해요",
+    "en": "★Claire\nWhen summoned, stack a card from the deck equal to the maximum health under\nSae and use it as a health card.",
+    "ja_cur": "★クレア\nWhen summoned, stack a card from the deck equal to the maximum health under\nSae and use it as a health card."
+  },
+  {
+    "ko": "★클레어\n이제 배틀 페이즈로 들어가도록 하죠\n필드 오른쪽에 있는 배틀 페이즈 버튼을 눌러주세요",
+    "en": "★Claire\nLet's enter the Battle Phase now\nPlease press the Battle Phase button on the right side of the field",
+    "ja_cur": "★クレア\nLet's enter the バトルフェイズ now\nPlease press the バトルフェイズ button on the right side of the field"
+  },
+  {
+    "ko": "★클레어\n호노카 씨를 소환하셨네요\n통상 공격과 돗테오키 효과를 사용하면\n카렌 씨를 이기실 수 있을거예요!",
+    "en": "★Claire\nYou've summoned Honoka.\nIf you use normal attacks and the Totteoki effect, you'll be able to beat\nKaren!",
+    "ja_cur": "★クレア\nYou've summoned Honoka.\nIf you use normal attacks and the とっておき effect, you'll be able to beat\nKaren!"
+  },
+  {
+    "ko": "★클레어\n호노카 씨의 왼쪽 아래의 보라색 검은 달속성이고 공격력이 2란 뜻이에요\n오른쪽 하트 표시는 현재체력 5 / 최대체력 5라는 뜻이예요",
+    "en": "★Claire\nThe purple orb at the bottom left on Honoka means Moon attribute and ATK 2\nThe heart on the right means current HP 5 / max HP 5",
+    "ja_cur": "★クレア\nThe purple orb at the bottom left on Honoka means Moon attribute and 攻撃力 2\nThe heart on the right means current 体力 5 / max 体力 5"
+  },
+  {
+    "ko": "★클레어\n소환되면 최대 체력만큼 덱에서 카드를\n호노카 씨의 아래에 겹쳐서 체력 카드로 사용해요",
+    "en": "★Claire\nWhen summoned, stack a card from the deck equal to the maximum health under\nHonoka and use it as a health card.",
+    "ja_cur": "★クレア\nWhen summoned, stack a card from the deck equal to the maximum health under\nHonoka and use it as a health card."
+  },
+  {
+    "ko": "★쿠죠 카렌\nHAHAHA~~!! 강한 경쟁자를 찾았습니다\n앗, 호노카입니다! Exercise하러 온 겁니까?",
+    "en": "★Kujo Karen\nHAHAHA~~!! I found a strong competitor\nAh, it's Honoka! Are you here to exercise?",
+    "ja_cur": "★九条カレン\nHAHAHA~~!! I found a strong competitor\nAh, it's Honoka! Are you here to exercise?"
+  },
+  {
+    "ko": "★마츠바라 호노카\n응응~ 카렌쨩이 운동하는 모습을 보며 금발에 반짝이는 땀...\n이 아니라 여긴 테니스 장비가 없어서 다른 운동이라도...",
+    "en": "★Matsubara Honoka\nYes, yes~ Watching Karen-chan exercise, sweat glistening on her blond hair... It's not\n, there's no tennis equipment here, so try some other exercise...",
+    "ja_cur": "★Matsubara Honoka\nYes, yes~ Watching Karen-chan exercise, sweat glistening on her blond hair... It's not\n, there's no tennis equipment here, so try some other exercise..."
+  },
+  {
+    "ko": "★클레어\n자, 그럼 이제 배틀 페이즈에 대해 설명해드릴게요\n원래 선공의 첫번째 배틀 페이즈에는 통상 공격 할 수 없지만\n역시 튜토리얼이니 가능하다고 할게요",
+    "en": "★Claire\nAlright, I'll explain the Battle Phase now\nNormally the going-first player can't normal-attack in their first Battle Phase,\nbut since this is a tutorial, we'll allow it",
+    "ja_cur": "★クレア\nAlright, I'll explain the バトルフェイズ now\nNormally the going-first player can't normal-attack in their first バトルフェイズ,\nbut since this is a tutorial, we'll allow it"
+  },
+  {
+    "ko": "★클레어\n배틀 페이즈에는 통상 공격과 돗테오키 효과를 사용할 수 있어요\n배틀 크리에메이트는 돗테오키 효과를 사용하면\n카드를 가로로 놓아 경직 상태를 표시해요",
+    "en": "★Claire\nIn the Battle Phase you can use normal attacks and Totteoki effects\nWhen a Battle Creamate uses a Totteoki effect,\nthe card is laid sideways to show the Stiffened state",
+    "ja_cur": "★クレア\nIn the バトルフェイズ you can use normal attacks and とっておき effects\nWhen a Battle クリエメイト uses a とっておき effect,\nthe card is laid sideways to show the Stiffened state"
+  },
+  {
+    "ko": "★클레어\n경직 상태가 되면 더이상 돗테오키 효과를 사용할 수 없고\n경직 상태를 해제하면 다시 돗테오키 효과를 사용할 수 있어요",
+    "en": "★Claire\nWhen you become stiff, you can no longer use the Totteoki effect.\nIf you turn off the stiff state, you can use the Totteoki effect again.",
+    "ja_cur": "★クレア\nWhen you become 硬直, you can no longer use the とっておき effect.\nIf you turn off the 硬直 state, you can use the とっておき effect again."
+  },
+  {
+    "ko": "★클레어\n자 이제 공격해보도록 하죠!\n통상 공격부터 해볼까요?",
+    "en": "★Claire\nNow let's attack!\nShall we start with the normal attack?",
+    "ja_cur": "★クレア\nNow let's attack!\nShall we start with the 通常攻撃?"
+  },
+  {
+    "ko": "★클레어\n통상 공격을 한 후엔 돗테오키 게이지가 1 늘어나요\n1턴에 여러번 통상 공격하더라도\n크리에메이트마다 첫 통상공격만 돗테오키 게이지가 늘어나요",
+    "en": "★Claire\nAfter a normal attack, your Totteoki gauge goes up by 1\nEven if you normal-attack several times in a turn,\neach Creamate only raises the gauge on their first normal attack",
+    "ja_cur": "★クレア\nAfter a 通常攻撃, your とっておきゲージ goes up by 1\nEven if you normal-attack several times in a turn,\neach クリエメイト only raises the gauge on their first 通常攻撃"
+  },
+  {
+    "ko": "★클레어\n통상 공격이 성공하면 공격한 크리에메이트의 공격력만큼\n상대 크리에메이트의 체력 카드를 랜덤으로 마을로 보내요",
+    "en": "★Claire\nNormally, when an attack is successful, the opposing Creamate's health card is randomly sent to the Village,\n, equal to the attacking Creamate's attack power.",
+    "ja_cur": "★クレア\nNormally, when an attack is successful, the opposing クリエメイト's health card is randomly sent to the 里,\n, equal to the attacking クリエメイト's attack power."
+  },
+  {
+    "ko": "★클레어\n자 이제 돗테오키 존에 카드가 3장\n따라서 돗테오키 게이지가 3만큼 찼어요",
+    "en": "★Claire\nNow there are 3 cards in the Totteoki Zone\n, so the Totteoki Gauge is full of 3.",
+    "ja_cur": "★クレア\nNow there are 3 cards in the とっておきゾーン\n, so the とっておきゲージ is full of 3."
+  },
+  {
+    "ko": "★클레어\n이제 돗테오키 효과를 사용해 볼까요?\n카드 효과에서 [돗테오키 게이지 n]으로 시작하는 효과는\n돗테오키 효과라고 해요",
+    "en": "★Claire\nNow let’s try the Totteoki effect. In\ncard effects, effects that start with [Totteoki Gauge n] are called\nTotteoki effects.",
+    "ja_cur": "★クレア\nNow let’s try the とっておき effect. In\ncard effects, effects that start with [とっておきゲージ n] are called\nとっておき effects."
+  },
+  {
+    "ko": "★클레어\n돗테오키 존에 가장 먼저 놓인 카드부터 n장을\n마을로 보내는 것으로 그 효과를 사용할 수 있어요",
+    "en": "★Claire\nYou can use the effect by sending n cards from the first card placed in the Totteoki Zone to\nVillage.",
+    "ja_cur": "★クレア\nYou can use the effect by sending n cards from the first card placed in the とっておきゾーン to\n里."
+  },
+  {
+    "ko": "★클레어\n자, 이제 돗테오키 효과를 사용해서 카렌 씨를 이겨볼까요?",
+    "en": "★Claire\nNow, shall we use the Totteoki effect to beat Karen?",
+    "ja_cur": "★クレア\nNow, shall we use the とっておき effect to beat Karen?"
+  },
+  {
+    "ko": "★쿠죠 카렌\nWhat~!?\n이야기가 다릅니다!",
+    "en": "★Kujo Karen\nWhat~!?\nIt's a different story!",
+    "ja_cur": "★九条カレン\nWhat~!?\nIt's a different story!"
+  },
+  {
+    "ko": "★마츠바라 호노카\n카렌쨩~! 잘 봤지 테니스 부였던 내 실력을~!",
+    "en": "★Matsubara Honoka\nKaren-chan~! You saw my skills on the tennis club!",
+    "ja_cur": "★Matsubara Honoka\nKaren-chan~! You saw my skills on the tennis club!"
+  },
+  {
+    "ko": "★클레어\n이렇게 체력이 0이 되면 성전으로 보내져요\n크리에메이트가 성전으로 보내지면 패에서 보낸 성전 카드 1장을 마을로 보내서 성전에 있는 카드 수를 유지하게 된답니다.",
+    "en": "★Claire\nWhen HP hits 0 like this, they're sent to the Sanctuary\nWhen a Creamate goes to the Sanctuary, you send 1 face-down Sanctuary card (from those sent from hand) to the Village to keep the Sanctuary card count the same.",
+    "ja_cur": "★クレア\nWhen 体力 hits 0 like this, they're sent to the 聖典\nWhen a クリエメイト goes to the 聖典, you send 1 face-down 聖典 card (from those sent from hand) to the 里 to keep the 聖典 card count the same."
+  },
+  {
+    "ko": "★클레어\n성전을 클릭하면 성전의 카드를 확인할 수 있고\n다시 성전을 클릭하면 확인창을 닫을 수 있답니다\n마을이나 돗테오키 존도 똑같이 확인할 수 있어요",
+    "en": "★Claire\nClick the Sanctuary to check its cards,\nand click it again to close the viewer\nYou can check the Village and Totteoki Zone the same way",
+    "ja_cur": "★クレア\nClick the 聖典 to check its cards,\nand click it again to close the viewer\nYou can check the 里 and とっておきゾーン the same way"
+  },
+  {
+    "ko": "★클레어\n그리고 상대 배틀 존에 아무것도 없더라도\n통상 공격을 해서 돗테오키 게이지를 올릴 순 있어요",
+    "en": "★Claire\nAnd even if there is nothing in the opponent's Battle Zone, you can raise the Totteoki Gauge by making a normal attack\n.",
+    "ja_cur": "★クレア\nAnd even if there is nothing in the opponent's バトルゾーン, you can raise the とっておきゲージ by making a 通常攻撃\n."
+  },
+  {
+    "ko": "★클레어\n이제 배틀 페이즈를 종료해 보도록 할까요?\n필드 오른쪽에 있는 턴 종료 버튼을 눌러주세요",
+    "en": "★Claire\nShall we end the Battle Phase now?\nPlease press the End Turn button on the right side of the field",
+    "ja_cur": "★クレア\nShall we end the バトルフェイズ now?\nPlease press the End Turn button on the right side of the field"
+  },
+  {
+    "ko": "★클레어\n상대쪽에 있는 저를 확인해 보시겠나요?",
+    "en": "★Claire\nWould you check me on the opponent's side?",
+    "ja_cur": "★クレア\nWould you check me on the opponent's side?"
+  },
+  {
+    "ko": "★클레어\n쓰러진 배틀 크리에메이트의 레벨 합계를 성전 레벨이라고 해요\n방금 쓰러트린 카렌 씨의 레벨이 3이이서 성전 레벨이 3이 된거예요!",
+    "en": "★Claire\nThe total Level of fallen Battle Creamates is called Sanctuary Level\nKaren you just defeated is Level 3, so Sanctuary Level became 3!",
+    "ja_cur": "★クレア\nThe total Level of fallen Battle クリエメイト is called 聖典 Level\nKaren you just defeated is Level 3, so 聖典 Level became 3!"
+  },
+  {
+    "ko": "★클레어\n자, 그럼 다음엔 승려 분들을 만나 보도록 해요!",
+    "en": "★Claire\nNow, let’s meet the Priests next time!",
+    "ja_cur": "★クレア\nNow, let’s meet the Priests next time!"
+  },
+  {
+    "ko": "★클레어\n아! 혹시 실수로 턴 종료를 누르셨나요?\n그러면 다시 해보도록해요!",
+    "en": "★Claire\nAh! Did you press End Turn by mistake?\nThen let's try again!",
+    "ja_cur": "★クレア\nAh! Did you press End Turn by mistake?\nThen let's try again!"
+  },
+  {
+    "ko": "★클레어\n휴~\n열심히 노력해서 성채석을 무려 1개나 더 가져왔어요!\n다음 번에도 더 열심히 할게요!",
+    "en": "★Claire\nPhew~\nI worked hard and brought back one more Castle Stones!\nI'll work harder next time too!",
+    "ja_cur": "★クレア\nPhew~\nI worked hard and brought back one more 城石!\nI'll work harder next time too!"
+  },
+  {
+    "ko": "★하토야 코하네\n아! 하나와쨩 안녕!?",
+    "en": "★Hatoya Kohane\nah! Hello Hanawa-chan!?",
+    "ja_cur": "★鳩谷こはね\nah! Hello Hanawa-chan!?"
+  },
+  {
+    "ko": "★우시쿠 카나\n그렇게 부르지 말라고 했잖아!\n카나! 우시쿠 카나!",
+    "en": "★Ushiku Kana\nI told you not to call me that!\nKana! Ushiku Kana!",
+    "ja_cur": "★Ushiku Kana\nI told you not to call me that!\nKana! Ushiku Kana!"
+  },
+  {
+    "ko": "★하토야 코하네\n음? 왜? 귀여운데...\n코텟쨩도 코텟쨩으로 불러도 되는걸..",
+    "en": "★Hatoya Kohane\nhmm? why? It's cute...\nYou can call me Kotet-chan too..",
+    "ja_cur": "★鳩谷こはね\nhmm? why? It's cute...\nYou can call me Kotet-chan too.."
+  },
+  {
+    "ko": "★타테지마 코테츠\n에헤헷~ 그건 아직 무리",
+    "en": "★Tatejima Kotetsu\nEhehe~ That’s still too much",
+    "ja_cur": "★Tatejima Kotetsu\nEhehe~ That’s still too much"
+  },
+  {
+    "ko": "★우시쿠 카나\n그렇게 불러도되는건 선배뿐이야!!",
+    "en": "★Ushiku Kana\nThe only people who can call me that are seniors!!",
+    "ja_cur": "★Ushiku Kana\nThe only people who can call me that are seniors!!"
+  },
+  {
+    "ko": "★클레어\n이.. 일단 저희는 카나 씨를 도와\n코하네 씨를 쓰러트리도록 할까요?",
+    "en": "★Claire\nThis... should we help Kana take down\nKohane?",
+    "ja_cur": "★クレア\nThis... should we help Kana take down\nKohane?"
+  },
+  {
+    "ko": "★클레어\n지난번에 드로우 페이즈를 설명드렸으니\n이번엔 스탠바이 페이즈를 설명할게요!",
+    "en": "★Claire\nLast time I explained the draw phase,\nthis time I will explain the standby phase!",
+    "ja_cur": "★クレア\nLast time I explained the ドローフェイズ,\nthis time I will explain the スタンバイフェイズ!"
+  },
+  {
+    "ko": "★클레어\n스탠바이 페이즈 역시 서로의 첫번째 턴에는 할 수 없지만\n패나 배틀 존에서 카드 1장을 돗테오키 존으로 보내\n돗테오키 게이지를 1개 추가로 늘릴 수 있어요",
+    "en": "★Claire\nThe Standby Phase also can't be done on either player's first turn, but\nyou can send 1 card from your hand or Battle Zone to the Totteoki Zone\nto raise your Totteoki gauge by 1 more",
+    "ja_cur": "★クレア\nThe スタンバイフェイズ also can't be done on either player's first turn, but\nyou can send 1 card from your hand or バトルゾーン to the とっておきゾーン\nto raise your とっておきゲージ by 1 more"
+  },
+  {
+    "ko": "★클레어\n체력이 떨어진 배틀 크리에메이트를 안전하게\n돗테오키 존으로 보내는 식으로 사용할 수도 있을거예요\n지금은 마침 패에 카나 씨가 있으니 카나 씨를 소환해볼까요?",
+    "en": "★Claire\nYou can also use it to safely send a Battle Creamate\nwith low HP to the Totteoki Zone\nKana is in your hand right now—shall we summon her?",
+    "ja_cur": "★クレア\nYou can also use it to safely send a Battle クリエメイト\nwith low 体力 to the とっておきゾーン\nKana is in your hand right now—shall we summon her?"
+  },
+  {
+    "ko": "★클레어\n현재 제가 가진 성채석은 5개인데\n이미 필드에 카나 씨가 있어서 2개는 사용중이에요",
+    "en": "★Claire\nI currently have 5 Castle Stones, but\nthere is already Kana in the field, so 2 are in use.",
+    "ja_cur": "★クレア\nI currently have 5 城石, but\nthere is already Kana in the field, so 2 are in use."
+  },
+  {
+    "ko": "★클레어\n치에 씨랑 치야 씨의 돗테오키 효과에 공격력 증가 효과가 있지만\n치에 씨는 돗테오키 게이지가 2개밖에 없어서 사용할 수 없어요",
+    "en": "★Claire\nChie and Chiya's Totteoki effect has an attack power increase effect, but\nChie can't use it because she only has 2 Totteoki Gauges.",
+    "ja_cur": "★クレア\nChie and Chiya's とっておき effect has an attack power increase effect, but\nChie can't use it because she only has 2 とっておき Gauges."
+  },
+  {
+    "ko": "★클레어\n치야 씨의 돗테오키 효과에 적힌 추가 경직 1장은\n자신의 배틀 크리에메이트를 1장 경직해야한다는 뜻이예요\n카나 씨는 경직 상태가 되어 돗테오키 효과를 사용할 수 없을거예요",
+    "en": "★Claire\n1 additional Stiff written on Chiya's Totteoki effect means that\nneeds to Stiff 1 of her Battle Creamate.\nKana will become Stiff and will not be able to use the Totteoki effect.",
+    "ja_cur": "★クレア\n1 additional 硬直 written on Chiya's とっておき effect means that\nneeds to 硬直 1 of her Battle クリエメイト.\nKana will become 硬直 and will not be able to use the とっておき effect."
+  },
+  {
+    "ko": "★클레어\n목표는 코하네 씨 두분을 쓰러트리는건데\n돗테오키 효과를 사용하지 못하면 안 되겠죠?\n그럼 남은 건 미쿠 씨의 공격력 증가 효과겠네요!",
+    "en": "★Claire\nThe goal is to defeat both Kohane, but that won't work if you can't use the\nTotteoki effect, right?\nSo what's left is the effect of increasing Miku's attack power!",
+    "ja_cur": "★クレア\nThe goal is to defeat both Kohane, but that won't work if you can't use the\nとっておき effect, right?\nSo what's left is the effect of increasing Miku's attack power!"
+  },
+  {
+    "ko": "★클레어\n잘하셨어요 서포트 크리에메이트는 소환할 때\n스킬 효과나 돗테오키 효과에서 하나를 골라서 사용해야만해요",
+    "en": "★Claire\nWell done. When summoning Support Creamate, you must use either the\nskill effect or the Totteoki effect.",
+    "ja_cur": "★クレア\nWell done. When summoning Support クリエメイト, you must use either the\nskill effect or the とっておき effect."
+  },
+  {
+    "ko": "★클레어\n서포트 크리에메이트는 배틀 페이즈에도 소환할 수 있어요\n다만 자신 배틀 크리에메이트의 통상 공격이나\n돗테오키 효과 사용중에는 소환할 수 없어요",
+    "en": "★Claire\nSupport Creamate can also be summoned during the Battle Phase.\nHowever, it cannot be summoned while using your Battle Creamate's normal attack or\nTotteoki effect.",
+    "ja_cur": "★クレア\nSupport クリエメイト can also be summoned during the バトルフェイズ.\nHowever, it cannot be summoned while using your Battle クリエメイト's 通常攻撃 or\nとっておき effect."
+  },
+  {
+    "ko": "★클레어\n코하네 씨의 체력은 둘다 3 이예요!\n그리고 카나 씨의 돗테오키 효과는\n상대 배틀 존의 크리에메이트 수만큼 데미지를 주는거죠",
+    "en": "★Claire\nKohane's health is both 3!\nAnd Kana's Totteoki effect is\nIt deals damage equal to the number of Creamates in the opponent's Battle Zone.",
+    "ja_cur": "★クレア\nKohane's health is both 3!\nAnd Kana's とっておき effect is\nIt deals damage equal to the number of クリエメイト in the opponent's バトルゾーン."
+  },
+  {
+    "ko": "★클레어\n이번엔 일부러 가르쳐 드리지 않을게요\n자 이 상황에서 코하네 씨 2명을 쓰러뜨리고\n배틀 페이즈를 종료해주세요!",
+    "en": "★Claire\nI won't teach you on purpose this time.\nNow, in this situation, defeat the two Kohanes and end the\nbattle phase!",
+    "ja_cur": "★クレア\nI won't teach you on purpose this time.\nNow, in this situation, defeat the two Kohanes and end the\nバトルフェイズ!"
+  },
+  {
+    "ko": "★클레어\n아앗! 혹시 실수하신건가요? 회복 효과를 사용하셨어요!\n게다가 카나 씨는 이미 최대 체력이라 일반적인 회복으론\n회복을 못 해요...",
+    "en": "★Claire\nAh! Did you make a mistake? You used a healing effect!\nMoreover, Kana's health is already at maximum, so she cannot recover\nthrough normal recovery...",
+    "ja_cur": "★クレア\nAh! Did you make a mistake? You used a healing effect!\nMoreover, Kana's health is already at maximum, so she cannot recover\nthrough normal recovery..."
+  },
+  {
+    "ko": "★하토야 코하네\n아니야! 내가 하나와쨩의 공격력을 올려줄게\nGo! Fight! win!\nLet's chair up!",
+    "en": "★Hatoya Kohane\nno! I'll increase Hanawa-chan's attack power.\nGo! Fight! win!\nLet's cheer up!",
+    "ja_cur": "★鳩谷こはね\nno! I'll increase Hanawa-chan's attack power.\nGo! Fight! win!\nLet's cheer up!"
+  },
+  {
+    "ko": "★클레어\n아아... 엉망진창이 되어버리고 말았어요\n그래도 더 기회가 있으니 다시 하도록 하죠!\n다음 번엔 열심히 해봐요!",
+    "en": "★Claire\nAh... it ended up being a mess.\nBut we have another chance, so let's do it again!\nTry harder next time!",
+    "ja_cur": "★クレア\nAh... it ended up being a mess.\nBut we have another chance, so let's do it again!\nTry harder next time!"
+  },
+  {
+    "ko": "★클레어\n아앗! 혹시 실수하신건가요?\n미쿠 씨를 소환하지 않으셨어요!",
+    "en": "★Claire\nAh! Did you make a mistake?\nYou didn't summon Miku!",
+    "ja_cur": "★クレア\nAh! Did you make a mistake?\nYou didn't summon Miku!"
+  },
+  {
+    "ko": "★클레어\n그래도 서포트 크리에메이트는 배틀 페이즈에도 소환할 수 있어요\n다만 자신 배틀 크리에메이트의 통상 공격이나\n돗테오키 효과 사용중에는 소환할 수 없어요",
+    "en": "★Claire\nHowever, Support Creamate can be summoned during the Battle Phase.\nHowever, it cannot be summoned while using your Battle Creamate's normal attack or\nTotteoki effect.",
+    "ja_cur": "★クレア\nHowever, Support クリエメイト can be summoned during the バトルフェイズ.\nHowever, it cannot be summoned while using your Battle クリエメイト's 通常攻撃 or\nとっておき effect."
+  },
+  {
+    "ko": "★클레어\n서포트 크리에메이트는 소환할 때\n스킬 효과나 돗테오키 효과에서 하나를 골라서 사용해야만해요",
+    "en": "★Claire\nWhen summoning Support Creamate, you must use either the\nskill effect or the Totteoki effect.",
+    "ja_cur": "★クレア\nWhen summoning Support クリエメイト, you must use either the\nskill effect or the とっておき effect."
+  },
+  {
+    "ko": "★클레어\n오... 치에 씨와 함께하는 방법도 있군요\n이 방법은 저도 생각하지 못했어요",
+    "en": "★Claire\nOh... there's also a way with Chie.\nI hadn't thought of this way either.",
+    "ja_cur": "★クレア\nOh... there's also a way with Chie.\nI hadn't thought of this way either."
+  },
+  {
+    "ko": "★클레어\n미쿠 씨의 공격력 증가 효과는 배틀 페이즈 종료시에\n드로우를 1장 보는 보너스 효과가 있어요!\n최소한 손해는 보지 않는 효과라는 소리죠",
+    "en": "★Claire\nMiku's attack power increase effect has the bonus effect of seeing 1\ndraw at the end of the battle phase!\nAt least it's an effect that doesn't cause any damage.",
+    "ja_cur": "★クレア\nMiku's attack power increase effect has the bonus effect of seeing 1\ndraw at the end of the バトルフェイズ!\nAt least it's an effect that doesn't cause any damage."
+  },
+  {
+    "ko": "★클레어\n이런 효과는 사용하기만 하면 이득이지만\n성채석 한도는 물론 서포트 존은 자신 턴엔 3개\n상대 턴에 2개밖에 없다는 걸 생각해주세요",
+    "en": "★Claire\nEffects like these are always a plus when used, but\nremember your Castle Stone limit—and that the Support Zone only has\n3 slots on your turn and 2 on the opponent's",
+    "ja_cur": "★クレア\nEffects like these are always a plus when used, but\nremember your 城石 limit—and that the サポートゾーン only has\n3 slots on your turn and 2 on the opponent's"
+  },
+  {
+    "ko": "★클레어\n마지막으로 이번 턴에 사용한 서포트 크리에메이트는\n엔드 페이즈에 전부 마을로 보내져요",
+    "en": "★Claire\nLastly, all Support Creamate used this turn is sent to Village during the\nend phase.",
+    "ja_cur": "★クレア\nLastly, all Support クリエメイト used this turn is sent to 里 during the\nエンドフェイズ."
+  },
+  {
+    "ko": "★클레어\n이런 식으로 문제를 해결하는 것\n역시 이 게임에서 중요하답니다",
+    "en": "★Claire\nSolving problems in this way\nis also important in this game.",
+    "ja_cur": "★クレア\nSolving problems in this way\nis also important in this game."
+  },
+  {
+    "ko": "★우시쿠 카나\n아! 미안해",
+    "en": "★Ushiku Kana\nah! Sorry",
+    "ja_cur": "★Ushiku Kana\nah! Sorry"
+  },
+  {
+    "ko": "★하토야 코하네\n집중력이 부족해진거야?\nGo! Fight! win!\nLet's chair up!",
+    "en": "★Hatoya Kohane\nAre you lacking concentration?\nGo! Fight! win!\nLet's cheer up!",
+    "ja_cur": "★鳩谷こはね\nAre you lacking concentration?\nGo! Fight! win!\nLet's cheer up!"
+  },
+  {
+    "ko": "★클레어\n아아... 엉망진창이 되어버리고 말았어요\n이건 확실히 고의신거 같네요",
+    "en": "★Claire\nAh... it ended up being a mess.\nI'm sure this was intentional.",
+    "ja_cur": "★クレア\nAh... it ended up being a mess.\nI'm sure this was intentional."
+  },
+  {
+    "ko": "★클레어\n힌트를 드릴게요!\n꼭 통상 공격 먼저 하실 필요없어요\n통상 공격은 경직 상태에서도 할 수 있답니다!",
+    "en": "★Claire\nI'll give you a hint!\nYou don't have to use a normal attack first.\nYou can use a normal attack even in Stiff mode!",
+    "ja_cur": "★クレア\nI'll give you a hint!\nYou don't have to use a 通常攻撃 first.\nYou can use a 通常攻撃 even in 硬直 mode!"
+  },
+  {
+    "ko": "★클레어\n다음 번엔 열심히 해봐요!",
+    "en": "★Claire\nTry harder next time!",
+    "ja_cur": "★クレア\nTry harder next time!"
+  },
+  {
+    "ko": "★클레어\n자, 그럼 다음엔 알케미스트 분들을 만나 보도록 해요!",
+    "en": "★Claire\nNow then, let’s meet the Alchemists!",
+    "ja_cur": "★クレア\nNow then, let’s meet the Alchemists!"
+  },
+  {
+    "ko": "★클레어\n이번엔 알케미스트에 대한 설명이네요!\n승려는 회복과 버프로 자신 크리에메이트를 지키고 강화한다면",
+    "en": "★Claire\nThis time, it's about Alchemist!\nIf a Priest protects and strengthens his Creamate with recovery and buffs,",
+    "ja_cur": "★クレア\nThis time, it's about Alchemist!\nIf a Priest protects and strengthens his クリエメイト with recovery and buffs,"
+  },
+  {
+    "ko": "★클레어\n알케미스트는 상태이상을 주력으로 자신 크리에메이트를 지키고\n어떤 방식으로든 돗테오키 존으로 보내졌을 때 효과로\n전투에 변수를 주는 역할로 사용돼요!",
+    "en": "★Claire\nAlchemist protects his Creamate by mainly dealing with status ailments.\nAs an effect when sent to the Totteoki Zone in any way.\nIt is used as a variable in battle!",
+    "ja_cur": "★クレア\nAlchemist protects his クリエメイト by mainly dealing with status ailments.\nAs an effect when sent to the とっておきゾーン in any way.\nIt is used as a variable in battle!"
+  },
+  {
+    "ko": "★클레어\n카드를 돗테오키 존으로 보내는 방법은\n크리에메이트의 효과를 제외하고 3가지 방법이 있답니다",
+    "en": "★Claire\nThere are three ways to send a card to Totteoki Zone, excluding the effect of\nCreamate.",
+    "ja_cur": "★クレア\nThere are three ways to send a card to とっておきゾーン, excluding the effect of\nクリエメイト."
+  },
+  {
+    "ko": "★클레어\n1. 자신 배틀 크리에메이트의 통상공격 후\n확정은 아니지만 돗테오키 게이지를 1 얻을 때\n알케미스트가 돗테오키 존으로 보내질 수도 있어요",
+    "en": "★Claire\n1.\nAfter your Battle Creamate's normal attack, it is not guaranteed, but when you get Totteoki Gauge 1,\nAlchemist may be sent to Totteoki Zone.",
+    "ja_cur": "★クレア\n1.\nAfter your Battle クリエメイト's 通常攻撃, it is not guaranteed, but when you get とっておきゲージ 1,\nAlchemist may be sent to とっておきゾーン."
+  },
+  {
+    "ko": "★클레어\n2. 자신 스탠바이 페이즈에 패/배틀 존의 카드 1장을\n돗테오키 존으로 보낼 때 패에 있는 알케미스트를\n확정적으로 돗테오키 존으로 보낼 수 있어요",
+    "en": "★Claire\n2. When you send 1 card from your hand/Battle Zone to\nTotteoki Zone during your standby phase, you can definitely send the Alchemist in your hand to\nTotteoki Zone.",
+    "ja_cur": "★クレア\n2. When you send 1 card from your hand/バトルゾーン to\nとっておきゾーン during your スタンバイフェイズ, you can definitely send the Alchemist in your hand to\nとっておきゾーン."
+  },
+  {
+    "ko": "★클레어\n마침 저희 패에 앨리스 씨가 있고 지금은 스탠바이 페이즈에요\n원래 첫번째 턴에는 스탠바이 페이즈에 카드를 돗테오키 존으로 보낼 수 없지만 이번엔 넘어가도록해요",
+    "en": "★Claire\nLuckily Alice is in our hand, and it's the Standby Phase\nNormally you can't send a card to the Totteoki Zone in Standby on turn 1, but we'll skip that this time",
+    "ja_cur": "★クレア\nLuckily Alice is in our hand, and it's the スタンバイフェイズ\nNormally you can't send a card to the とっておきゾーン in Standby on turn 1, but we'll skip that this time"
+  },
+  {
+    "ko": "★클레어\n자, 그럼 윤 씨를 쓰러트려주세요!!",
+    "en": "★Claire\nNow then, please defeat Yun!!",
+    "ja_cur": "★クレア\nNow then, please defeat Yun!!"
+  },
+  {
+    "ko": "★클레어\n알케미스트가 돗테오키 존으로 보내졌을 때\n효과는 상대 턴에도 물론 사용 가능하답니다",
+    "en": "★Claire\nWhen the Alchemist is sent to the Totteoki Zone, the\neffect can of course be used during the opponent's turn.",
+    "ja_cur": "★クレア\nWhen the Alchemist is sent to the とっておきゾーン, the\neffect can of course be used during the opponent's turn."
+  },
+  {
+    "ko": "★클레어\n그래서 방금 윤 씨가 체력을 2 얻을 수 있었던거죠\n그 때문에 데미지가 부족했던 것으로 보이네요",
+    "en": "★Claire\nThat's why Yun was able to gain 2 health just now.\nIt seems like the damage was lacking because of that.",
+    "ja_cur": "★クレア\nThat's why Yun was able to gain 2 health just now.\nIt seems like the damage was lacking because of that."
+  },
+  {
+    "ko": "★클레어\n저희가 가진 성채석은 5개뿐이라\n스탠바이 페이즈에 앨리스 씨를 돗테오키 존으로 보내야만\n충분한 딜량에 도달할 수 있어요",
+    "en": "★Claire\nWe only have 5 Castle Stones, so we have to send Alice to the Totteoki Zone during the\nstandby phase to reach\nsufficient damage.",
+    "ja_cur": "★クレア\nWe only have 5 城石, so we have to send Alice to the とっておきゾーン during the\nスタンバイフェイズ to reach\nsufficient damage."
+  },
+  {
+    "ko": "★클레어\n알케미스트가 돗테오키 존으로 보내졌을 때\n효과는 상대 턴에도 물론 사용 가능하답니다\n그래서 방금 윤 씨가 체력을 2 얻을 수 있었던거죠",
+    "en": "★Claire\nWhen the Alchemist is sent to the Totteoki Zone, the\neffect can of course be used on the opponent's turn.\nSo Yun was able to gain 2 health just now.",
+    "ja_cur": "★クレア\nWhen the Alchemist is sent to the とっておきゾーン, the\neffect can of course be used on the opponent's turn.\nSo Yun was able to gain 2 health just now."
+  },
+  {
+    "ko": "★클레어\n자, 그럼 다음엔\n게임에서 승리하는 방법에 대해 알아보도록 해요!",
+    "en": "★Claire\nNow, let’s learn how to win the\ngame!",
+    "ja_cur": "★クレア\nNow, let’s learn how to win the\ngame!"
+  },
+  {
+    "ko": "★클레어\n자! 이제 게임에서 승리하는 법이에요\n상대 크리에메이트를 계속 성전으로 보내다보면\n상대의 성전 레벨이 10 이상이 되는 순간이 올거에요!",
+    "en": "★Claire\nruler! Now that's how to win the game.\nIf you keep sending your opponent Creamate to Sanctuary, there will come a moment when\nyour opponent's Sanctuary Level becomes 10 or higher!",
+    "ja_cur": "★クレア\nruler! Now that's how to win the game.\nIf you keep sending your opponent クリエメイト to 聖典, there will come a moment when\nyour opponent's 聖典 Level becomes 10 or higher!"
+  },
+  {
+    "ko": "★클레어\n상대의 성전 레벨이 10 이상인 상태에서\n자신 배틀 페이즈를 종료하면 진실의 손의 시간이 시작돼요!",
+    "en": "★Claire\nIf your opponent's Sanctuary Level is 10 or higher and\nends your battle phase, True Hand time begins!",
+    "ja_cur": "★クレア\nIf your opponent's 聖典 Level is 10 or higher and\nends your バトルフェイズ, 真実の手 time begins!"
+  },
+  {
+    "ko": "★클레어\n자! 이제 배틀 페이즈에 들어갈테니 통상 공격만으로\n상대의 성전 레벨을 10 이상으로 만들고\n배틀 페이즈를 종료하세요!",
+    "en": "★Claire\nruler! Now you will enter the Battle Phase, so just use normal attacks to make\nyour opponent's Sanctuary Level 10 or higher and end the\nBattle Phase!",
+    "ja_cur": "★クレア\nruler! Now you will enter the バトルフェイズ, so just use normal attacks to make\nyour opponent's 聖典 Level 10 or higher and end the\nバトルフェイズ!"
+  },
+  {
+    "ko": "★클레어\n아... 이러면 상대의 성전 레벨이 10 이상이 되지 않았어요\n다시 한 번 해볼까요?",
+    "en": "★Claire\nAh... In this case, the opponent's Sanctuary Level is not over 10.\nShall we try again?",
+    "ja_cur": "★クレア\nAh... In this case, the opponent's 聖典 Level is not over 10.\nShall we try again?"
+  },
+  {
+    "ko": "★클레어\n자 이제 진실의 손의 시간이 왔어요!\n이번 턴만 잘 넘기면 승리할 수 있어요!",
+    "en": "★Claire\nNow it's time for True Hand!\nIf you get through this turn well, you can win!",
+    "ja_cur": "★クレア\nNow it's time for 真実の手!\nIf you get through this turn well, you can win!"
+  },
+  {
+    "ko": "★미도리 헤모\n이노 선배♡ 어디 계신가요?",
+    "en": "★Midori Hemo\nIno-senpai♡ Where are you?",
+    "ja_cur": "★Midori Hemo\nIno-senpai♡ Where are you?"
+  },
+  {
+    "ko": "★키리마 샤로\n괴도 라팡 등장!",
+    "en": "★Kirima Sharo\nPhantom thief Lapin appears!",
+    "ja_cur": "★Kirima Sharo\nPhantom thief Lapin appears!"
+  },
+  {
+    "ko": "★클레어\n아앗! 이건 좀 어렵겠는데요?",
+    "en": "★Claire\nAh! This might be a bit difficult, right?",
+    "ja_cur": "★クレア\nAh! This might be a bit difficult, right?"
+  },
+  {
+    "ko": "★유노\n위험해! 지금 돗테오키 스킬을...!!",
+    "en": "★Yuno\nIt's dangerous! Get your Totteoki skills now...!!",
+    "ja_cur": "★ゆの\nIt's dangerous! Get your とっておき skills now...!!"
+  },
+  {
+    "ko": "★클레어\n아니예요! 헤모 씨의 불행 효과가 있어서\n지금은 사용하지 않고 넘어가는게 좋을 것 같아요",
+    "en": "★Claire\nNo! Because of Hemo's unhappiness effect,\n, I think it's better not to use it for now.",
+    "ja_cur": "★クレア\nNo! Because of Hemo's unhappiness effect,\n, I think it's better not to use it for now."
+  },
+  {
+    "ko": "★타츠미 콘\n여우신님? 여우신님!!",
+    "en": "★Tatsumi Kon\nFox God? Fox God!!",
+    "ja_cur": "★Tatsumi Kon\nFox God? Fox God!!"
+  },
+  {
+    "ko": "★혼다 타마키\n아저씨가 부족하당께...",
+    "en": "★Honda Tamaki\nI don't have enough uncle...",
+    "ja_cur": "★本田珠輝\nI don't have enough uncle..."
+  },
+  {
+    "ko": "★카타세 마요이\n마지막으로 이 말은 해야겠습니다\n콘.. 특 이쁨...",
+    "en": "★Katase Mayoi\nLastly, I have to say this:\nCon.. It's so pretty...",
+    "ja_cur": "★Katase Mayoi\nLastly, I have to say this:\nCon.. It's so pretty..."
+  },
+  {
+    "ko": "★클레어\n아앗! 저희의 성전 레벨이 더 높아져 버렸어요!\n이러면 다음 턴을 봐야겠어요\n제발 좋은 크리에메이트가 나오길 기도하죠!",
+    "en": "★Claire\nAh! Our Sanctuary Level has become higher!\nIf this happens, I'll have to watch the next turn.\nI'm praying for a good Creamate!",
+    "ja_cur": "★クレア\nAh! Our 聖典 Level has become higher!\nIf this happens, I'll have to watch the next turn.\nI'm praying for a good クリエメイト!"
+  },
+  {
+    "ko": "★미야코\n어 뭐야!\n싸움이야? 나도 껴줘!",
+    "en": "★Miyako\nOh what!\nIs it a fight? Hug me too!",
+    "ja_cur": "★宮子\nOh what!\nIs it a fight? Hug me too!"
+  },
+  {
+    "ko": "★히로\n어떻게 된거야?\n다들 다치진 않았니?",
+    "en": "★Hiro\nWhat happened?\nAre you all hurt?",
+    "ja_cur": "★ヒロ\nWhat happened?\nAre you all hurt?"
+  },
+  {
+    "ko": "★오오미야 시노부\n어머, 다들 너덜너덜 해졌네요\n금발 마물에게 당하신건가요?",
+    "en": "★Oomiya Shinobu\nOh my, everyone is in tatters.\nDid you get hit by the blonde monster?",
+    "ja_cur": "★Oomiya Shinobu\nOh my, everyone is in tatters.\nDid you get hit by the blonde monster?"
+  },
+  {
+    "ko": "★클레어\n아! 미야코 씨랑 히로 씨 시노부 씨에요!\n지금 상황을 설명 드릴게요!",
+    "en": "★Claire\nah! It's Miyako and Hiro Shinobu!\nLet me explain the situation now!",
+    "ja_cur": "★クレア\nah! It's Miyako and Hiro Shinobu!\nLet me explain the situation now!"
+  },
+  {
+    "ko": "★클레어\n지금 저희의 성전 레벨은 18 상대는 12\n상대 쪽의 샤로 씨를 두분 쓰러뜨리더라도\n성전 레벨이 같은채로 턴을 종료하면 저희가 지게 돼요!",
+    "en": "★Claire\nCurrently, our Sanctuary Level is 18 and our opponent's is 12.\nEven if we defeat both of the opponent's Sharos, if the turn ends with the\nSanctuary Level remaining the same, we will lose!",
+    "ja_cur": "★クレア\nCurrently, our 聖典 Level is 18 and our opponent's is 12.\nEven if we defeat both of the opponent's Sharos, if the turn ends with the\n聖典 Level remaining the same, we will lose!"
+  },
+  {
+    "ko": "★클레어\n따라서 상대 필드를 전부 정리해야만 해요!\n하지만 모두의 힘이 모인다면 이길 수 있을거에요!",
+    "en": "★Claire\nSo you have to clear out the entire opponent's field!\nBut if everyone works together, we can win!",
+    "ja_cur": "★クレア\nSo you have to clear out the entire opponent's field!\nBut if everyone works together, we can win!"
+  },
+  {
+    "ko": "★미야코\n그래? 좋아 해보자고!",
+    "en": "★Miyako\nokay? Okay, let's do it!",
+    "ja_cur": "★宮子\nokay? Okay, let's do it!"
+  },
+  {
+    "ko": "★오오미야 시노부\n맞아요! 금발만 있다면 뭐든지 가능해요!",
+    "en": "★Oomiya Shinobu\nthat's right! As long as you have blonde hair, anything is possible!",
+    "ja_cur": "★Oomiya Shinobu\nthat's right! As long as you have blonde hair, anything is possible!"
+  },
+  {
+    "ko": "★후다 유미네\n아! 여기가 아닌가 보네요\n좋은 시간 보내세요~",
+    "en": "★Fuda Yumine\nah! I guess it's not here.\nHave a good time~",
+    "ja_cur": "★Fuda Yumine\nah! I guess it's not here.\nHave a good time~"
+  },
+  {
+    "ko": "★클레어\n유미네 씨는 승려고 드로우 효과가 없어서\n상대는 배틀 존에 낼 크리에메이트가 없어요\n대단해요! 저희가 이겼어요!",
+    "en": "★Claire\nYumine is a Priest and has no draw effect, so\nthe opponent has no Creamate to place in the Battle Zone\nThat's amazing! We won!",
+    "ja_cur": "★クレア\nYumine is a Priest and has no draw effect, so\nthe opponent has no クリエメイト to place in the バトルゾーン\nThat's amazing! We won!"
+  },
+  {
+    "ko": "★클레어\n수고하셨습니다 여러분\n멋진 만남이 있었군요...!\n또 기다리고 있을게요!",
+    "en": "★Claire\nThank you for your hard work, everyone.\nWe had a great meeting...!\nI'll be waiting again!",
+    "ja_cur": "★クレア\nThank you for your hard work, everyone.\nWe had a great meeting...!\nI'll be waiting again!"
+  },
+  {
+    "ko": "★클레어\n이제 노말모드 퍼즐에서 다른 크리에메이트의 효과 타입을 배우고\nAi대전에서 실전 경험을 쌓으실 수 있어요",
+    "en": "★Claire\nNow you can learn other Creamate effect types in Normal Mode puzzles\nand gain real match experience in AI battles",
+    "ja_cur": "★クレア\nNow you can learn other クリエメイト effect types in Normal Mode puzzles\nand gain real match experience in AI battles"
+  },
+  {
+    "ko": "★클레어\n그러면 서버 대전에서 다른 소환사들과 게임을 하거나\n하드모드 퍼즐에 도전해 보실 수 있어요!\n막히는 일이 생길 때면 언제든지 다시 이곳으로 와주세요!",
+    "en": "★Claire\nThen you can play against other Summoners in server matches,\nor try the Hard Mode puzzles!\nIf you get stuck, come back here anytime!",
+    "ja_cur": "★クレア\nThen you can play against other Summoners in server matches,\nor try the Hard Mode puzzles!\nIf you get stuck, come back here anytime!"
+  },
+  {
+    "ko": "★클레어\n즐거운 시간 되시길 바랄게요!",
+    "en": "★Claire\nI hope you have a great time!",
+    "ja_cur": "★クレア\nI hope you have a great time!"
+  },
+  {
+    "ko": "★에비스자와 쿠루미\n뭐야, 나도 수영복 정돈 입어!\n그것보다 이 선글라스 멋있지 않아?",
+    "en": "★Ebisuzawa Kurumi\nWhat the heck, I put on my swimsuit too!\nAren’t these sunglasses cooler than those?",
+    "ja_cur": "★Ebisuzawa Kurumi\nWhat the heck, I put on my swimsuit too!\nAren’t these sunglasses cooler than those?"
+  },
+  {
+    "ko": "★램프\n오오, 쿠루미 님 역시 멋있으십니다~!",
+    "en": "★Lamp\nOh, Kurumi, you’re cool too!",
+    "ja_cur": "★ランプ\nOh, Kurumi, you’re cool too!"
+  },
+  {
+    "ko": "★클레어\n안녕하세요~ 지금부턴 퍼즐을 풀어보도록 할거예요\n지금은 그냥 공격하게 된다면 쿠루미 씨의 효과로 당해버릴거예요\n이럴 때는 회복 효과를 이용해보죠~!",
+    "en": "★Claire\nHello~ From now on, we will try to solve the puzzle.\nIf you just attack now, you will be hit by Kurumi's effect.\nIn this case, let's use the recovery effect~!",
+    "ja_cur": "★クレア\nHello~ From now on, we will try to solve the puzzle.\nIf you just attack now, you will be hit by Kurumi's effect.\nIn this case, let's use the recovery effect~!"
+  },
+  {
+    "ko": "이번 턴 안에 상대 배틀 크리에메이트를 전부 쓰러트리세요",
+    "en": "Defeat all opponent Battle Creamates within this turn",
+    "ja_cur": "Defeat all opponent Battle クリエメイト within this turn"
+  },
+  {
+    "ko": "★램프\n우왓~! 다들 모이셨네요 학원생활부 여러분~!",
+    "en": "★Lamp\nWow~! Everyone is here, academy life club~!",
+    "ja_cur": "★ランプ\nWow~! Everyone is here, academy life club~!"
+  },
+  {
+    "ko": "★클레어\n유리 씨의 회복 효과를 사용해 재도전 해볼까요?",
+    "en": "★Claire\nShall we try again using Yuuri's recovery effect?",
+    "ja_cur": "★クレア\nShall we try again using Yuuri's recovery effect?"
+  },
+  {
+    "ko": "★클레어\n이번에는 배고픔과 나약함 그리고 쿠루미 씨가 있네요~!",
+    "en": "★Claire\nThis time there is hunger, weakness, and Kurumi~!",
+    "ja_cur": "★クレア\nThis time there is 空腹, 弱体, and Kurumi~!"
+  },
+  {
+    "ko": "★모모치 타마테\n우오오옷~! 이벤트 스틸~!",
+    "en": "★Momochi Tamate\nOoooh! Event steal~!",
+    "ja_cur": "★Momochi Tamate\nOoooh! Event steal~!"
+  },
+  {
+    "ko": "★센고쿠 카무리\n공격력과 방어력이 오르는 장비가 없어",
+    "en": "★Sengoku Kamuri\nThere's no gear that raises ATK and DEF",
+    "ja_cur": "★Sengoku Kamuri\nThere's no gear that raises 攻撃力 and DEF"
+  },
+  {
+    "ko": "★클레어\n고립은 공격력의 증감 효과를 받지 않게 된답니다.\n이미 받은 효과도 무시하게 돼요.",
+    "en": "★Claire\nIsolation does not increase or decrease attack power.\nEffects already received are also ignored.",
+    "ja_cur": "★クレア\n孤立 does not increase or decrease attack power.\nEffects already received are also ignored."
+  },
+  {
+    "ko": "★메리 나이트메어\n어때? 좋은 꿈 꿨어?",
+    "en": "★Merry Nightmare\nhow is it? Did you have a good dream?",
+    "ja_cur": "★Merry Nightmare\nhow is it? Did you have a good dream?"
+  },
+  {
+    "ko": "★카오스\n아바바밧~!",
+    "en": "★Kaos\nAbbababat~!",
+    "ja_cur": "★Kaos\nAbbababat~!"
+  },
+  {
+    "ko": "★클레어\n아오바 씨의 돗테오키 효과로\n미키 씨가 자신을 회복하지 않게 만들어보세요~!",
+    "en": "★Claire\nMake\nMickey not recover himself with Aoba's Totteoki effect!",
+    "ja_cur": "★クレア\nMake\nMickey not recover himself with Aoba's とっておき effect!"
+  },
+  {
+    "ko": "★스즈카제 아오바\n오늘 하루도 힘내자오!!",
+    "en": "★Suzukaze Aoba\nLet’s do our best today too!!",
+    "ja_cur": "★Suzukaze Aoba\nLet’s do our best today too!!"
+  },
+  {
+    "ko": "★샤미코\n이걸로 이겼다고 생각하지 마!!",
+    "en": "★Shamiko\nDon’t think you won with this!!",
+    "ja_cur": "★Shamiko\nDon’t think you won with this!!"
+  },
+  {
+    "ko": "★클레어\n상대 서포트 크리에메이트는 메인 페이즈에는 사용할 수 없어요\n하지만 배틀 페이즈 개시시에는 초과 회복을 시킬거에요\n불행 효과를 받으면 회복 효과를 받을 수 없답니다!",
+    "en": "★Claire\nThe opponent's Support Creamate cannot be used during the main phase.\nHowever, it will cause excessive recovery at the start of the battle phase.\nIf you receive the misfortune effect, you will not receive the recovery effect!",
+    "ja_cur": "★クレア\nThe opponent's Support クリエメイト cannot be used during the メインフェイズ.\nHowever, it will cause excessive recovery at the start of the バトルフェイズ.\nIf you receive the 不幸 effect, you will not receive the recovery effect!"
+  },
+  {
+    "ko": "★하나코이즈미 안\n아, 쿠로미! 내 헤어핀 거기 있었구나~?",
+    "en": "★Hanakoizumi An\nAh, Kuromi! My hairpin was there~?",
+    "ja_cur": "★Hanakoizumi An\nAh, Kuromi! My hairpin was there~?"
+  },
+  {
+    "ko": "★고토 히토리\n밴드 활동으로 인기 좀 받아먹으려는 글러먹은 인간에게\n이렇게 관심을 주시면... 태어나 버리고 말아...\n승인욕구 몬스터가!!!",
+    "en": "★Gotoh Hitori\n\nIf you give this kind of attention to a lousy person who is trying to gain popularity through band activities... you will be born...\nA monster seeking approval!!!",
+    "ja_cur": "★Gotoh Hitori\n\nIf you give this kind of attention to a lousy person who is trying to gain popularity through band activities... you will be born...\nA monster seeking approval!!!"
+  },
+  {
+    "ko": "★클레어\n유미네 씨는 자신 배틀 크리에메이트의\n속성이 다 같으면 공격력+2\n하나라도 다르면 공격력+1이예요",
+    "en": "★Claire\nIf Yumine's Battle Creamate's\nattributes are the same, her attack power is +2. If even one\nattribute is different, her attack power is +1.",
+    "ja_cur": "★クレア\nIf Yumine's Battle クリエメイト's\nattributes are the same, her attack power is +2. If even one\nattribute is different, her attack power is +1."
+  },
+  {
+    "ko": "★클레어\n그 말은 속성이 하나라도 다르면\n배틀 크리에메이트 3장을 내더라도\n오르는 공격력은 1공격력*3장=3",
+    "en": "★Claire\nThat means, if even one attribute is different, even if you play 3\nBattle Creamates, the increased attack power of\nis 1 attack power * 3 cards = 3.",
+    "ja_cur": "★クレア\nThat means, if even one attribute is different, even if you play 3\nBattle クリエメイト, the increased attack power of\nis 1 attack power * 3 cards = 3."
+  },
+  {
+    "ko": "★클레어\n속성이 같은 크리에메이트 2장을 내고 유미네 씨의 버프\n효과를 사용한 후에 다른 크리에메이트를 내면\n2공격력*2장=4라서 앞선 경우보다 효율이 좋아지죠",
+    "en": "★Claire\nIf you play 2 Creamates with the same attribute and use Yumine's buff\neffect, then play another Creamate,\n2 attack power * 2 = 4, so it is more efficient than the previous case.",
+    "ja_cur": "★クレア\nIf you play 2 クリエメイト with the same attribute and use Yumine's buff\neffect, then play another クリエメイト,\n2 attack power * 2 = 4, so it is more efficient than the previous case."
+  },
+  {
+    "ko": "★테데자 리제\n전원 퇴각이다~! 후퇴 후퇴~!\n이 세계엔 수류탄이나 소총은 없는건가..!",
+    "en": "★Tedeza Rize\nEveryone is retreating! Retreat, retreat~!\nThere are no grenades or rifles in this world..!",
+    "ja_cur": "★Tedeza Rize\nEveryone is retreating! Retreat, retreat~!\nThere are no grenades or rifles in this world..!"
+  },
+  {
+    "ko": "★오오미야 시노부\n금발 소녀가 없네요...\n하아 하아... 그래도 청발도 좋네요~",
+    "en": "★Oomiya Shinobu\nThere are no blonde girls...\nHahaha... But blue hair is nice too~",
+    "ja_cur": "★Oomiya Shinobu\nThere are no blonde girls...\nHahaha... But blue hair is nice too~"
+  },
+  {
+    "ko": "★클레어\n코하네 씨는 아군 전체의 통상 공격 횟수를 1회 늘리는\n강력한 효과를 가지고 있지만 추가 경직을 2장 요구하여\n사실상 그 턴 코하네 씨를 제외하고 돗테오키 사용을 막게되죠",
+    "en": "★Claire\nKohane increases the number of normal attacks for all allies by 1.\nIt has a powerful effect, but requires 2 additional Stiffs.\nIn fact, it prevents the use of Totteoki except for Kohane that turn.",
+    "ja_cur": "★クレア\nKohane increases the number of normal attacks for 味方全体 by 1.\nIt has a powerful effect, but requires 2 additional Stiffs.\nIn fact, it prevents the use of とっておき except for Kohane that turn."
+  },
+  {
+    "ko": "★클레어\n따라서 코하네 씨를 사용할 때는 추가 경직을 요구하지 않는\n공격력 버퍼를 사용해야만 해요",
+    "en": "★Claire\nTherefore, when using Kohane, you must use a\nattack buffer that does not require additional Stiff.",
+    "ja_cur": "★クレア\nTherefore, when using Kohane, you must use a\nattack buffer that does not require additional 硬直."
+  },
+  {
+    "ko": "★클레어\n이렇게 코하네 씨는 통상 공격으로 돗테오키 게이지를\n올린 후에 사용하면 적은 돗테오키 게이지로\n엄청난 효과를 낼 수 있답니다~!",
+    "en": "★Claire\nIf you use Kohane after raising the Totteoki Gauge\nwith a normal attack, you can achieve\ngreat effects with a small Totteoki Gauge!",
+    "ja_cur": "★クレア\nIf you use Kohane after raising the とっておきゲージ\nwith a 通常攻撃, you can achieve\ngreat effects with a small とっておきゲージ!"
+  },
+  {
+    "ko": "★카타세 마요이\n호호... 이것 참 개조할만 하군요",
+    "en": "★Katase Mayoi\nHoho... this really deserves renovation.",
+    "ja_cur": "★Katase Mayoi\nHoho... this really deserves renovation."
+  },
+  {
+    "ko": "★클레어\n카렌 씨는 적은 돗테오키 게이지로\n이 게임에서 가장 높은 데미지를 줄 수 있어요",
+    "en": "★Claire\nKaren can do the highest damage in the game\nwith a small Totteoki Gauge.",
+    "ja_cur": "★クレア\nKaren can do the highest damage in the game\nwith a small とっておきゲージ."
+  },
+  {
+    "ko": "★쿠죠 카렌\nHAHAHA~!\n나는 더 강한 라이벌을 찾고 있습니다.",
+    "en": "★Kujo Karen\nHAHAHA~!\nI'm looking for a stronger rival.",
+    "ja_cur": "★九条カレン\nHAHAHA~!\nI'm looking for a stronger rival."
+  },
+  {
+    "ko": "★마츠바라 호노카\n아으... 미안 할 줄 아는게 공굴리기밖에 없어서",
+    "en": "★Matsubara Honoka\nAh... the only thing I know how to apologize for is rolling the ball.",
+    "ja_cur": "★Matsubara Honoka\nAh... the only thing I know how to apologize for is rolling the ball."
+  },
+  {
+    "ko": "★클레어\n여기까지 클리어하셨군요~!\n이제 마지막 시험만이 남았어요~!",
+    "en": "★Claire\nYou've cleared it up to this point!\nNow only the final exam remains~!",
+    "ja_cur": "★クレア\nYou've cleared it up to this point!\nNow only the final exam remains~!"
+  },
+  {
+    "ko": "★쿠죠 카렌\nWhat~!! 에토와리아에도 시험이 있는겁니까?",
+    "en": "★Kujo Karen\nWhat~!! Are there exams in Etoilia too?",
+    "ja_cur": "★九条カレン\nWhat~!! Are there exams in Etoilia too?"
+  },
+  {
+    "ko": "★클레어\n걱정마세요~! 여기까지 오셨다면 하실 수 있을거예요\n지금까지 배운 것들을 떠올려보세요",
+    "en": "★Claire\nDon't worry~! If you've come this far, you can do it.\nThink about what you've learned so far.",
+    "ja_cur": "★クレア\nDon't worry~! If you've come this far, you can do it.\nThink about what you've learned so far."
+  },
+  {
+    "ko": "★램프\n맞아요~! 크리에메이트 님들이라면 가능해요~!\n살짝 힌트를 주자면 이번 상대는 회복을 나오키 미키에게만 사용해요",
+    "en": "★Lamp\nThat's right~! You Creamates can do it~!\nA little hint: this opponent only uses healing on Naoki Miki",
+    "ja_cur": "★ランプ\nThat's right~! You クリエメイト can do it~!\nA little hint: this opponent only uses healing on Naoki Miki"
+  },
+  {
+    "ko": "★클레어\n축하합니다~! 클리어하셨네요",
+    "en": "★Claire\nCongratulations~! You cleared it.",
+    "ja_cur": "★クレア\nCongratulations~! You cleared it."
+  },
+  {
+    "ko": "★클레어\n이제 정말 서버 대전에서 다른 소환사들과 게임을 하실 수 있겠어요.\n이 퍼즐보다 더 어러운 난이도를 원한다면 하드 모드가 있답니다.\n생각보다 어려우니 조심해주세요~!",
+    "en": "★Claire\nNow you should really be ready to play other Summoners in server matches.\nIf you want something harder than this puzzle, there's Hard Mode.\nIt's tougher than it looks, so be careful~!",
+    "ja_cur": "★クレア\nNow you should really be ready to play other Summoners in server matches.\nIf you want something harder than this puzzle, there's Hard Mode.\nIt's tougher than it looks, so be careful~!"
+  },
+  {
+    "ko": "★하토야 코하네\n아직 끝나지 않았어~!\nGo! Fight! win!",
+    "en": "★Hatoya Kohane\nIt's not over yet~!\nGo! Fight! win!",
+    "ja_cur": "★鳩谷こはね\nIt's not over yet~!\nGo! Fight! win!"
+  },
+  {
+    "ko": "★혼다 타마키\n할 수 있당께!",
+    "en": "★Honda Tamaki\nYou can do it!",
+    "ja_cur": "★本田珠輝\nYou can do it!"
+  },
+  {
+    "ko": "이번 턴 안에 상대 배틀 존의 크리에메이트들을\n전부 성전으로 보내고 배틀 페이즈를 종료해주세요",
+    "en": "Creamates from the opponent's Battle Zone within this turn.\nSend everything to Sanctuary and end the battle phase.",
+    "ja_cur": "クリエメイト from the opponent's バトルゾーン within this turn.\nSend everything to 聖典 and end the バトルフェイズ."
+  },
+  {
+    "ko": "★혼다 타마키\n역시 아저씨들은 대단해요!\n아저씨들의 도움으로 제가 이길 수 있었어요\n정말 감사합니다!",
+    "en": "★Honda Tamaki\nAs expected, you guys are great!\nI was able to win with your help.\nThank you so much!",
+    "ja_cur": "★本田珠輝\nAs expected, you guys are great!\nI was able to win with your help.\nThank you so much!"
+  },
+  {
+    "ko": "★하토야 코하네\nGo! Fight! win!\nLet's chair up!",
+    "en": "★Hatoya Kohane\nGo! Fight! win!\nLet's cheer up!",
+    "ja_cur": "★鳩谷こはね\nGo! Fight! win!\nLet's cheer up!"
+  },
+  {
+    "ko": "★우시쿠 카나\n흥! 이번엔 성공했어도\n선배에겐 이런 어중간한 동호회 어울리지 않아!",
+    "en": "★Ushiku Kana\njoy! Even if he succeeds this time,\nsenior is not suitable for this kind of mediocre club!",
+    "ja_cur": "★Ushiku Kana\njoy! Even if he succeeds this time,\nsenior is not suitable for this kind of mediocre club!"
+  },
+  {
+    "ko": "★아리마 히즈메\nCheer가 부족했던걸까요?\n하토야 양을 짊어지기 위해선!",
+    "en": "★Arima Hizume\nWere we short on Cheer?\nTo carry Miss Hatoya!",
+    "ja_cur": "★Arima Hizume\nWere we short on Cheer?\nTo carry Miss Hatoya!"
+  },
+  {
+    "ko": "★코이즈카 코유메\n도넛 먹을래?",
+    "en": "★Koizuka Koyume\nDo you want a donut?",
+    "ja_cur": "★Koizuka Koyume\nDo you want a donut?"
+  },
+  {
+    "ko": "★사에\n이겨서 다행이네~!",
+    "en": "★Sae\nI'm glad I won~!",
+    "ja_cur": "★Sae\nI'm glad I won~!"
+  },
+  {
+    "ko": "★키리마 샤로\n오늘도 괴도 라팡 분장하느라\n밥 사먹을 돈이 없어...",
+    "en": "★Kirima Sharo\n\nI don't have money to buy food today because I'm dressed up as the phantom thief Lapin...",
+    "ja_cur": "★Kirima Sharo\n\nI don't have money to buy food today because I'm dressed up as the phantom thief Lapin..."
+  },
+  {
+    "ko": "★쿠죠 카렌\nHAHAHAHA~!\n이세계 전생해 최강 무쌍이 되어버린 나\n전사 카렌쨩은 매일 트레이닝을 게을리 하지 않습니다!",
+    "en": "★Kujo Karen\nHAHAHAHA~!\nI was reincarnated in a different world and became the strongest warrior.\nWarrior Karen-chan never neglects training every day!",
+    "ja_cur": "★九条カレン\nHAHAHAHA~!\nI was reincarnated in a different world and became the strongest warrior.\nWarrior Karen-chan never neglects training every day!"
+  },
+  {
+    "ko": "★앨리스 카터릿\n시노는 다른 금발소녀들이랑 즐겁게 놀고 있구나...",
+    "en": "★Alice Cartelet\nShino is having fun playing with other blonde girls...",
+    "ja_cur": "★Alice Cartelet\nShino is having fun playing with other blonde girls..."
+  },
+  {
+    "ko": "★오오미야 시노부\n오늘 앨리스는 뭔가 미스테리하네요",
+    "en": "★Oomiya Shinobu\nThere's something mysterious about Alice today.",
+    "ja_cur": "★Oomiya Shinobu\nThere's something mysterious about Alice today."
+  },
+  {
+    "ko": "★마츠바라 호노카\n이겼어! 카렌쨩\n자, 카렌쨩에게는 내가 만든 산더미같은 스콘 대서비스~",
+    "en": "★Matsubara Honoka\nYou won! Karen-chan\nNow, for Karen-chan, here’s a big treat for the mountain of scones I made~",
+    "ja_cur": "★Matsubara Honoka\nYou won! Karen-chan\nNow, for Karen-chan, here’s a big treat for the mountain of scones I made~"
+  },
+  {
+    "ko": "★카렌 쿠죠\n너무 많습니다!",
+    "en": "★Karen Kujo\nThere are too many!",
+    "ja_cur": "★Karen Kujo\nThere are too many!"
+  },
+  {
+    "ko": "★오오미야 시노부\n저... 저는 금발 소녀를 따라간게 아니라\n클레어쨩에게 금발 한정 소환을 부탁하러...",
+    "en": "★Oomiya Shinobu\nUm... I didn't follow the blonde girl, I went to\nto ask Claire-chan to summon the blonde girl...",
+    "ja_cur": "★Oomiya Shinobu\nUm... I didn't follow the blonde girl, I went to\nto ask Claire-chan to summon the blonde girl..."
+  },
+  {
+    "ko": "★앨리스 카터릿\n시노는 혹시 금발이면 누구든지 좋아하는거야...?",
+    "en": "★Alice Cartelet\nShino, by any chance, likes anyone with blonde hair...?",
+    "ja_cur": "★Alice Cartelet\nShino, by any chance, likes anyone with blonde hair...?"
+  },
+  {
+    "ko": "★카렌 쿠죠\nOh, my god!!\n앨리스가 다크 앨리스가 되어버렸습니다!!",
+    "en": "★Karen Kujo\nOh my god!!\nAlice has become Dark Alice!!",
+    "ja_cur": "★Karen Kujo\nOh my god!!\nAlice has become Dark Alice!!"
+  },
+  {
+    "ko": "★마츠바라 호노카\n미.. 미안해 카렌쨩\n할 줄 아는게 공굴리기밖에 없어서...",
+    "en": "★Matsubara Honoka\nI'm sorry, Karen-chan.\nThe only thing I know how to do is roll a ball...",
+    "ja_cur": "★Matsubara Honoka\nI'm sorry, Karen-chan.\nThe only thing I know how to do is roll a ball..."
+  },
+  {
+    "ko": "★카렌 쿠죠\n깜짝입니다!\n어디서 나온겁니까?",
+    "en": "★Karen Kujo\nIt's a surprise!\nWhere did it come from?",
+    "ja_cur": "★Karen Kujo\nIt's a surprise!\nWhere did it come from?"
+  },
+  {
+    "ko": "★마츠바라 호노카\n응? 난 계속 카렌쨩 옆에 있었는데?",
+    "en": "★Matsubara Honoka\nhuh? I was next to Karen-chan the whole time?",
+    "ja_cur": "★Matsubara Honoka\nhuh? I was next to Karen-chan the whole time?"
+  },
+  {
+    "ko": "★소노다 유우\n하루카~~ 배고파\n말차 푸딩 있어?",
+    "en": "★Sonoda Yuu\nHaruka~~ I’m hungry\nDo you have matcha pudding?",
+    "ja_cur": "★Sonoda Yuu\nHaruka~~ I’m hungry\nDo you have matcha pudding?"
+  },
+  {
+    "ko": "★타카야마 하루카\n응? 알았어 찾아볼게",
+    "en": "★Takayama Haruka\nhuh? Okay, I'll look for it.",
+    "ja_cur": "★Takayama Haruka\nhuh? Okay, I'll look for it."
+  },
+  {
+    "ko": "★시노하 마유\n저기 캠핑하고 있던 사람들에게서 우유를 받아서\n이만큼이나 만들 수 있었어",
+    "en": "★Shinoha Mayu\nI was able to make this much\nby getting milk from the people camping over there.",
+    "ja_cur": "★Shinoha Mayu\nI was able to make this much\nby getting milk from the people camping over there."
+  },
+  {
+    "ko": "★소노다 유우\n우와... 버켓 말차 푸딩!!\n말차 푸딩 맛있겠다!!",
+    "en": "★Sonoda Yuu\nWow... bucket matcha pudding!!\nMatcha pudding looks delicious!!",
+    "ja_cur": "★Sonoda Yuu\nWow... bucket matcha pudding!!\nMatcha pudding looks delicious!!"
+  },
+  {
+    "ko": "★타카야마 하루카\n유우, 그러면...",
+    "en": "★Takayama Haruka\nYuu, then...",
+    "ja_cur": "★Takayama Haruka\nYuu, then..."
+  },
+  {
+    "ko": "★소노다 유우\n이럴 때 갑자기!?!?\n일단 푸딩부터 먹고...\n냐암......",
+    "en": "★Sonoda Yuu\nAt a time like this, suddenly!?!?\nLet's eat the pudding first...\nNyam......",
+    "ja_cur": "★Sonoda Yuu\nAt a time like this, suddenly!?!?\nLet's eat the pudding first...\nNyam......"
+  },
+  {
+    "ko": "★소노다 유우\n.............................\n푸딩에 뭘 넣은거야!!!!!",
+    "en": "★Sonoda Yuu\n.............................\nWhat did you put in the pudding!!!!!",
+    "ja_cur": "★Sonoda Yuu\n.............................\nWhat did you put in the pudding!!!!!"
+  },
+  {
+    "ko": "★소노다 유우\n말차 푸딩이 없어서 힘이 안나..",
+    "en": "★Sonoda Yuu\nI don't have any strength because I don't have matcha pudding.",
+    "ja_cur": "★Sonoda Yuu\nI don't have any strength because I don't have matcha pudding."
+  },
+  {
+    "ko": "★센고쿠 카무리\n배고플 땐 디저트 카페야\n앞으로 3km만 더 달리면 돼",
+    "en": "★Sengoku Kamuri\nWhen you're hungry, it's a dessert cafe.\nYou just have to run 3km more.",
+    "ja_cur": "★Sengoku Kamuri\nWhen you're hungry, it's a dessert cafe.\nYou just have to run 3km more."
+  },
+  {
+    "ko": "★소노다 유우\n하루카!!!",
+    "en": "★Sonoda Yuu\nHaruka!!!",
+    "ja_cur": "★Sonoda Yuu\nHaruka!!!"
+  },
+  {
+    "ko": "★후다 유미네\n자아... 믿는 겁니다\n부정할 수 없는 BL<이노센트 보이즈 러브>에\n이끌려온 사람들이여...",
+    "en": "★Fuda Yumine\nCome on... I believe it.\nPeople who have been drawn to the undeniable BL <Innocent Boys Love>\n...",
+    "ja_cur": "★Fuda Yumine\nCome on... I believe it.\nPeople who have been drawn to the undeniable BL <Innocent Boys Love>\n..."
+  },
+  {
+    "ko": "★후다 유미네\n아무것도 부끄러워할 필요 없습니다.\n곧 모든 남자가 남자와 사귀는 세계가 도래할 것입니다.\nBL이야말로 세계의 정도",
+    "en": "★Fuda Yumine\nThere is nothing to be ashamed of.\nSoon there will be a world where all men will date men.\nBL is the measure of the world",
+    "ja_cur": "★Fuda Yumine\nThere is nothing to be ashamed of.\nSoon there will be a world where all men will date men.\nBL is the measure of the world"
+  },
+  {
+    "ko": "★후다 유미네\n자, 있는 그대로의 최애를 향한 생각을 풀어내는 것입니다\n이 유미네 교단에서 동인지를 발산해 이 에토와리아를\n누구나가 사랑에 정직하게 될 수 있는 세계를 만드는겁니다",
+    "en": "★Fuda Yumine\nNow, the idea is to unravel the thoughts of the beloved as it is.\nThis Yumine Church will publish doujinshi and this Etoilia\nWe will create a world where everyone can be honest in love.",
+    "ja_cur": "★Fuda Yumine\nNow, the idea is to unravel the thoughts of the beloved as it is.\nThis Yumine Church will publish doujinshi and this Etoilia\nWe will create a world where everyone can be honest in love."
+  },
+  {
+    "ko": "★이케타니 노노\n저기 죄송한데요, 타마키 선배\n후다후다 선배랑 만든 BL 게임에서\n'젊디젊은 남자 둘이 화장실에서 뭔가를...'",
+    "en": "★Iketani Nono\nHey, I'm sorry, Tamaki-senpai\nIn the BL game I made with Fudafuda-senpai,\n'Two young men were doing something in the bathroom...'",
+    "ja_cur": "★Iketani Nono\nHey, I'm sorry, Tamaki-senpai\nIn the BL game I made with Fudafuda-senpai,\n'Two young men were doing something in the bathroom...'"
+  },
+  {
+    "ko": "★이케타니 노노\n이게 BL 묘사인가요?\n화장실에서 뭘 하나요?",
+    "en": "★Iketani Nono\nIs this a BL depiction?\nWhat do you do in the bathroom?",
+    "ja_cur": "★Iketani Nono\nIs this a BL depiction?\nWhat do you do in the bathroom?"
+  },
+  {
+    "ko": "★혼다 타마키\n묻지마!!!!....\n나도 잘은 모르지만 남자 둘이서...\n소곤소곤",
+    "en": "★Honda Tamaki\nDon't ask!!!!....\nI don't know, but two men...\nwhispering",
+    "ja_cur": "★本田珠輝\nDon't ask!!!!....\nI don't know, but two men...\nwhispering"
+  },
+  {
+    "ko": "★이케타니 노노\n이, 이런 저속한 게임 못 팔아요!!!\n집에 갈래요!!",
+    "en": "★Iketani Nono\nHey, I can’t sell this kind of vulgar game!!!\nI want to go home!!",
+    "ja_cur": "★Iketani Nono\nHey, I can’t sell this kind of vulgar game!!!\nI want to go home!!"
+  },
+  {
+    "ko": "★소라\n대어 대어~♪ 어떤 동인지도 모두 훌륭하네요\n하지만 유미네 선생님 건 아르시브가 보면 큰일이니\n어딘가에 숨겨둬야...",
+    "en": "★Sola\nDare to dae~♪ All doujinshi are great\nBut Yumine teacher's thing is a big deal if Arsiv sees it, so\nneeds to be hidden somewhere...",
+    "ja_cur": "★Sola\nDare to dae~♪ All doujinshi are great\nBut Yumine teacher's thing is a big deal if Arsiv sees it, so\nneeds to be hidden somewhere..."
+  },
+  {
+    "ko": "★아르시브\n소라님!\n또, 동인지를 읽고 있습니까?\n책이 어지러져있고 남들에게 본보기가... 음?",
+    "en": "★Alchev\nSora!\nAre you reading fanzines again?\nThe book is a mess and an example to others... hmm?",
+    "ja_cur": "★Alchev\nSora!\nAre you reading fanzines again?\nThe book is a mess and an example to others... hmm?"
+  },
+  {
+    "ko": "★소라\n아르시브?\n무슨 일이니...?\n아르시브~~~!!",
+    "en": "★Sola\nArsiv?\nWhat's going on...?\nArsiv~~~!!",
+    "ja_cur": "★Sola\nArsiv?\nWhat's going on...?\nArsiv~~~!!"
+  },
+  {
+    "ko": "필두신관 아르시브는 순수하트의 소유자였습니다\n그녀는 동인지의 내용을 받아들이지 못하고 실신\n그것에 대한 기억도 잃어버렸다고 합니다",
+    "en": "The head priest, Arsiv, had a pure heart.\nIt is said that she could not accept the contents of the fanzine and fainted\nand even lost her memory of it.",
+    "ja_cur": "The head priest, Arsiv, had a pure heart.\nIt is said that she could not accept the contents of the fanzine and fainted\nand even lost her memory of it."
+  },
+  {
+    "ko": "그리고 아르시브를 무참히 녹아웃한 여신님의 동인지는\n신전 금서고에 봉인되어\n필두신관 고로시(아르시브 슬레이어)라고 불려 구전되었고\n신전에 봉인되어 최종병기로서 전설이 되었다고 합니다",
+    "en": "And the doujinshi of the goddess who brutally knocked out Arsiv was sealed in the forbidden library of the\ntemple, and was passed down orally as\nchief priest Goroshi (Arsiv Slayer). It is said that it was sealed in the\ntemple and became a legend as the ultimate weapon.",
+    "ja_cur": "And the doujinshi of the goddess who brutally knocked out Arsiv was sealed in the forbidden library of the\ntemple, and was passed down orally as\nchief priest Goroshi (Arsiv Slayer). It is said that it was sealed in the\ntemple and became a legend as the ultimate weapon."
+  },
+  {
+    "ko": "★오리베 야스나\n애들아~! 나한테 follow me!!",
+    "en": "★Oribe Yasuna\nKids~! Follow me!!",
+    "ja_cur": "★Oribe Yasuna\nKids~! Follow me!!"
+  },
+  {
+    "ko": "★히나츠키 미캉\n수고했어~! 여기 귤 먹어\n피로회복에 좋아~~",
+    "en": "★Hinatsuki Mikan\nGood job~! Eat tangerines here\nIt's good for recovering from fatigue~~",
+    "ja_cur": "★Hinatsuki Mikan\nGood job~! Eat tangerines here\nIt's good for recovering from fatigue~~"
+  },
+  {
+    "ko": "★오리베 야스나\n소.. 소냐쨩\n이런 것도 못하는거야?\n바~보 바~보...",
+    "en": "★Oribe Yasuna\nSo.. Sonya-chan\nYou can’t even do this?\nBa~bo Ba~bo...",
+    "ja_cur": "★Oribe Yasuna\nSo.. Sonya-chan\nYou can’t even do this?\nBa~bo Ba~bo..."
+  },
+  {
+    "ko": "★샤미코\n위기관리!!",
+    "en": "★Shamiko\nCrisis management!!",
+    "ja_cur": "★Shamiko\nCrisis management!!"
+  },
+  {
+    "ko": "★샤미코\n혹시 그 이야기 다른데서도 하시는건가요?",
+    "en": "★Shamiko\nAre you talking about that somewhere else?",
+    "ja_cur": "★Shamiko\nAre you talking about that somewhere else?"
+  },
+  {
+    "ko": "★치요다 모모\n샤미코가 나쁜거야...",
+    "en": "★Chiyoda Momo\nShamiko is bad...",
+    "ja_cur": "★Chiyoda Momo\nShamiko is bad..."
+  },
+  {
+    "ko": "★샤미코\n네? 이게 제 탓인건가요??\n어떤 효과를 사용해야할지...",
+    "en": "★Shamiko\nyes? Is this my fault??\nWhich effect to use...",
+    "ja_cur": "★Shamiko\nyes? Is this my fault??\nWhich effect to use..."
+  },
+  {
+    "ko": "★고토 히토리\n이 방의 화기애애한 분위기...\n이것이 양의 결계....!",
+    "en": "★Gotoh Hitori\nThe friendly atmosphere in this room...\nThis is the Yang barrier...!",
+    "ja_cur": "★Gotoh Hitori\nThe friendly atmosphere in this room...\nThis is the Yang barrier...!"
+  },
+  {
+    "ko": "★사야마 츠바키\n가.. 감사 인사는 티모시에게 부탁드려요...",
+    "en": "★Sayama Tsubaki\nA.. Please say thank you to Timothy...",
+    "ja_cur": "★Sayama Tsubaki\nA.. Please say thank you to Timothy..."
+  },
+  {
+    "ko": "★교수(오미치 미야비)\n조금 더 검었으면 의욕이 생기련만...",
+    "en": "★Professor (Omichi Miyabi)\nIf it were a little blacker, I would be more motivated...",
+    "ja_cur": "★Professor (Omichi Miyabi)\nIf it were a little blacker, I would be more motivated..."
+  },
+  {
+    "ko": "키라라 판타지아 코믹스 6화의 내용을 담고 있습니다.\n(구글, 네이버에 검색해 보세요)",
+    "en": "Contains the contents of Episode 6 of Kirara Fantasia Comics.\n(Search on Google or Naver)",
+    "ja_cur": "Contains the contents of Episode 6 of Kirara Fantasia Comics.\n(Search on Google or Naver)"
+  },
+  {
+    "ko": "★램프\n유노 님을 놔주세요 지금 바로!\n이건 잘못 되었어요\n오더라니 말도 안 된다고요!",
+    "en": "★Lamp\nPlease let go of Yuno, right now!\nThis is wrong.\nIt makes no sense to come!",
+    "ja_cur": "★ランプ\nPlease let go of Yuno, right now!\nThis is wrong.\nIt makes no sense to come!"
+  },
+  {
+    "ko": "★슈가\n무슨 소리 하는거야? 배신자 주제\n아르시브 님이 잘못된 일을 할리 없잖아",
+    "en": "★Sugar\nWhat are you talking about? Traitor Topic\nArsiv can't do anything wrong.",
+    "ja_cur": "★シュガー\nWhat are you talking about? Traitor Topic\nArsiv can't do anything wrong."
+  },
+  {
+    "ko": "★슈가\n...그래도 램프가 다른 크리에메이트까지\n데려와 준건 너무 고마운걸\n다들 엉망진창으로 만들어서 모으기만 하면 되잖아",
+    "en": "★Sugar\n...Still, I'm so grateful that Lamp brought me\nto the other Creamate.\nAll we have to do is make a mess and collect it.",
+    "ja_cur": "★シュガー\n...Still, I'm so grateful that Lamp brought me\nto the other クリエメイト.\nAll we have to do is make a mess and collect it."
+  },
+  {
+    "ko": "★슈가\n...또 교대?\n이제 슈가 지겨워졌어",
+    "en": "★Sugar\n...shift again?\nI'm sick of Suga now",
+    "ja_cur": "★シュガー\n...shift again?\nI'm sick of Suga now"
+  },
+  {
+    "ko": "★호토 코코아\n걱정마 이걸로 끝이야 슈가쨩\n애들아! 나에게 힘을 빌려줘!",
+    "en": "★Hoto Cocoa\nDon't worry, this is the end, Suga-chan\nkids! Lend me your strength!",
+    "ja_cur": "★Hoto Cocoa\nDon't worry, this is the end, Suga-chan\nkids! Lend me your strength!"
+  },
+  {
+    "ko": "★호토 코코아\n영역전개 「래빗 하우스」\n체에에에스토오오오!!",
+    "en": "★Hoto Cocoa\nArea expansion “Rabbit House”\nCheeeestooooo!!",
+    "ja_cur": "★Hoto Cocoa\nArea expansion “Rabbit House”\nCheeeestooooo!!"
+  },
+  {
+    "ko": "★슈가\n목조 건물과 석조 거리...!?\n아바바바밧~~!!",
+    "en": "★Sugar\nWooden buildings and stone streets...!?\nAbbabababat~~!!",
+    "ja_cur": "★シュガー\nWooden buildings and stone streets...!?\nAbbabababat~~!!"
+  },
+  {
+    "ko": "★램프\n후오오오오옷~~!! 코코아 님 멋있으십니다~!!\n우리의 승리입니다! 이제 항복하세요 슈가!",
+    "en": "★Lamp\nHuooooooot~~!! Cocoa, you’re cool~!!\nIt's our win! Surrender now, Sugar!",
+    "ja_cur": "★ランプ\nHuooooooot~~!! Cocoa, you’re cool~!!\nIt's our win! Surrender now, Sugar!"
+  },
+  {
+    "ko": "★슈가\n램프는 아무것도 안한 주제...\n흥~이다 싫으면 어쩔래!\n아~ 유노 언니 한번 더 햝고 싶었는데 바이 바~이",
+    "en": "★Sugar\nThe lamp is a subject that I didn't do anything about...\nHmm~ What if I don't like it?\nAh~ I wanted to lick Yuno one more time, bye bye~",
+    "ja_cur": "★シュガー\nThe lamp is a subject that I didn't do anything about...\nHmm~ What if I don't like it?\nAh~ I wanted to lick Yuno one more time, bye bye~"
+  },
+  {
+    "ko": "★미야코\n오오! 사라졌어!",
+    "en": "★Miyako\nOh! It's gone!",
+    "ja_cur": "★宮子\nOh! It's gone!"
+  },
+  {
+    "ko": "★램프\n슈가 녀석 유노 님에게 대체 무슨 짓을...",
+    "en": "★Lamp\nWhat on earth did Suga do to Yuno...",
+    "ja_cur": "★ランプ\nWhat on earth did Suga do to Yuno..."
+  },
+  {
+    "ko": "★슈가\n슈가 러쉬!!",
+    "en": "★Sugar\nSugar Rush!!",
+    "ja_cur": "★シュガー\nSugar Rush!!"
+  },
+  {
+    "ko": "★키라라\n광범위 타격! 막을 수 없어!!\n하나 씨 괜찮나요?",
+    "en": "★Kirara\nWide range hit! I can't stop it!!\nAre you okay, Hana?",
+    "ja_cur": "★きらら\nWide range hit! I can't stop it!!\nAre you okay, Hana?"
+  },
+  {
+    "ko": "★이치노세 하나\n괘.. 괜찮아... 괜찮지 않아....",
+    "en": "★Ichinose Hana\nIt's okay... it's not okay...",
+    "ja_cur": "★Ichinose Hana\nIt's okay... it's not okay..."
+  },
+  {
+    "ko": "★키라라\n한번의 일격으로 전황이...\n이것이 아르시브의 직속부하 칠현자!!",
+    "en": "★Kirara\nWith one strike, the entire situation changes...\nThis is Arsiv's direct subordinate, the Seven Sages!!",
+    "ja_cur": "★きらら\nWith one strike, the entire situation changes...\nThis is Arsiv's direct subordinate, the Seven Sages!!"
+  }
+]

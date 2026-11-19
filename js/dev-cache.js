@@ -16,8 +16,8 @@ function isLocalDevHost() {
 export async function clearLocalDevCaches() {
   if (!isLocalDevHost()) return;
   try {
-    if (sessionStorage.getItem("kirafan-dev-cache-cleared") === "2") return;
-    sessionStorage.setItem("kirafan-dev-cache-cleared", "2");
+    if (sessionStorage.getItem("kirafan-dev-cache-cleared") === "3") return;
+    sessionStorage.setItem("kirafan-dev-cache-cleared", "3");
   } catch { /* continue anyway */ }
 
   try {

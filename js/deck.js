@@ -1,5 +1,5 @@
 import { toast } from "./ui.js";
-import { applyI18n, attrLabel, classLabel, t } from "./ui-i18n.js?v=i18n9";
+import { applyI18n, attrLabel, classLabel, t } from "./ui-i18n.js?v=i18n10";
 import {
   ATTRIBUTE_ICONS, CLASS_ICONS, FIRST_DECK, LEVELS, OLD_STORE, STORE, aiRecipeLabel, classCounts, classRank, cleanDeck,
   deckFromYdk, deckOrder, deckProblems, deckToYdk, handOrder, loadAiDecks, loadCards, readJson,
@@ -7,12 +7,13 @@ import {
 } from "./decks.js";
 import { loadSounds, playBgm, voice } from "./sound.js";
 import { mediaUrl } from "./local-assets.js";
-import { bindFhdStage } from "./stage-scale.js?v=2";
+import { bindFhdStage } from "./stage-scale.js?v=14";
 import { clearLocalDevCaches } from "./dev-cache.js?v=1";
 import { setupSideSettings } from "./side-settings.js";
 
-await clearLocalDevCaches();
+// Fit before any await so the stage never flashes at unscaled size.
 bindFhdStage();
+await clearLocalDevCaches();
 
 function setPic(el, rel) {
   if (!el) return;

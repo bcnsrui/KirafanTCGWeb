@@ -133,7 +133,7 @@ def sounds():
     out = {"bgm": {}, "voice": {}, "effects": []}
     copied = 0
     voice_kinds = (
-        "summon", "activate", "attack", "totteoki", "recovery", "damage",
+        "summon", "summoner", "activate", "attack", "totteoki", "recovery", "damage",
         "defeat", "destroy", "Alchemist", "alchemist",
     )
     for root, _, files in os.walk(src):
@@ -199,8 +199,12 @@ def engine_puzzles():
                 source = f.read()
             stem = name[:-4]
             label, _, title = stem.partition(".")
-            out.append({"id": len(out), "category": category, "number": label if title else "",
-                        "title": title or stem, "source": source})
+            entry = {"id": len(out), "category": category, "number": label if title else "",
+                     "title": title or stem, "source": source}
+            m = re.search(r"^--@aiLevel\s+(\d+)\s*$", source, re.M)
+            if m:
+                entry["aiLevel"] = int(m.group(1))
+            out.append(entry)
     return out
 
 

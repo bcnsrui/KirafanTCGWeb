@@ -1,13 +1,77 @@
-"""Build data/ja/{cards,engine,puzzles}.json — JP names curated, effects MT + TCG terms."""
+"""Build data/ja/{cards,engine,puzzles}.json — JP names curated, effects MT + TCG terms.
+
+MT backend: DeepL API (env DEEPL_AUTH_KEY or DEEPL_API_KEY).
+Put the key in KirafanWeb/.env (gitignored), e.g. DEEPL_AUTH_KEY=xxxx:fx
+Free keys end with :fx and use api-free.deepl.com automatically.
+"""
 from __future__ import annotations
 
 import json
+import os
 import re
 import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "data" / "ja"
+
+
+def _load_dotenv() -> None:
+    # Prefer real .env; also accept tools/deepl.env.example if the key was pasted there.
+    candidates = (
+        ROOT / ".env",
+        ROOT.parent / ".env",
+        ROOT / "tools" / "deepl.env.example",
+    )
+    for path in candidates:
+        if not path.is_file():
+            continue
+        loaded = False
+        for raw in path.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, val = line.partition("=")
+            key = key.strip()
+            val = val.strip().strip('"').strip("'")
+            if not key or key in os.environ:
+                continue
+            if "xxxx" in val.lower():
+                continue
+            os.environ[key] = val
+            loaded = True
+        if loaded and path.name == "deepl.env.example":
+            print(f"Note: loaded DeepL key from {path} — prefer moving it to KirafanWeb/.env")
+        if loaded and (os.environ.get("DEEPL_AUTH_KEY") or os.environ.get("DEEPL_API_KEY")):
+            return
+
+
+def _deepl_auth_key() -> str:
+    _load_dotenv()
+    key = (os.environ.get("DEEPL_AUTH_KEY") or os.environ.get("DEEPL_API_KEY") or "").strip()
+    if not key:
+        raise SystemExit(
+            "DeepL API key missing. Set DEEPL_AUTH_KEY (or DEEPL_API_KEY) in the environment "
+            "or in KirafanWeb/.env — free keys look like xxxxxxxx:fx"
+        )
+    return key
+
+
+def _deepl_translator():
+    try:
+        import deepl
+    except ImportError:
+        import subprocess
+        import sys
+
+        print("Installing deepl…")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "deepl", "-q"])
+        import deepl
+
+    return deepl.Translator(_deepl_auth_key())
+
+
+_SRC_LANG = {"en": "EN", "ko": "KO", "ja": "JA", "auto": None}
 
 # Official / wiki-style Japanese names (きらファン / 原作準拠)
 NAME_JA: dict[int, str] = {
@@ -31,11 +95,11 @@ NAME_JA: dict[int, str] = {
     10051311: "千石冠",
     10051321: "御庭つみき",
     10051322: "ファー",
-    10051331: "ソニーヤ",
-    10051332: "キョージュ(大道寺美弥)",
+    10051331: "ソーニャ",  # wiki: ソ+ー+ニ+ャ
+    10051332: "キョージュ(大道 雅)",
     10051411: "烏丸さくら",
     10051421: "牛久花和",
-    10051431: "保登ココア",
+    10051431: "ココア",
     10051511: "沙英",
     10051521: "大宮忍",
     10051531: "宮子",
@@ -50,7 +114,7 @@ NAME_JA: dict[int, str] = {
     10052231: "星川麻冬",
     10052232: "雲雀丘瑠璃",
     10052321: "片瀬真宵",
-    10052322: "恋塚小さゆめ",
+    10052322: "恋塚 小夢",
     10052331: "本田珠輝",
     10052421: "巽紺",
     10052422: "西川葉子",
@@ -66,13 +130,13 @@ NAME_JA: dict[int, str] = {
     10053121: "遠井成美",
     10053131: "千矢",
     10053211: "海凪ひより",
-    10053221: "篠花真由",
-    10053231: "天々座理世",
+    10053221: "篠華 まゆ",
+    10053231: "リゼ",
     10053311: "雨宮まゆ",
     10053321: "飯島ゆん",
     10053331: "折部やすな",
     10053332: "非運の人物？",
-    10053411: "池谷のの",
+    10053411: "池谷 乃々",
     10053421: "櫟井唯",
     10053431: "直樹美紀",
     10053511: "ライネ",
@@ -100,7 +164,7 @@ NAME_JA: dict[int, str] = {
     10054523: "ヒロ",
     10054524: "関谷なる",
     10054611: "真中蒼",
-    10054621: "布田由美音",
+    10054621: "布田 裕美音",
     10054622: "シャミ子(吉田優子)",
     10055111: "町子リョウ",
     10055112: "闇のアリス・カータレット",
@@ -118,7 +182,7 @@ NAME_JA: dict[int, str] = {
     10055511: "おかあさん(松本頼子)",
     10055512: "百地たまて",
     10055513: "ハナ・N・フォンテーンスタンド",
-    10055611: "佐山菫",
+    10055611: "狭山 椿",
     10055612: "花小泉杏",
     10055621: "有馬ひづめ",
     10055622: "クロ",
@@ -251,10 +315,23 @@ TERM_KO_JA = [
     ("아군전체", "味方全体"),
 ]
 
-# TCG-style leftovers → Kirafan wiki terms
+# TCG-style leftovers → Kirafan wiki terms + wiki.kirafan.moe NamedList fixes
 TERM_JA_CLEANUP = [
     ("敵1体", "敵単体"),
     ("味方1体", "味方単体"),
+    ("エトイリア", "エトワリア"),
+    ("アルシヴ", "アルシーヴ"),
+    ("アーカイブ", "アルシーヴ"),
+    ("布田由美音", "布田 裕美音"),
+    ("由美音", "裕美音"),
+    ("池谷のの", "池谷 乃々"),
+    ("恋塚小さゆめ", "恋塚 小夢"),
+    ("篠花真由", "篠華 まゆ"),
+    ("ソニーヤ", "ソーニャ"),
+    ("佐山菫", "狭山 椿"),
+    ("保登ココア", "ココア"),
+    ("天々座理世", "リゼ"),
+    ("大道寺美弥", "大道 雅"),
 ]
 
 
@@ -273,43 +350,60 @@ def apply_ja_cleanup(text: str) -> str:
 
 
 def translate_batch(texts: list[str], src: str = "en") -> list[str]:
-    try:
-        from deep_translator import GoogleTranslator
-    except ImportError:
-        print("Installing deep_translator…")
-        import subprocess, sys
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "deep_translator", "-q"])
-        from deep_translator import GoogleTranslator
+    """Translate texts to Japanese via DeepL. Empty strings are preserved."""
+    tr = _deepl_translator()
+    source_lang = _SRC_LANG.get(src.lower(), src.upper() if src else None)
+    out: list[str | None] = [None] * len(texts)
+    pending_idx: list[int] = []
+    pending_txt: list[str] = []
 
-    tr = GoogleTranslator(source=src, target="ja")
-    out: list[str] = []
+    def flush() -> None:
+        nonlocal pending_idx, pending_txt
+        if not pending_txt:
+            return
+        try:
+            kwargs = {"target_lang": "JA", "preserve_formatting": True}
+            if source_lang:
+                kwargs["source_lang"] = source_lang
+            results = tr.translate_text(pending_txt, **kwargs)
+            if not isinstance(results, list):
+                results = [results]
+            for i, res in zip(pending_idx, results):
+                out[i] = res.text
+        except Exception as e:
+            print(f"  DeepL batch fail ({len(pending_txt)} texts): {e}")
+            # fall back one-by-one so one bad string doesn't drop the whole batch
+            for i, text in zip(pending_idx, pending_txt):
+                try:
+                    time.sleep(0.05)
+                    kwargs = {"target_lang": "JA", "preserve_formatting": True}
+                    if source_lang:
+                        kwargs["source_lang"] = source_lang
+                    out[i] = tr.translate_text(text, **kwargs).text
+                except Exception as e2:
+                    print(f"  DeepL fail [{i}]: {e2}")
+                    out[i] = text
+        pending_idx = []
+        pending_txt = []
+
+    batch_chars = 0
     for i, t in enumerate(texts):
         if not t or not t.strip():
-            out.append(t)
+            out[i] = t
             continue
-        # protect already-JP / terms with placeholders
-        try:
-            # chunk long texts
-            chunks = []
-            buf = t
-            while len(buf) > 4500:
-                cut = buf.rfind("\n", 0, 4000)
-                if cut < 500:
-                    cut = 4000
-                chunks.append(buf[:cut])
-                buf = buf[cut:]
-            chunks.append(buf)
-            parts = []
-            for ch in chunks:
-                parts.append(tr.translate(ch) if ch.strip() else ch)
-                time.sleep(0.05)
-            out.append("\n".join(parts) if len(chunks) > 1 and "\n" in t else "".join(parts) if len(chunks) == 1 else "\n".join(parts))
-        except Exception as e:
-            print(f"  MT fail [{i}]: {e}")
-            out.append(t)
-        if (i + 1) % 20 == 0:
-            print(f"  translated {i + 1}/{len(texts)}")
-    return out
+        # DeepL request size soft limit — flush before overflowing
+        if pending_txt and (len(pending_txt) >= 40 or batch_chars + len(t) > 80000):
+            flush()
+            batch_chars = 0
+            print(f"  translated {sum(1 for x in out if x is not None)}/{len(texts)}")
+        pending_idx.append(i)
+        pending_txt.append(t)
+        batch_chars += len(t)
+
+    flush()
+    done = sum(1 for x in out if x is not None)
+    print(f"  DeepL done {done}/{len(texts)}")
+    return [x if x is not None else texts[i] for i, x in enumerate(out)]
 
 
 def build_cards() -> None:
@@ -415,6 +509,7 @@ PUZZLE_TITLE = {
     "히다마리 스케치": "ひだまりスケッチ",
 }
 
+# Speaker tags: wiki.kirafan.moe NamedList m_FullName (or nick when dialogue uses nick)
 SPEAKER_JA = {
     "클레어": "クレア",
     "Claire": "クレア",
@@ -426,19 +521,78 @@ SPEAKER_JA = {
     "Sugar": "シュガー",
     "아르시브": "アルシーヴ",
     "Archive": "アルシーヴ",
+    "Alchev": "アルシーヴ",
+    "Arsiv": "アルシーヴ",
     "유노": "ゆの",
     "Yuno": "ゆの",
     "미야코": "宮子",
     "Miyako": "宮子",
     "히로": "ヒロ",
     "Hiro": "ヒロ",
-    "쿠죠 카렌": "九条カレン",
-    "Kujo Karen": "九条カレン",
-    "Kujou Karen": "九条カレン",
-    "하토야 코하네": "鳩谷こはね",
-    "Hatoya Kohane": "鳩谷こはね",
-    "혼다 타마키": "本田珠輝",
-    "Honda Tamaki": "本田珠輝",
+    "쿠죠 카렌": "九条 カレン",
+    "카렌 쿠죠": "九条 カレン",
+    "Kujo Karen": "九条 カレン",
+    "Karen Kujo": "九条 カレン",
+    "Kujou Karen": "九条 カレン",
+    "하토야 코하네": "鳩谷 こはね",
+    "Hatoya Kohane": "鳩谷 こはね",
+    "혼다 타마키": "本田 珠輝",
+    "Honda Tamaki": "本田 珠輝",
+    "앨리스 카터릿": "アリス・カータレット",
+    "Alice Cartelet": "アリス・カータレット",
+    "오오미야 시노부": "大宮 忍",
+    "Oomiya Shinobu": "大宮 忍",
+    "우시쿠 카나": "牛久 花和",
+    "마츠바라 호노카": "松原 穂乃花",
+    "Matsubara Honoka": "松原 穂乃花",
+    "소노다 유우": "園田 優",
+    "Sonoda Yuu": "園田 優",
+    "타카야마 하루카": "高山 春香",
+    "Takayama Haruka": "高山 春香",
+    "시노하 마유": "篠華 まゆ",
+    "Shinoha Mayu": "篠華 まゆ",
+    "센고쿠 카무리": "千石 冠",
+    "Sengoku Kamuri": "千石 冠",
+    "후다 유미네": "布田 裕美音",
+    "Fuda Yumine": "布田 裕美音",
+    "이케타니 노노": "池谷 乃々",
+    "Iketani Nono": "池谷 乃々",
+    "소라": "ソラ",
+    "Sola": "ソラ",
+    "오리베 야스나": "折部 やすな",
+    "Oribe Yasuna": "折部 やすな",
+    "히나츠키 미캉": "陽夏木 ミカン",
+    "Hinatsuki Mikan": "陽夏木 ミカン",
+    "샤미코": "シャミ子",
+    "Shamiko": "シャミ子",
+    "치요다 모모": "千代田 桃",
+    "Chiyoda Momo": "千代田 桃",
+    "고토 히토리": "後藤 ひとり",
+    "Gotoh Hitori": "後藤 ひとり",
+    "사야마 츠바키": "狭山 椿",
+    "Sayama Tsubaki": "狭山 椿",
+    "교수(오미치 미야비)": "キョージュ",
+    "Professor (Omichi Miyabi)": "キョージュ",
+    "호토 코코아": "ココア",
+    "Hoto Cocoa": "ココア",
+    "이치노세 하나": "一之瀬 花名",
+    "Ichinose Hana": "一之瀬 花名",
+    "타테지마 코테츠": "舘島 虎徹",
+    "키리마 샤로": "桐間 紗路",
+    "카타세 마요이": "片瀬 真宵",
+    "미도리 헤모": "緑 へも",
+    "타츠미 콘": "巽 紺",
+    "에비스자와 쿠루미": "恵飛須沢 胡桃",
+    "모모치 타마테": "百地 たまて",
+    "메리 나이트메어": "メリー・ナイトメア",
+    "카오스": "かおす",
+    "스즈카제 아오바": "涼風 青葉",
+    "하나코이즈미 안": "花小泉 杏",
+    "테데자 리제": "リゼ",
+    "아리마 히즈메": "有馬 ひづめ",
+    "코이즈카 코유메": "恋塚 小夢",
+    "사에": "沙英",
+    "소냐": "ソーニャ",
 }
 
 
@@ -454,37 +608,36 @@ def build_puzzles() -> None:
                 seen.add(h)
                 unique.append(h)
 
-    # Prefer English puzzle-hints if present (cleaner MT source)
-    en_hints_path = ROOT / "data/en/puzzle-hints.json"
-    en_map = {}
-    if en_hints_path.exists():
-        en_map = json.loads(en_hints_path.read_text(encoding="utf-8"))
-        en_map = {k.replace("\r\n", "\n").replace("\r", "\n"): v for k, v in en_map.items()}
-
-    to_mt = []
+    # Korean → Japanese directly (do not route through English)
+    to_mt: list[str] = []
+    speakers: list[str | None] = []
     for h in unique:
-        src = en_map.get(h, h)
-        # speaker swap on EN first
+        src = h.replace("\r\n", "\n").replace("\r", "\n")
         if src.startswith("★"):
             line, _, rest = src.partition("\n")
             sp = line[1:].strip()
-            spj = SPEAKER_JA.get(sp, sp)
-            src = f"★{spj}\n{rest}" if rest else f"★{spj}"
-        to_mt.append(apply_terms(src, TERM_EN_JA))
+            speakers.append(SPEAKER_JA.get(sp, sp))
+            body = apply_terms(rest, TERM_KO_JA)
+            to_mt.append(body if body.strip() else " ")
+        else:
+            speakers.append(None)
+            to_mt.append(apply_terms(src, TERM_KO_JA))
 
-    print(f"Translating {len(to_mt)} puzzle hints → JA…")
-    ja_bodies = translate_batch(to_mt, "en")
+    print(f"Translating {len(to_mt)} puzzle hints KO→JA…")
+    ja_bodies = translate_batch(to_mt, "ko")
     hint_map = {}
-    for ko_h, ja in zip(unique, ja_bodies):
-        ja = apply_terms(ja, TERM_EN_JA)
+    for ko_h, ja_body, spj in zip(unique, ja_bodies, speakers):
+        ja = (ja_body or "").strip()
+        if spj is not None:
+            ja = f"★{spj}\n{ja}" if ja else f"★{spj}"
         ja = apply_terms(ja, TERM_KO_JA)
+        ja = apply_terms(ja, TERM_EN_JA)
         ja = apply_ja_cleanup(ja)
-        # fix speaker if KO path
         if ja.startswith("★"):
             line, _, rest = ja.partition("\n")
             sp = line[1:].strip()
-            spj = SPEAKER_JA.get(sp, sp)
-            ja = f"★{spj}\n{rest}" if rest else f"★{spj}"
+            fixed = SPEAKER_JA.get(sp, sp)
+            ja = f"★{fixed}\n{rest}" if rest else f"★{fixed}"
         hint_map[ko_h] = ja
 
     (OUT / "puzzle-hints.json").write_text(
