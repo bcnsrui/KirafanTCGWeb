@@ -981,6 +981,87 @@ function launchFlight(f, from, speed) {
     { duration: ms, easing: "linear" }).onfinish = () => landFlight(f);
 }
 
+/** Battle creamate upright ↔ 경직 (defense) spin (~0.5s). Board DOM is rebuilt each draw, so pending
+ *  spins are tracked and reattached onto the new face when a later draw lands mid-animation. */
+const STIFF_TURN_MS = 200;
+const stiffPending = [];
+
+function stiffAngleAt(p, now = performance.now()) {
+  const t = Math.min(1, Math.max(0, (now - p.start) / p.ms));
+  // ease-in-out (same curve as CSS)
+  const e = t < 0.5 ? 2 * t * t : 1 - ((-2 * t + 2) ** 2) / 2;
+  return p.from + (p.to - p.from) * e;
+}
+
+function playStiffSpin(face, slot, p) {
+  const now = performance.now();
+  const left = Math.max(16, p.ms - (now - p.start));
+  const from = stiffAngleAt(p, now);
+  slot.classList.toggle("stiff", p.to === 90);
+  for (const a of face.getAnimations()) a.cancel();
+  face.style.transition = "none";
+  const anim = face.animate(
+    [
+      { transform: `translate(-50%, -50%) rotate(${from}deg)` },
+      { transform: `translate(-50%, -50%) rotate(${p.to}deg)` },
+    ],
+    { duration: left, easing: "ease-in-out", fill: "forwards" },
+  );
+  anim.onfinish = () => {
+    face.style.transform = "";
+    face.style.transition = "";
+  };
+}
+
+function stiffTurns(before, state, speed) {
+  const now = performance.now();
+  const ms = STIFF_TURN_MS / Math.max(0.01, speed);
+
+  for (let i = stiffPending.length - 1; i >= 0; i--) {
+    const p = stiffPending[i];
+    if (now - p.start >= p.ms) {
+      stiffPending.splice(i, 1);
+      continue;
+    }
+    const next = state[p.side].battle[p.index];
+    if (!next || next.id !== p.id) {
+      stiffPending.splice(i, 1);
+      continue;
+    }
+    const slot = document.querySelector(
+      `#${p.side === "me" ? "my-row" : "op-row"} .battle-cell[data-index="${p.index}"] .slot.battle`,
+    );
+    const face = slot?.querySelector(":scope > .card-face");
+    if (!slot || !face) continue;
+    playStiffSpin(face, slot, p);
+  }
+
+  if (!before) return;
+  for (const side of ["me", "op"]) {
+    for (let i = 0; i < 3; i++) {
+      const prev = before[side].battle[i];
+      const next = state[side].battle[i];
+      if (!prev || !next || prev.id !== next.id) continue;
+      if (!!prev.stiff === !!next.stiff) continue;
+      if (stiffPending.some((p) => p.side === side && p.index === i && p.id === next.id)) continue;
+      const slot = document.querySelector(
+        `#${side === "me" ? "my-row" : "op-row"} .battle-cell[data-index="${i}"] .slot.battle`,
+      );
+      const face = slot?.querySelector(":scope > .card-face");
+      if (!slot || !face) continue;
+      const p = {
+        side, index: i, id: next.id,
+        from: prev.stiff ? 90 : 0,
+        to: next.stiff ? 90 : 0,
+        start: now, ms,
+      };
+      stiffPending.push(p);
+      playStiffSpin(face, slot, p);
+      noteMotion(ms);
+    }
+  }
+}
+
 /** fx: show what happened to the battle creamates since the last drawing (a replay going back or jumping: not) */
 function draw(state, { fx = true, speed = 1, ahead = null } = {}) {
   const before = lastDrawn;
@@ -990,6 +1071,7 @@ function draw(state, { fx = true, speed = 1, ahead = null } = {}) {
   pileSections = null;
   drawRow(state, "op");
   drawRow(state, "me");
+  if (fx) stiffTurns(before, state, speed);
   requestAnimationFrame(() => fitFieldContent());
   if (pileSections) pileSections();
   document.getElementById("op-hand").replaceChildren(...state.op.hand.map(() => back("op", state.op.summoner)));
@@ -1129,16 +1211,23 @@ function boardState() {
   };
 }
 
-let drawQueued = false;
+let drawTimer = 0;
 /** one redraw for everything that happened in this task (a timer, not requestAnimationFrame: that one stops while
  *  the tab is in the background, and the game goes on) */
 function render() {
-  if (drawQueued || !duel) return;
-  drawQueued = true;
-  setTimeout(() => {
-    drawQueued = false;
+  if (!duel || drawTimer) return;
+  drawTimer = setTimeout(() => {
+    drawTimer = 0;
     draw(boardState());
   }, 0);
+}
+
+/** run a pending redraw now (and cancel its timer) so attack FX see the board that just changed */
+function flushDraw() {
+  if (!drawTimer) return;
+  clearTimeout(drawTimer);
+  drawTimer = 0;
+  draw(boardState());
 }
 
 // ---- the replay being recorded ------------------------------------------------------
@@ -1401,7 +1490,7 @@ let aiming = false;      // an attack aimed, not yet thrust (the replay's aim ke
 function attackEvent(e) {
   const aim = (info) => {
     // (the board as it is now: a draw may still wait for its timer - render)
-    if (drawQueued) draw(boardState());
+    flushDraw();
     recorder.attack = info;
     aiming = true;
     attackFx(info);
@@ -2405,8 +2494,8 @@ async function coinToss() {
   if (heads) {
     log(t("coin.headsLog"));
     return askPrompt(t("coin.headsTitle"), t("coin.headsPick"), [
-      { label: t("coin.second"), value: false },
       { label: t("coin.first"), value: true, primary: true },
+      { label: t("coin.second"), value: false },
     ], { pictures });
   }
   const aiFirst = Math.random() < 0.5;
@@ -2608,8 +2697,8 @@ async function askLocalGoesFirst() {
   log(t("coin.headsLog"));
   toast(t("duel.pickFirst"));
   return askPrompt(t("coin.headsTitle"), t("coin.headsPick"), [
-    { label: t("coin.second"), value: false },
     { label: t("coin.first"), value: true, primary: true },
+    { label: t("coin.second"), value: false },
   ], { pictures });
 }
 
@@ -3422,15 +3511,21 @@ function flushHpSounds(say) {
     hpSoundBatch.clear();
     return;
   }
-  for (const [creamate, info] of hpSoundBatch) {
-    if (info.lethal) {
-      defeatFromHp.add(creamate);
-      say("defeat", info.code);
-    } else {
-      say("damage", info.code);
-    }
-  }
+  const entries = [...hpSoundBatch.entries()];
   hpSoundBatch.clear();
+  if (!entries.length) return;
+  // Mark every lethal so later "destroyed" events do not each play defeat again.
+  for (const [creamate, info] of entries) {
+    if (info.lethal) defeatFromHp.add(creamate);
+  }
+  // Multi-target (AoE) in one flush: one voice only; destroy (defeat) preferred over damage.
+  let pick = entries[0][1];
+  if (entries.length > 1) {
+    const lethal = entries.filter(([, info]) => info.lethal);
+    const pool = lethal.length ? lethal : entries;
+    pick = pool[Math.floor(Math.random() * pool.length)][1];
+  }
+  say(pick.lethal ? "defeat" : "damage", pick.code);
 }
 
 /** Shared totteoki labels: "돗테오키 효과를 발동한다" / "돗테오키 효과" / "두번째 돗테오키 효과". */

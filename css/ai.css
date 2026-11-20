@@ -28,7 +28,7 @@
   gap: 10px;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--panel-border);
-  font-size: 16px;
+  font-size: 17px;
   color: var(--text-dim);
 }
 
@@ -49,7 +49,7 @@
 
 .section-title {
   margin: 4px 0 2px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: normal;
   color: var(--text-dim);
 }
@@ -61,7 +61,7 @@
 }
 
 .level-desc {
-  font-size: 14px;
+  font-size: 15px;
   color: #6b4a18;
 }
 
@@ -107,13 +107,13 @@
 }
 
 .level-choice b {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: inherit;
   color: inherit;
 }
 
 .level-choice span {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: inherit;
   color: #3d2a20;
 }
@@ -139,7 +139,7 @@
   background: rgba(255, 248, 238, 0.55);
   color: #3d2a20;
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -168,7 +168,7 @@
 .deck-choice .label .deck-tag {
   display: block;
   color: #6b5344;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
 }
 
@@ -196,7 +196,7 @@
 
 .deck-choice .label {
   min-width: 0;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.3;
   font-weight: inherit;
   color: inherit;
@@ -205,7 +205,7 @@
 .deck-choice .label small {
   display: block;
   color: #3d2a20;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: inherit;
 }
 
@@ -216,7 +216,7 @@
 /* ---- 2. the player's deck ---- */
 .opponent {
   margin: 0;
-  font-size: 14px;
+  font-size: 15px;
   color: #3d2a20;
 }
 
@@ -237,7 +237,15 @@
 
 #my-deck-note,
 .opp-deck-note {
-  font-size: 14px;
+  font-size: 15px;
+}
+
+.ai-page .field {
+  font-size: 16px;
+}
+
+.ai-page .bar {
+  font-size: 16px;
 }
 
 #my-deck-note.bad,
@@ -296,7 +304,7 @@
 .recipe-empty {
   margin: auto;
   color: var(--text-dim);
-  font-size: 14px;
+  font-size: 15px;
 }
 
 /* ---- 나가기 / 이전 ... 다음 / 게임 시작 ---- */
@@ -318,14 +326,15 @@
 .ai-footer .menu-button {
   min-width: 160px;
   height: 38px;
-  font-size: 15px;
-  padding: 0 14px;
+  font-size: 16px;
+  padding: 0 18px;
 }
 
 #random-opp {
-  min-width: 0;
-  max-width: 360px;
-  font-size: 13px;
+  min-width: 357px; /* 420px의 85% */
+  max-width: none;
+  padding: 0 24px;
+  font-size: 16px;
   white-space: nowrap;
 }
 

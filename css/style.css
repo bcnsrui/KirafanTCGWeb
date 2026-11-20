@@ -24,11 +24,11 @@
   /* Main-menu 5-card strip (contain-scaled like the duel field) */
   --home-scale: 1;
   --side-column: 420px;
-  --ui-btn: url("../assets/ui/CommonButton.png");
-  --ui-btn-push: url("../assets/ui/CommonButtonPush.png");
+  --ui-btn: url("../assets/ui/CommonButton.png?v=rim1");
+  --ui-btn-push: url("../assets/ui/CommonButtonPush.png?v=rim1");
   --ui-ribbon: url("../assets/ui/이름표.png");
   --ui-plate: url("../assets/ui/대사창.png");
-  --ui-window: url("../assets/ui/ScreenWindow9.png?v=12");
+  --ui-window: url("../assets/ui/ScreenWindow9.png?v=13");
 }
 
 /* Letterbox + uniform scale. Origin top-left so click hit-tests match the scaled pixels. */
@@ -174,33 +174,37 @@ body {
   }
 }
 
-/* ---- shared parchment controls ---- */
+/* ---- shared parchment controls (CSS pill — no border-image fringe) ---- */
 .menu-button,
 .kf-chip {
+  box-sizing: border-box;
   height: 34px;
-  padding: 0 14px;
-  border: 10px solid transparent;
-  border-image: var(--ui-btn) 22 fill;
-  background: transparent;
+  padding: 0 16px;
+  border: 1px solid #6b4a3a;
+  border-radius: 999px;
+  border-image: none;
+  background: rgba(255, 248, 238, 0.95); /* same cream as 카드 정보 tab */
   color: var(--wood-deep);
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
+  line-height: 1;
   cursor: pointer;
-  filter: drop-shadow(0 2px 2px rgba(70, 40, 30, 0.18));
+  box-shadow: 0 1px 2px rgba(70, 40, 30, 0.16);
 }
 
 .menu-button:hover,
 .menu-button:focus-visible,
 .kf-chip:hover,
 .kf-chip:focus-visible {
-  filter: drop-shadow(0 3px 4px rgba(70, 40, 30, 0.28)) brightness(1.03);
+  background: rgba(255, 252, 246, 1);
   outline: none;
 }
 
 .menu-button:active,
 .kf-chip:active {
-  border-image-source: var(--ui-btn-push);
+  background: rgba(243, 230, 210, 0.95);
+  box-shadow: inset 0 1px 2px rgba(70, 40, 30, 0.18);
 }
 
 .panel {
@@ -610,7 +614,7 @@ html[lang="ja"] .home-card[data-action="story"] .home-card-label {
   flex: none;
   height: 34px;
   min-width: 64px;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .settings-row input[type="range"] {
