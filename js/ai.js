@@ -294,8 +294,8 @@ function renderAiDecks() {
     button.disabled = isRandomOpp();
     button.title = entry.full;
     const face = document.createElement("img");
-    face.src = cards.has(entry.summoner) ? `pics/small/${entry.summoner}.jpg` : "";
     face.alt = "";
+    if (cards.has(entry.summoner)) setPic(face, `pics/small/${entry.summoner}.jpg`);
     const label = document.createElement("span");
     label.className = "label";
     label.append(entry.title);
