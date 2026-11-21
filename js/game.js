@@ -2669,6 +2669,8 @@ async function loadMatch() {
   if (match && match.me && match.ai) {
     if (nick && !match.localNick) match.localNick = nick;
     if (roomId && !match.roomId) match.roomId = roomId;
+    // pvp:false 로 저장된 AI방 — vsAi 누락 시 PvP 로 오인하지 않음
+    if (match.roomId && match.pvp === false) match.vsAi = true;
     if (match.roomId && match.host && !match.vsAi) match.pvp = true;
     return match;
   }
@@ -3425,9 +3427,9 @@ async function playPvpMatch(match) {
       }
       const resignBy = String(by || "");
       if (spectating) {
-        // 관전: 즉시 승자 알림. duel.over 로 DuelEnd 가 나도 이 Promise 를 기다린다.
+        // 관전: 즉시 승자 알림. resignGate 로 ask 를 끊고, 이 Promise 를 기다린다.
+        // (duel.over 는 getter-only — 대입하면 TypeError)
         showSpectatorResignResult(resignBy);
-        if (duel && !duel.over) duel.over = true;
         resignGate.trip(by || "");
         return;
       }
@@ -3491,11 +3493,11 @@ async function playPvpMatch(match) {
     try {
       await duel.play(duel.decks);
     } catch (err) {
-      // 관전 중 항복 처리로 over 가 켜지면 DuelEnd 가 난다 → 에러로 보지 않음
+      // 관전·항복으로 ask 가 끊기면 OppResignedError / DuelEnd — 에러 화면으로 보지 않음
+      // (duel.over 는 getter-only. 관전은 resignGate·specEndPrompt 만으로 종료)
       if (err instanceof OppResignedError || err instanceof DuelEnd || oppResigned || specEndPrompt) {
-        if (!duel?.over) {
-          if (spectating) duel.over = true;
-          else if (err instanceof OppResignedError) duel.lose(1 - me, "surrender");
+        if (!duel?.over && !spectating && err instanceof OppResignedError) {
+          duel.lose(1 - me, "surrender");
         }
       } else {
         throw err;

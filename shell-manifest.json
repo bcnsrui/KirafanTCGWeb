@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-21T16:10:41Z",
+  "generatedAt": "2026-11-21T16:37:04Z",
   "files": {
     "admin.html": {
       "sha256": "c14bc46d02f56967b1a1e327de9326925781fb4cb4f1d8cb675b78af37afc05c",
@@ -107,8 +107,8 @@
       "size": 1093
     },
     "js/game.js": {
-      "sha256": "5587970ffee184557c696f957d8924753b3139985ed5d2bcbea702c2056f53f4",
-      "size": 187735
+      "sha256": "85d0187b690aee73015274ceeaf41805a4ad3f095803b8096169a3dc0df0eaa1",
+      "size": 187963
     },
     "js/i18n.js": {
       "sha256": "f228a12d6b229ed497950da67f388233316b10f73f37cff76b6193920d44544b",
@@ -163,8 +163,8 @@
       "size": 5119
     },
     "js/room.js": {
-      "sha256": "b8dbced1c69b7be3d9697dadee6cf7a8f69ea0a8a638e7a276e3d42f867dd834",
-      "size": 38545
+      "sha256": "1947a62cce8e3c8443afa636e2a0d0371bb76aa7ec9679e8ee31c2321f374a44",
+      "size": 38556
     },
     "js/runtime.js": {
       "sha256": "e16a0b6f41bb9cdfcb575743a527164dbd4e877574716cd017426289add796a3",
@@ -251,8 +251,8 @@
       "size": 8729
     },
     "js/engine/duel.js": {
-      "sha256": "632668cd4e397f604c42594ffe7bcb28380d6ecd84c7af7e51cd6674b0d12947",
-      "size": 20370
+      "sha256": "53db6b4286074d0b354e9fdadfa5a75d215085338a974db872108b25363a2064",
+      "size": 20404
     },
     "js/engine/flow.js": {
       "sha256": "9c504493eb56f9d5e5527095590b7866c792aaa16b678fe69412a092c7ae9083",

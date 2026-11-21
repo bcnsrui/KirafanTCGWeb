@@ -713,6 +713,7 @@ async function startDuel() {
   await syncLobbyRoom(STATUS_PLAYING);
   enterDuel({
     pvp: !vsAi,
+    vsAi,
     roomId,
     matchId,
     host: me,

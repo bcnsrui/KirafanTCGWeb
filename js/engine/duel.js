@@ -124,7 +124,7 @@ export class Duel {
   // ---- cards and zones -------------------------------------------------------------
   newCard(code, owner) {
     const card = new Card(this, this.cards.length + 1, code, owner);
-    // TYPE_TOKEN (비운의 인물, 슈가 10050011 …): leave the duel when off the field
+    // TYPE_TOKEN (비운의 인물? …): 성전/마을로 가면 소멸, 돗테오키는 허용
     card.token = card.isType(this.C.TYPE_TOKEN);
     this.cards.push(card);
     this.making = true;
@@ -231,8 +231,8 @@ export class Duel {
       && !host.isType(C.TYPE_EXTRA));
     // (a pendulum monster leaving the field for the graveyard goes face-up to its extra deck: 쓰러진 크리에메이트 → 성전)
     if (leavesField && to === C.LOCATION_GRAVE && card.isType(C.TYPE_PENDULUM)) to = C.LOCATION_EXTRA;
-    // (a token leaving the field is gone from the duel: 오리베 야스나's 비운의 인물?)
-    if (leavesField && card.token && !holder && !(to & C.LOCATION_ONFIELD)) to = 0;
+    // Token (비운의 인물? …): 돗테오키(GRAVE)는 허용. 성전(EXTRA)·마을(REMOVED)이면 소멸.
+    if (card.token && !holder && (to === C.LOCATION_EXTRA || to === C.LOCATION_REMOVED)) to = 0;
     this.removeFromPlace(card);
     if (hpHit) {
       const left = host.overlay.length;
