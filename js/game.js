@@ -6,7 +6,7 @@ import { newDuel, describe } from "./engine/index.js?v=standby2";
 import { K, NOOP_DESCS } from "./engine/flow.js?v=standby2";
 import { puzzlePlayer, simplePlayer, SANCTUARY_HINT, SANCTUARY_ONE_HINT } from "./engine/players.js?v=hp2";
 import { modelPlayer } from "./ai/agent.js";
-import { loadSounds, playBgm, playCue, setVolume, voice, volume } from "./sound.js?v=8";
+import { loadSounds, playBgm, playCue, setVolume, voice, volume } from "./sound.js?v=9";
 import { FORMAT, deleteReplay, diff, getReplay, saveReplay, unpack } from "./replays.js";
 import { makeMatchRecord, submitMatchRecord } from "./records.js";
 import { API_BASE } from "./config.js";
@@ -1377,11 +1377,25 @@ function attackFx(info, { speed = 1, second = false } = {}) {
     weapon.style.top = `${a.y}px`;
     fx.append(weapon);
     const at = (f, s) => `translate(-50%, -50%) translate(${dx * f}px, ${dy * f}px) rotate(${angle}deg) scale(${s})`;
-    weapon.animate([
+    const aimAnim = weapon.animate([
       { transform: at(0, 0.5), opacity: 0 },
       { transform: at(0.04, 1.05), opacity: 1, offset: 0.55 },
       { transform: at(-0.06, 1.1), opacity: 1 },
     ], { duration: AIM_MS / speed, easing: "ease-out", fill: "forwards" });
+    // After aim: rock along the facing axis until thrust.
+    // Period matches .fx-target-pulse (0.9s ease-in-out alternate).
+    aimAnim.finished.then(() => {
+      if (!weapon.isConnected || !swing?.parts.some((p) => p.weapon === weapon)) return;
+      weapon.animate([
+        { transform: at(-0.116, 1.1) },
+        { transform: at(-0.004, 1.1) },
+      ], {
+        duration: 900 / speed,
+        easing: "ease-in-out",
+        direction: "alternate",
+        iterations: Infinity,
+      });
+    }).catch(() => {});
     return { weapon, at };
   });
   const marks = targets.map((t) => {
@@ -3499,33 +3513,69 @@ function setupLang() {
 
 const isSummoner = (card) => card.isType(duel.C.TYPE_EXTRA);   // (an Xyz monster in EDOPro)
 
-/** HP-chip batch: one damage or one defeat per creamate (lethal detected as last HP leaves). */
+/** HP-chip batch fallback (paths that skip AnnounceHpHits). Prefer hpDamageWave. */
 const hpSoundBatch = new Map();   // creamate → { code, lethal }
 const defeatFromHp = new WeakSet();
+/** Creamates already voiced by AnnounceHpHits — suppress later hpDamage/destroyed. */
+const hpSoundCovered = new WeakSet();
 let hpSoundFlush = 0;
+let hpSoundSay = null;
+/** Fallback debounce when hits are not pre-announced as a wave. */
+const HP_SOUND_DEBOUNCE_MS = 400;
+
+function pickHpVoice(entries) {
+  // entries: [{ code, lethal }, ...] — defeat preferred, then random one
+  if (!entries.length) return null;
+  const lethal = entries.filter((e) => e.lethal);
+  const pool = lethal.length ? lethal : entries;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 function flushHpSounds(say) {
   hpSoundFlush = 0;
   // Standby Dotteeop: overlays leave when a creamate is sent to 돗테오키 — not damage/fall
-  if (duel.phase === duel.C.PHASE_STANDBY) {
+  if (duel?.phase === duel.C.PHASE_STANDBY) {
     hpSoundBatch.clear();
     return;
   }
   const entries = [...hpSoundBatch.entries()];
   hpSoundBatch.clear();
   if (!entries.length) return;
-  // Mark every lethal so later "destroyed" events do not each play defeat again.
   for (const [creamate, info] of entries) {
     if (info.lethal) defeatFromHp.add(creamate);
   }
-  // Multi-target (AoE) in one flush: one voice only; destroy (defeat) preferred over damage.
-  let pick = entries[0][1];
-  if (entries.length > 1) {
-    const lethal = entries.filter(([, info]) => info.lethal);
-    const pool = lethal.length ? lethal : entries;
-    pick = pool[Math.floor(Math.random() * pool.length)][1];
+  const pick = pickHpVoice(entries.map(([, info]) => info));
+  if (pick) (say || hpSoundSay)?.(pick.lethal ? "defeat" : "damage", pick.code);
+}
+
+function scheduleHpSoundFlush(say) {
+  hpSoundSay = say;
+  if (hpSoundFlush) clearTimeout(hpSoundFlush);
+  hpSoundFlush = setTimeout(() => flushHpSounds(hpSoundSay), HP_SOUND_DEBOUNCE_MS);
+}
+
+function flushHpSoundsNow() {
+  if (!hpSoundBatch.size && !hpSoundFlush) return;
+  if (hpSoundFlush) {
+    clearTimeout(hpSoundFlush);
+    hpSoundFlush = 0;
   }
-  say(pick.lethal ? "defeat" : "damage", pick.code);
+  flushHpSounds(hpSoundSay);
+}
+
+/** Before HP Remove: one damage or defeat (defeat preferred) for the whole wave. */
+function playHpDamageWave(e, say) {
+  if (duel?.phase === duel.C.PHASE_STANDBY) return;
+  const hits = (e.hits || []).filter((h) => h?.card && !isSummoner(h.card));
+  if (!hits.length) return;
+  for (const h of hits) {
+    hpSoundCovered.add(h.card);
+    if (h.lethal) defeatFromHp.add(h.card);
+  }
+  // Drop any in-flight fallback batch for these creamates
+  for (const h of hits) hpSoundBatch.delete(h.card);
+  const pick = pickHpVoice(hits.map((h) => ({ code: h.card.code, lethal: !!h.lethal })));
+  if (pick) say(pick.lethal ? "defeat" : "damage", pick.code);
 }
 
 /** Shared totteoki labels: "돗테오키 효과를 발동한다" / "돗테오키 효과" / "두번째 돗테오키 효과". */
@@ -3595,26 +3645,33 @@ function soundOf(e) {
     if (e.code === C.EVENT_PHASE + C.PHASE_BATTLE) return;
     say(activateVoiceKind(e), e.card.code);
   }
+  // Pre-Remove wave from Duel.AnnounceHpHits (Kirafan6.damageeff): one voice, defeat preferred
+  else if (e.type === "hpDamageWave") {
+    playHpDamageWave(e, say);
+  }
   else if (e.type === "hpDamage") {
-    // Standby Dotteeop / rule chip dump: never queue defeat/damage voices
+    // Standby Dotteeop / rule chip dump: never voice defeat/damage voices
     if (duel.phase === duel.C.PHASE_STANDBY) return;
+    if (hpSoundCovered.has(e.card)) return;
     const cur = hpSoundBatch.get(e.card) || { code: e.card.code, lethal: false };
     if (e.lethal) cur.lethal = true;
     cur.code = e.card.code;
     hpSoundBatch.set(e.card, cur);
-    if (!hpSoundFlush) hpSoundFlush = setTimeout(() => flushHpSounds(say), 0);
+    scheduleHpSoundFlush(say);
   }
-  // Fall without prior hpDamage batch (rare); skip if defeat already played for this chip
+  // Fall fallback when not pre-announced (AnnounceHpHits covers normal damageeff paths)
   else if (e.type === "destroyed" && !isSummoner(e.card)) {
     // Standby: send battle creamate to 돗테오키 존 (pendulum may pass EXTRA) — not a real fall
     if (duel.phase === duel.C.PHASE_STANDBY) return;
-    if (defeatFromHp.has(e.card)) return;
-    const pending = hpSoundBatch.get(e.card);
-    if (pending) {
-      pending.lethal = true;
-      return;
-    }
-    say("defeat", e.card.code);
+    if (hpSoundCovered.has(e.card) || defeatFromHp.has(e.card)) return;
+    const cur = hpSoundBatch.get(e.card) || { code: e.card.code, lethal: false };
+    cur.lethal = true;
+    cur.code = e.card.code;
+    hpSoundBatch.set(e.card, cur);
+    scheduleHpSoundFlush(say);
+  }
+  else if (e.type === "chainEnd") {
+    flushHpSoundsNow();
   }
 }
 

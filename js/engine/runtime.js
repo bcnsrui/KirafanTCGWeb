@@ -683,6 +683,21 @@ export class Runtime {
     // -- Duel: what changes the game
     ddef("Draw", (L) => acted(L, () => d().draw(n(L, 1), n(L, 2), u(L, 3), reason().player, reason().effect)));
     ddef("DiscardDeck", (L) => acted(L, () => d().discardDeck(n(L, 1), n(L, 2), u(L, 3), reason().player, reason().effect)));
+    // Preview creamate HP hits before Remove: web UI plays one damage/defeat voice (defeat preferred).
+    // Not in EDOPro — Lua guards with `if Duel.AnnounceHpHits then ... end`.
+    ddef("AnnounceHpHits", (L) => {
+      const WEAK = 0xb01;
+      const targets = cards(L, 1).filter((c) => c && c.location === d().C.LOCATION_MZONE && !c.isType(d().C.TYPE_EXTRA));
+      const dam = Math.max(0, n(L, 2, 0));
+      const hits = targets.map((c) => {
+        const hp = c.overlay.length;
+        const weak = (c.counters.get(WEAK) || 0) > 0;
+        const lethal = hp <= dam || (hp - dam === 1 && weak);
+        return { card: c, lethal };
+      });
+      if (hits.length) d().emit("hpDamageWave", { hits, dam });
+      return 0;
+    });
     ddef("Remove", (L) => acted(L, () => d().remove(cards(L, 1), u(L, 2), u(L, 3), reason().player, reason().effect)));
     ddef("SendtoGrave", (L) => acted(L, () => d().sendtoGrave(cards(L, 1), u(L, 2), reason().player, reason().effect)));
     ddef("SendtoHand", (L) => acted(L, () => d().sendtoHand(cards(L, 1), lua.lua_isnoneornil(L, 2) ? null : n(L, 2), u(L, 3), reason().player, reason().effect)));

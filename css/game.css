@@ -264,14 +264,12 @@
     inset 0 0 0 2px rgba(255, 255, 255, 0.58);
 }
 
-/* 선택창·코인/질문·성전/마을/돗테오키: SelectFrame 9-slice (모서리 고정, 직선만 stretch) */
+/* 코인/질문·성전/마을/돗테오키: SelectFrame 9-slice (모서리 고정, 직선만 stretch) */
 .choose.panel,
 .prompt.panel,
-.select-bar.panel,
 .pile-list.panel,
 .window-theme-fill .choose.panel,
 .window-theme-fill .prompt.panel,
-.window-theme-fill .select-bar.panel,
 .window-theme-fill .pile-list.panel {
   --text: #2a1a12;
   --text-dim: #3d2a20;
@@ -283,6 +281,26 @@
   border-image-source: var(--ui-select) !important;
   border-image-slice: 40 fill !important;
   border-image-width: 16px !important;
+  border-image-outset: 0 !important;
+  border-image-repeat: stretch !important;
+  border-radius: 0 !important;
+  backdrop-filter: none;
+  color: #2a1a12;
+  box-shadow: 0 6px 18px rgba(70, 40, 30, 0.28);
+}
+
+/* 선택창: DetailFrame — 모서리(리벳) 고정, 가로·세로 직선만 stretch */
+.select-bar.panel,
+.window-theme-fill .select-bar.panel {
+  --text: #2a1a12;
+  --text-dim: #3d2a20;
+  --ui-detail: url("../assets/ui/DetailFrame.png?v=1");
+  background: #f7f0d8 !important;
+  background-clip: padding-box !important;
+  border: 18px solid transparent !important;
+  border-image-source: var(--ui-detail) !important;
+  border-image-slice: 20 fill !important;
+  border-image-width: 18px !important;
   border-image-outset: 0 !important;
   border-image-repeat: stretch !important;
   border-radius: 0 !important;
@@ -1156,9 +1174,14 @@ button.pile:hover {
   overflow: hidden;
 }
 
+.window-theme .notice .menu-button,
+.window-theme .notice .menu-button.small,
 .notice .menu-button {
   flex: none;
   pointer-events: auto;
+  height: 41px;
+  padding: 0 19px;
+  font-size: 20px;
 }
 
 /* the time the notice has left, a bar along its foot running out */
@@ -1168,7 +1191,7 @@ button.pile:hover {
   bottom: 0;
   height: 3px;
   width: 100%;
-  background: #f2d060;
+  background: #6b4a3a;
   transform-origin: left;
   animation: notice-time linear forwards;
 }
@@ -1188,12 +1211,12 @@ button.pile:hover {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 19px;
+  font-size: 20px;
   white-space: pre-line;
 }
 
 .notice-text b {
-  color: #f2d060;
+  color: #2a1a12;
   font-weight: normal;
 }
 
@@ -2030,12 +2053,13 @@ body.replaying #chat-input {
 
 .fx-weapon {
   position: absolute;
-  width: calc(var(--card-w) * 0.57);
-  /* black soft glow only, wider spread */
+  /* +20% vs prior 0.57 */
+  width: calc(var(--card-w) * 0.684);
+  /* soft glow; layer1 blur tuned separately from .fx-target */
   filter:
-    drop-shadow(0 0 4px rgba(0, 0, 0, 0.85))
-    drop-shadow(0 0 10px rgba(0, 0, 0, 0.7))
-    drop-shadow(0 0 18px rgba(0, 0, 0, 0.45));
+    drop-shadow(0 0 15px rgba(0, 0, 0, 0.935))
+    drop-shadow(0 0 9px rgba(0, 0, 0, 0.77))
+    drop-shadow(0 0 14px rgba(0, 0, 0, 0.55));
 }
 
 .fx-target {
