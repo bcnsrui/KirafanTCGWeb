@@ -25,7 +25,7 @@ PACKS_OUT = os.path.join(UPLOAD_TCG, "packs")
 PACKS_META = os.path.join(WEB, "data", "packs.json")
 
 # Paths inside each zip must match manifest keys (sound/…, pics/…, data/…)
-SKIP_DATA_PREFIXES = ("ai/test/", "duels/")
+SKIP_DATA_PREFIXES = ("ai/test/", "duels/", "admin/")
 SKIP_DATA_NAMES = {
     "manifest.json",
     "local_api.sqlite",
