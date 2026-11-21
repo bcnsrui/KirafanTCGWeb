@@ -46,12 +46,12 @@
   },
   {
     "ko": "★클레어\n그럼 게임 시작부터 배워보도록 할까요?\n제 옆에 있는 하늘색 3/4 표시가 보이시나요?\n제가 현재 사용할 수 있는 성채석 갯수는 4개에요",
-    "en": "★Claire\nShall we learn from the start of the game?\nDo you see the light-blue 3/4 next to me?\nThe number of Castle Stones I can use right now is 4",
+    "en": "★Claire\nShall we learn from the start of the game?\nDo you see the light-blue 3/4 next to me?\nThe number of Starlight Stones I can use right now is 4",
     "ja_cur": "★クレア\nShall we learn from the start of the game?\nDo you see the light-blue 3/4 next to me?\nThe number of 城石 I can use right now is 4"
   },
   {
     "ko": "★클레어\n성채석 한도는 성전에 있는 카드 수와 같아요!\n원래 드로우 페이즈는 서로의 첫번째 턴에는 할 수 없지만 튜토리얼이니 진행해 볼게요!",
-    "en": "★Claire\nYour Castle Stone limit equals the number of cards in the Sanctuary!\nNormally neither side gets a Draw Phase on turn 1, but since this is a tutorial, we'll proceed!",
+    "en": "★Claire\nYour Starlight Stone limit equals the number of cards in the Sanctuary!\nNormally neither side gets a Draw Phase on turn 1, but since this is a tutorial, we'll proceed!",
     "ja_cur": "★クレア\nYour 城石 limit equals the number of cards in the 聖典!\nNormally neither side gets a ドローフェイズ on turn 1, but since this is a tutorial, we'll proceed!"
   },
   {
@@ -66,12 +66,12 @@
   },
   {
     "ko": "★클레어\n흠... 카드를 놓지 않으셨네요\n자신 필드의 크리에메이트의 레벨 합계는\n성채석 한도를 넘을 수 없답니다.",
-    "en": "★Claire\nHmm... you didn't place a card\nThe total Level of Creamates on your field\ncannot exceed your Castle Stone limit.",
+    "en": "★Claire\nHmm... you didn't place a card\nThe total Level of Creamates on your field\ncannot exceed your Starlight Stone limit.",
     "ja_cur": "★クレア\nHmm... you didn't place a card\nThe total Level of クリエメイト on your field\ncannot exceed your 城石 limit."
   },
   {
     "ko": "★클레어\n따라서 레벨 1 승려 세분이 필드에서 성채석 3개를 사용하고 있어서\n지금은 레벨 1 크리에메이트밖에 소환할 수 없어요",
-    "en": "★Claire\nSo, since three level 1 Priests are using 3 Castle Stones on the field,\nI can only summon level 1 Creamate right now.",
+    "en": "★Claire\nSo, since three level 1 Priests are using 3 Starlight Stones on the field,\nI can only summon level 1 Creamate right now.",
     "ja_cur": "★クレア\nSo, since three level 1 Priests are using 3 城石 on the field,\nI can only summon level 1 クリエメイト right now."
   },
   {
@@ -81,12 +81,12 @@
   },
   {
     "ko": "★클레어\n자신 필드의 크리에메이트의 레벨 합계는\n성채석 한도를 넘을 수 없답니다.",
-    "en": "★Claire\nThe total Level of Creamates on your field\ncannot exceed your Castle Stone limit.",
+    "en": "★Claire\nThe total Level of Creamates on your field\ncannot exceed your Starlight Stone limit.",
     "ja_cur": "★クレア\nThe total Level of クリエメイト on your field\ncannot exceed your 城石 limit."
   },
   {
     "ko": "★클레어\n따라서 레벨 1 승려 세분이 필드에서 성채석 3개를 사용하고 있어서\n지금은 레벨 2 이하의 크리에메이트만 소환할 수 있어요",
-    "en": "★Claire\nSo the three Level 1 Priests on the field are using 3 Castle Stones,\nand right now you can only summon Creamates of Level 2 or lower",
+    "en": "★Claire\nSo the three Level 1 Priests on the field are using 3 Starlight Stones,\nand right now you can only summon Creamates of Level 2 or lower",
     "ja_cur": "★クレア\nSo the three Level 1 Priests on the field are using 3 城石,\nand right now you can only summon クリエメイト of Level 2 or lower"
   },
   {
@@ -246,7 +246,7 @@
   },
   {
     "ko": "★클레어\n휴~\n열심히 노력해서 성채석을 무려 1개나 더 가져왔어요!\n다음 번에도 더 열심히 할게요!",
-    "en": "★Claire\nPhew~\nI worked hard and brought back one more Castle Stones!\nI'll work harder next time too!",
+    "en": "★Claire\nPhew~\nI worked hard and brought back one more Starlight Stone!\nI'll work harder next time too!",
     "ja_cur": "★クレア\nPhew~\nI worked hard and brought back one more 城石!\nI'll work harder next time too!"
   },
   {
@@ -296,7 +296,7 @@
   },
   {
     "ko": "★클레어\n현재 제가 가진 성채석은 5개인데\n이미 필드에 카나 씨가 있어서 2개는 사용중이에요",
-    "en": "★Claire\nI currently have 5 Castle Stones, but\nthere is already Kana in the field, so 2 are in use.",
+    "en": "★Claire\nI currently have 5 Starlight Stones, but\nthere is already Kana in the field, so 2 are in use.",
     "ja_cur": "★クレア\nI currently have 5 城石, but\nthere is already Kana in the field, so 2 are in use."
   },
   {
@@ -376,7 +376,7 @@
   },
   {
     "ko": "★클레어\n이런 효과는 사용하기만 하면 이득이지만\n성채석 한도는 물론 서포트 존은 자신 턴엔 3개\n상대 턴에 2개밖에 없다는 걸 생각해주세요",
-    "en": "★Claire\nEffects like these are always a plus when used, but\nremember your Castle Stone limit—and that the Support Zone only has\n3 slots on your turn and 2 on the opponent's",
+    "en": "★Claire\nEffects like these are always a plus when used, but\nremember your Starlight Stone limit—and that the Support Zone only has\n3 slots on your turn and 2 on the opponent's",
     "ja_cur": "★クレア\nEffects like these are always a plus when used, but\nremember your 城石 limit—and that the サポートゾーン only has\n3 slots on your turn and 2 on the opponent's"
   },
   {
@@ -466,7 +466,7 @@
   },
   {
     "ko": "★클레어\n저희가 가진 성채석은 5개뿐이라\n스탠바이 페이즈에 앨리스 씨를 돗테오키 존으로 보내야만\n충분한 딜량에 도달할 수 있어요",
-    "en": "★Claire\nWe only have 5 Castle Stones, so we have to send Alice to the Totteoki Zone during the\nstandby phase to reach\nsufficient damage.",
+    "en": "★Claire\nWe only have 5 Starlight Stones, so we have to send Alice to the Totteoki Zone during the\nstandby phase to reach\nsufficient damage.",
     "ja_cur": "★クレア\nWe only have 5 城石, so we have to send Alice to the とっておきゾーン during the\nスタンバイフェイズ to reach\nsufficient damage."
   },
   {

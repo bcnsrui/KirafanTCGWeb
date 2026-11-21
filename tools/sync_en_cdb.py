@@ -21,7 +21,7 @@ REPLACEMENTS = [
     (r"\bcreamate\b", "Creamate"),
     (r"\[Consume (\d+) from the totteoki gauge\]", r"[Totteoki Gauge \1]"),
     (r"\[Consume (\d+) from the Totteoki Gauge\]", r"[Totteoki Gauge \1]"),
-    (r"\[Summon\]", "[Summon]"),
+    (r"\[Summon\]", "[Skill]"),
     (r"Send 1 card of your hand or Battle Zone to Totteoki Zone\.",
      "Send 1 card from your hand or Battle Zone to the Totteoki Zone."),
 ]
@@ -43,9 +43,11 @@ KR_TO_EN_FALLBACK = {
     10054524: {
         "name": "Sekiya Naru",
         "desc": (
-            "[Summon]\n"
-            "This card gains ATK equal to the number of your Creamates "
-            "in the Battle Zone until the end of this turn."
+            "[Skill]\n"
+            "Heal a single ally by 4\n\n"
+            "[Totteoki Gauge 2, extra Stiff 1]\n"
+            "The ATK of all allies' next attack increases once by the number of times "
+            "you have activated your Totteoki effect this game (up to 3)."
         ),
     },
 }

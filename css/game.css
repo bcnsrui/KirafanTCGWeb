@@ -1716,21 +1716,27 @@ button.pile:hover {
   }
 }
 
-/* 원색을 한 단계 연하게 */
+/* 원색을 한 단계 연하게 — 효과 텍스트 종류별 */
+.window-theme #card-menu .menu-button.effect-chip--summon,
+#card-menu .menu-button.effect-chip--summon { --chip: #ffb35a; }      /* 배틀 존 소환 연주황 */
 .window-theme #card-menu .menu-button.effect-chip--heal-single,
 #card-menu .menu-button.effect-chip--heal-single { --chip: #8adf66; } /* 단일 회복 연두 */
 .window-theme #card-menu .menu-button.effect-chip--heal-aoe,
 #card-menu .menu-button.effect-chip--heal-aoe { --chip: #ff8fb3; }    /* 광역 회복 연분홍 */
-.window-theme #card-menu .menu-button.effect-chip--atk,
-#card-menu .menu-button.effect-chip--atk { --chip: #f36f6f; }         /* 공격력 증가 연빨강 */
-.window-theme #card-menu .menu-button.effect-chip--status,
-#card-menu .menu-button.effect-chip--status { --chip: #b88aff; }      /* 상태이상 연보라 */
+.window-theme #card-menu .menu-button.effect-chip--gauge,
+#card-menu .menu-button.effect-chip--gauge { --chip: #d4a06a; }       /* 돗테오키 게이지 ± 연갈색 */
 .window-theme #card-menu .menu-button.effect-chip--draw,
 #card-menu .menu-button.effect-chip--draw { --chip: #6bbcf5; }        /* 드로우 하늘색 */
+.window-theme #card-menu .menu-button.effect-chip--status,
+#card-menu .menu-button.effect-chip--status { --chip: #b88aff; }      /* 상태이상 연보라 */
+.window-theme #card-menu .menu-button.effect-chip--atk,
+#card-menu .menu-button.effect-chip--atk { --chip: #f36f6f; }         /* 공격력 증가 연빨강 */
 .window-theme #card-menu .menu-button.effect-chip--other,
 #card-menu .menu-button.effect-chip--other { --chip: #ffe14a; }       /* 그외 노랑 */
 .window-theme #card-menu .menu-button.effect-chip--attack,
-#card-menu .menu-button.effect-chip--attack { --chip: #d4a06a; }      /* 통상공격 연갈색 */
+#card-menu .menu-button.effect-chip--attack { --chip: #6bbcf5; }      /* 통상공격 하늘색 */
+.window-theme #card-menu .menu-button.effect-chip--totteoki,
+#card-menu .menu-button.effect-chip--totteoki { --chip: #f36f6f; }    /* 돗테오키 효과 연빨강 */
 
 .window-theme #card-menu .menu-button.effect-chip:hover,
 .window-theme #card-menu .menu-button.effect-chip:focus-visible,

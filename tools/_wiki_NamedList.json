@@ -1,0 +1,1478 @@
+{
+  "0": {
+    "m_FullName": "ゆの",
+    "m_NickName": "ゆの",
+    "m_ResouceBaseName": "Hidamari_Yuno",
+    "fullName": "ゆの"
+  },
+  "1": {
+    "m_FullName": "宮子",
+    "m_NickName": "宮子",
+    "m_ResouceBaseName": "Hidamari_Miyako",
+    "fullName": "宮子"
+  },
+  "2": {
+    "m_FullName": "ヒロ",
+    "m_NickName": "ヒロ",
+    "m_ResouceBaseName": "Hidamari_Hiro",
+    "fullName": "ヒロ"
+  },
+  "3": {
+    "m_FullName": "沙英",
+    "m_NickName": "沙英",
+    "m_ResouceBaseName": "Hidamari_Sae",
+    "fullName": "沙英"
+  },
+  "4": {
+    "m_FullName": "乃莉",
+    "m_NickName": "乃莉",
+    "m_ResouceBaseName": "Hidamari_Nori",
+    "fullName": "乃莉"
+  },
+  "5": {
+    "m_FullName": "なずな",
+    "m_NickName": "なずな",
+    "m_ResouceBaseName": "Hidamari_Nazuna",
+    "fullName": "なずな"
+  },
+  "7": {
+    "m_FullName": "野々原 ゆずこ",
+    "m_NickName": "ゆずこ",
+    "m_ResouceBaseName": "YuyuShiki_Yuzuko",
+    "fullName": "野々原 ゆずこ"
+  },
+  "8": {
+    "m_FullName": "櫟井 唯",
+    "m_NickName": "唯",
+    "m_ResouceBaseName": "YuyuShiki_Yui",
+    "fullName": "櫟井 唯"
+  },
+  "9": {
+    "m_FullName": "日向 縁",
+    "m_NickName": "縁",
+    "m_ResouceBaseName": "YuyuShiki_Yukari",
+    "fullName": "日向 縁"
+  },
+  "10": {
+    "m_FullName": "松本 頼子",
+    "m_NickName": "頼子",
+    "m_ResouceBaseName": "YuyuShiki_Yoriko",
+    "fullName": "松本 頼子"
+  },
+  "11": {
+    "m_FullName": "相川 千穂",
+    "m_NickName": "千穂",
+    "m_ResouceBaseName": "YuyuShiki_Chiho",
+    "fullName": "相川 千穂"
+  },
+  "12": {
+    "m_FullName": "岡野 佳",
+    "m_NickName": "佳",
+    "m_ResouceBaseName": "YuyuShiki_Okachii",
+    "fullName": "岡野 佳"
+  },
+  "13": {
+    "m_FullName": "長谷川 ふみ",
+    "m_NickName": "ふみ",
+    "m_ResouceBaseName": "YuyuShiki_Fumio",
+    "fullName": "長谷川 ふみ"
+  },
+  "14": {
+    "m_FullName": "丈槍 由紀",
+    "m_NickName": "ゆき",
+    "m_ResouceBaseName": "Gakkou_Yuki",
+    "fullName": "丈槍 由紀"
+  },
+  "15": {
+    "m_FullName": "恵飛須沢 胡桃",
+    "m_NickName": "くるみ",
+    "m_ResouceBaseName": "Gakkou_Kurumi",
+    "fullName": "恵飛須沢 胡桃"
+  },
+  "16": {
+    "m_FullName": "若狭 悠里",
+    "m_NickName": "ゆうり",
+    "m_ResouceBaseName": "Gakkou_Riisan",
+    "fullName": "若狭 悠里"
+  },
+  "17": {
+    "m_FullName": "直樹 美紀",
+    "m_NickName": "みき",
+    "m_ResouceBaseName": "Gakkou_Miikun",
+    "fullName": "直樹 美紀"
+  },
+  "18": {
+    "m_FullName": "佐倉 慈",
+    "m_NickName": "めぐみ",
+    "m_ResouceBaseName": "Gakkou_Megunee",
+    "fullName": "佐倉 慈"
+  },
+  "19": {
+    "m_FullName": "トオル",
+    "m_NickName": "トオル",
+    "m_ResouceBaseName": "AChannel_Toru",
+    "fullName": "一井 透"
+  },
+  "20": {
+    "m_FullName": "るん",
+    "m_NickName": "るん",
+    "m_ResouceBaseName": "AChannel_Run",
+    "fullName": "百木 るん"
+  },
+  "21": {
+    "m_FullName": "ユー子",
+    "m_NickName": "ユー子",
+    "m_ResouceBaseName": "AChannel_Yuko",
+    "fullName": "西 由宇子"
+  },
+  "22": {
+    "m_FullName": "ナギ",
+    "m_NickName": "ナギ",
+    "m_ResouceBaseName": "AChannel_Nagi",
+    "fullName": "天王寺 渚"
+  },
+  "23": {
+    "m_FullName": "ミホ",
+    "m_NickName": "ミホ",
+    "m_ResouceBaseName": "AChannel_Miho",
+    "fullName": "野山 美歩"
+  },
+  "24": {
+    "m_FullName": "今井 豊",
+    "m_NickName": "ユタカ",
+    "m_ResouceBaseName": "AChannel_Yutaka",
+    "fullName": "今井 豊"
+  },
+  "25": {
+    "m_FullName": "鬼頭 紀美子",
+    "m_NickName": "鬼頭先生",
+    "m_ResouceBaseName": "AChannel_Kitou",
+    "fullName": "鬼頭 紀美子"
+  },
+  "27": {
+    "m_FullName": "九条 カレン",
+    "m_NickName": "カレン",
+    "m_ResouceBaseName": "KinMosa_Karen",
+    "fullName": "九条 カレン"
+  },
+  "28": {
+    "m_FullName": "アリス・カータレット",
+    "m_NickName": "アリス",
+    "m_ResouceBaseName": "KinMosa_Alice",
+    "fullName": "アリス・カータレット"
+  },
+  "29": {
+    "m_FullName": "大宮 忍",
+    "m_NickName": "忍",
+    "m_ResouceBaseName": "KinMosa_Shinobu",
+    "fullName": "大宮 忍"
+  },
+  "30": {
+    "m_FullName": "小路 綾",
+    "m_NickName": "綾",
+    "m_ResouceBaseName": "KinMosa_Aya",
+    "fullName": "小路 綾"
+  },
+  "31": {
+    "m_FullName": "猪熊 陽子",
+    "m_NickName": "陽子",
+    "m_ResouceBaseName": "KinMosa_Youko",
+    "fullName": "猪熊 陽子"
+  },
+  "32": {
+    "m_FullName": "松原 穂乃花",
+    "m_NickName": "穂乃花",
+    "m_ResouceBaseName": "KinMosa_Honoka",
+    "fullName": "松原 穂乃花"
+  },
+  "33": {
+    "m_FullName": "大宮 勇",
+    "m_NickName": "勇",
+    "m_ResouceBaseName": "KinMosa_Isami",
+    "fullName": "大宮 勇"
+  },
+  "34": {
+    "m_FullName": "烏丸 さくら",
+    "m_NickName": "烏丸先生",
+    "m_ResouceBaseName": "KinMosa_Karasuma",
+    "fullName": "烏丸 さくら"
+  },
+  "35": {
+    "m_FullName": "久世橋 朱里",
+    "m_NickName": "久世橋先生",
+    "m_ResouceBaseName": "KinMosa_Kuzehashi",
+    "fullName": "久世橋 朱里"
+  },
+  "36": {
+    "m_FullName": "涼風 青葉",
+    "m_NickName": "青葉",
+    "m_ResouceBaseName": "NewGame_Aoba",
+    "fullName": "涼風 青葉"
+  },
+  "37": {
+    "m_FullName": "滝本 ひふみ",
+    "m_NickName": "ひふみ",
+    "m_ResouceBaseName": "NewGame_Hifumi",
+    "fullName": "滝本 ひふみ"
+  },
+  "38": {
+    "m_FullName": "篠田 はじめ",
+    "m_NickName": "はじめ",
+    "m_ResouceBaseName": "NewGame_Hazime",
+    "fullName": "篠田 はじめ"
+  },
+  "39": {
+    "m_FullName": "飯島 ゆん",
+    "m_NickName": "ゆん",
+    "m_ResouceBaseName": "NewGame_Yun",
+    "fullName": "飯島 ゆん"
+  },
+  "40": {
+    "m_FullName": "八神 コウ",
+    "m_NickName": "コウ",
+    "m_ResouceBaseName": "NewGame_Ko",
+    "fullName": "八神 コウ"
+  },
+  "41": {
+    "m_FullName": "遠山 りん",
+    "m_NickName": "りん",
+    "m_ResouceBaseName": "NewGame_Rin",
+    "fullName": "遠山 りん"
+  },
+  "42": {
+    "m_FullName": "桜 ねね",
+    "m_NickName": "ねね",
+    "m_ResouceBaseName": "NewGame_Nene",
+    "fullName": "桜 ねね"
+  },
+  "43": {
+    "m_FullName": "阿波根 うみこ",
+    "m_NickName": "うみこ",
+    "m_ResouceBaseName": "NewGame_Umiko",
+    "fullName": "阿波根 うみこ"
+  },
+  "44": {
+    "m_FullName": "葉月 しずく",
+    "m_NickName": "しずく",
+    "m_ResouceBaseName": "NewGame_Shizuku",
+    "fullName": "葉月 しずく"
+  },
+  "45": {
+    "m_FullName": "星川 ほたる",
+    "m_NickName": "ほたる",
+    "m_ResouceBaseName": "NewGame_Hotaru",
+    "fullName": "星川 ほたる"
+  },
+  "46": {
+    "m_FullName": "本田 珠輝",
+    "m_NickName": "たまき",
+    "m_ResouceBaseName": "Stella_Tamaki",
+    "fullName": "本田 珠輝"
+  },
+  "47": {
+    "m_FullName": "藤川 歌夜",
+    "m_NickName": "歌夜",
+    "m_ResouceBaseName": "Stella_Kayo",
+    "fullName": "藤川 歌夜"
+  },
+  "48": {
+    "m_FullName": "村上 椎奈",
+    "m_NickName": "椎奈",
+    "m_ResouceBaseName": "Stella_Siina",
+    "fullName": "村上 椎奈"
+  },
+  "49": {
+    "m_FullName": "関 あやめ",
+    "m_NickName": "あやめ",
+    "m_ResouceBaseName": "Stella_Ayame",
+    "fullName": "関 あやめ"
+  },
+  "50": {
+    "m_FullName": "布田 裕美音",
+    "m_NickName": "裕美音",
+    "m_ResouceBaseName": "Stella_Yumine",
+    "fullName": "布田 裕美音"
+  },
+  "51": {
+    "m_FullName": "百武 照",
+    "m_NickName": "照",
+    "m_ResouceBaseName": "Stella_Teru",
+    "fullName": "百武 照"
+  },
+  "52": {
+    "m_FullName": "飯野 水葉",
+    "m_NickName": "水葉",
+    "m_ResouceBaseName": "Stella_Minaha",
+    "fullName": "飯野 水葉"
+  },
+  "53": {
+    "m_FullName": "池谷 乃々",
+    "m_NickName": "乃々",
+    "m_ResouceBaseName": "Stella_Nono",
+    "fullName": "池谷 乃々"
+  },
+  "54": {
+    "m_FullName": "千矢",
+    "m_NickName": "千矢",
+    "m_ResouceBaseName": "Urara_Chiya",
+    "fullName": "千矢"
+  },
+  "55": {
+    "m_FullName": "巽 紺",
+    "m_NickName": "紺",
+    "m_ResouceBaseName": "Urara_Kon",
+    "fullName": "巽 紺"
+  },
+  "56": {
+    "m_FullName": "雪見 小梅",
+    "m_NickName": "小梅",
+    "m_ResouceBaseName": "Urara_Koume",
+    "fullName": "雪見 小梅"
+  },
+  "57": {
+    "m_FullName": "棗 ノノ",
+    "m_NickName": "ノノ",
+    "m_ResouceBaseName": "Urara_Nono",
+    "fullName": "棗 ノノ"
+  },
+  "58": {
+    "m_FullName": "色井 佐久",
+    "m_NickName": "佐久",
+    "m_ResouceBaseName": "Urara_Saku",
+    "fullName": "色井 佐久"
+  },
+  "59": {
+    "m_FullName": "棗 ニナ",
+    "m_NickName": "ニナ",
+    "m_ResouceBaseName": "Urara_Nina",
+    "fullName": "棗 ニナ"
+  },
+  "60": {
+    "m_FullName": "折部 やすな",
+    "m_NickName": "やすな",
+    "m_ResouceBaseName": "Killme_Yasuna",
+    "fullName": "折部 やすな"
+  },
+  "61": {
+    "m_FullName": "ソーニャ",
+    "m_NickName": "ソーニャ",
+    "m_ResouceBaseName": "Killme_Sonya",
+    "fullName": "ソーニャ"
+  },
+  "62": {
+    "m_FullName": "呉織 あぎり",
+    "m_NickName": "あぎり",
+    "m_ResouceBaseName": "Killme_Agiri",
+    "fullName": "呉織 あぎり"
+  },
+  "63": {
+    "m_FullName": "高山 春香",
+    "m_NickName": "春香",
+    "m_ResouceBaseName": "Sakura_Haruka",
+    "fullName": "高山 春香"
+  },
+  "64": {
+    "m_FullName": "園田 優",
+    "m_NickName": "優",
+    "m_ResouceBaseName": "Sakura_Yu",
+    "fullName": "園田 優"
+  },
+  "65": {
+    "m_FullName": "南 しずく",
+    "m_NickName": "しずく",
+    "m_ResouceBaseName": "Sakura_Shizuku",
+    "fullName": "南 しずく"
+  },
+  "66": {
+    "m_FullName": "野田 コトネ",
+    "m_NickName": "コトネ",
+    "m_ResouceBaseName": "Sakura_Kotone",
+    "fullName": "野田 コトネ"
+  },
+  "67": {
+    "m_FullName": "池野 楓",
+    "m_NickName": "楓",
+    "m_ResouceBaseName": "Sakura_Kaede",
+    "fullName": "池野 楓"
+  },
+  "68": {
+    "m_FullName": "飯塚 ゆず",
+    "m_NickName": "ゆず",
+    "m_ResouceBaseName": "Sakura_Yuzu",
+    "fullName": "飯塚 ゆず"
+  },
+  "69": {
+    "m_FullName": "乙川 澄",
+    "m_NickName": "澄",
+    "m_ResouceBaseName": "Sakura_Sumi",
+    "fullName": "乙川 澄"
+  },
+  "70": {
+    "m_FullName": "望月 紅葉",
+    "m_NickName": "紅葉",
+    "m_ResouceBaseName": "NewGame_Momiji",
+    "fullName": "望月 紅葉"
+  },
+  "71": {
+    "m_FullName": "鳴海 ツバメ",
+    "m_NickName": "ツバメ",
+    "m_ResouceBaseName": "NewGame_Tubame",
+    "fullName": "鳴海 ツバメ"
+  },
+  "72": {
+    "m_FullName": "桜ノ宮 苺香",
+    "m_NickName": "苺香",
+    "m_ResouceBaseName": "Blends_Maika",
+    "fullName": "桜ノ宮 苺香"
+  },
+  "73": {
+    "m_FullName": "日向 夏帆",
+    "m_NickName": "夏帆",
+    "m_ResouceBaseName": "Blends_Kaho",
+    "fullName": "日向 夏帆"
+  },
+  "74": {
+    "m_FullName": "星川 麻冬",
+    "m_NickName": "麻冬",
+    "m_ResouceBaseName": "Blends_Mahuyu",
+    "fullName": "星川 麻冬"
+  },
+  "75": {
+    "m_FullName": "天野 美雨",
+    "m_NickName": "美雨",
+    "m_ResouceBaseName": "Blends_Miu",
+    "fullName": "天野 美雨"
+  },
+  "76": {
+    "m_FullName": "神崎 ひでり",
+    "m_NickName": "ひでり",
+    "m_ResouceBaseName": "Blends_Hideri",
+    "fullName": "神崎 ひでり"
+  },
+  "77": {
+    "m_FullName": "一之瀬 花名",
+    "m_NickName": "花名",
+    "m_ResouceBaseName": "SlowStart_Hana",
+    "fullName": "一之瀬 花名"
+  },
+  "78": {
+    "m_FullName": "千石 冠",
+    "m_NickName": "冠",
+    "m_ResouceBaseName": "SlowStart_Kamu",
+    "fullName": "千石 冠"
+  },
+  "79": {
+    "m_FullName": "十倉 栄依子",
+    "m_NickName": "栄依子",
+    "m_ResouceBaseName": "SlowStart_Eiko",
+    "fullName": "十倉 栄依子"
+  },
+  "80": {
+    "m_FullName": "百地 たまて",
+    "m_NickName": "たまて",
+    "m_ResouceBaseName": "SlowStart_Tama",
+    "fullName": "百地 たまて"
+  },
+  "81": {
+    "m_FullName": "平沢 唯",
+    "m_NickName": "唯",
+    "m_ResouceBaseName": "Keion_Yui",
+    "fullName": "平沢 唯"
+  },
+  "82": {
+    "m_FullName": "秋山 澪",
+    "m_NickName": "澪",
+    "m_ResouceBaseName": "Keion_Mio",
+    "fullName": "秋山 澪"
+  },
+  "83": {
+    "m_FullName": "田井中 律",
+    "m_NickName": "律",
+    "m_ResouceBaseName": "Keion_Ritu",
+    "fullName": "田井中 律"
+  },
+  "84": {
+    "m_FullName": "琴吹 紬",
+    "m_NickName": "紬",
+    "m_ResouceBaseName": "Keion_Tumugi",
+    "fullName": "琴吹 紬"
+  },
+  "85": {
+    "m_FullName": "中野 梓",
+    "m_NickName": "梓",
+    "m_ResouceBaseName": "Keion_Azusa",
+    "fullName": "中野 梓"
+  },
+  "86": {
+    "m_FullName": "平沢 憂",
+    "m_NickName": "憂",
+    "m_ResouceBaseName": "Keion_Ui",
+    "fullName": "平沢 憂"
+  },
+  "88": {
+    "m_FullName": "志摩 リン",
+    "m_NickName": "リン",
+    "m_ResouceBaseName": "Yurukyan_Rin",
+    "fullName": "志摩 リン"
+  },
+  "89": {
+    "m_FullName": "各務原 なでしこ",
+    "m_NickName": "なでしこ",
+    "m_ResouceBaseName": "Yurukyan_Nadesiko",
+    "fullName": "各務原 なでしこ"
+  },
+  "90": {
+    "m_FullName": "大垣 千明",
+    "m_NickName": "千明",
+    "m_ResouceBaseName": "Yurukyan_Tiaki",
+    "fullName": "大垣 千明"
+  },
+  "91": {
+    "m_FullName": "犬山 あおい",
+    "m_NickName": "あおい",
+    "m_ResouceBaseName": "Yurukyan_Aoi",
+    "fullName": "犬山 あおい"
+  },
+  "92": {
+    "m_FullName": "斉藤 恵那",
+    "m_NickName": "恵那",
+    "m_ResouceBaseName": "Yurukyan_Saitou",
+    "fullName": "斉藤 恵那"
+  },
+  "93": {
+    "m_FullName": "萌田 薫子",
+    "m_NickName": "かおす",
+    "m_ResouceBaseName": "Komiga_Kaoruko",
+    "fullName": "萌田 薫子"
+  },
+  "94": {
+    "m_FullName": "恋塚 小夢",
+    "m_NickName": "小夢",
+    "m_ResouceBaseName": "Komiga_Koyume",
+    "fullName": "恋塚 小夢"
+  },
+  "95": {
+    "m_FullName": "色川 琉姫",
+    "m_NickName": "琉姫",
+    "m_ResouceBaseName": "Komiga_Ruki",
+    "fullName": "色川 琉姫"
+  },
+  "96": {
+    "m_FullName": "勝木 翼",
+    "m_NickName": "翼",
+    "m_ResouceBaseName": "Komiga_Tubasa",
+    "fullName": "勝木 翼"
+  },
+  "97": {
+    "m_FullName": "山口 如月",
+    "m_NickName": "キサラギ",
+    "m_ResouceBaseName": "GA_Kisaragi",
+    "fullName": "山口 如月"
+  },
+  "98": {
+    "m_FullName": "野田 ミキ",
+    "m_NickName": "ノダミキ",
+    "m_ResouceBaseName": "GA_Nodamiki",
+    "fullName": "野田 ミキ"
+  },
+  "99": {
+    "m_FullName": "友兼",
+    "m_NickName": "トモカネ",
+    "m_ResouceBaseName": "GA_Tomokane",
+    "fullName": "友兼"
+  },
+  "100": {
+    "m_FullName": "大道 雅",
+    "m_NickName": "キョージュ",
+    "m_ResouceBaseName": "GA_Kyojyu",
+    "fullName": "大道 雅"
+  },
+  "101": {
+    "m_FullName": "野崎 奈三子",
+    "m_NickName": "ナミコさん",
+    "m_ResouceBaseName": "GA_Namiko",
+    "fullName": "野崎 奈三子"
+  },
+  "102": {
+    "m_FullName": "メリー・ナイトメア",
+    "m_NickName": "メリー",
+    "m_ResouceBaseName": "Yumekui_Merry",
+    "fullName": "メリー・ナイトメア"
+  },
+  "103": {
+    "m_FullName": "橘 勇魚",
+    "m_NickName": "勇魚",
+    "m_ResouceBaseName": "Yumekui_Isana",
+    "fullName": "橘 勇魚"
+  },
+  "104": {
+    "m_FullName": "関谷 なる",
+    "m_NickName": "なる",
+    "m_ResouceBaseName": "Hanayamata_Naru",
+    "fullName": "関谷 なる"
+  },
+  "105": {
+    "m_FullName": "ハナ・Ｎ・フォンテーンスタンド",
+    "m_NickName": "ハナ",
+    "m_ResouceBaseName": "Hanayamata_Hana",
+    "fullName": "ハナ・Ｎ・フォンテーンスタンド"
+  },
+  "106": {
+    "m_FullName": "笹目 ヤヤ",
+    "m_NickName": "ヤヤ",
+    "m_ResouceBaseName": "Hanayamata_Yaya",
+    "fullName": "笹目 ヤヤ"
+  },
+  "107": {
+    "m_FullName": "花小泉 杏",
+    "m_NickName": "はなこ",
+    "m_ResouceBaseName": "Anhapi_Hanako",
+    "fullName": "花小泉 杏"
+  },
+  "108": {
+    "m_FullName": "雲雀丘 瑠璃",
+    "m_NickName": "ヒバリ",
+    "m_ResouceBaseName": "Anhapi_Hibari",
+    "fullName": "雲雀丘 瑠璃"
+  },
+  "109": {
+    "m_FullName": "久米川 牡丹",
+    "m_NickName": "ぼたん",
+    "m_ResouceBaseName": "Anhapi_Botan",
+    "fullName": "久米川 牡丹"
+  },
+  "110": {
+    "m_FullName": "二条 臣",
+    "m_NickName": "臣",
+    "m_ResouceBaseName": "Urara_Omi",
+    "fullName": "二条 臣"
+  },
+  "111": {
+    "m_FullName": "大空 遥",
+    "m_NickName": "遥",
+    "m_ResouceBaseName": "Harukana_Haruka",
+    "fullName": "大空 遥"
+  },
+  "112": {
+    "m_FullName": "比嘉 かなた",
+    "m_NickName": "かなた",
+    "m_ResouceBaseName": "Harukana_Kanata",
+    "fullName": "比嘉 かなた"
+  },
+  "113": {
+    "m_FullName": "トーマス・紅愛",
+    "m_NickName": "クレア",
+    "m_ResouceBaseName": "Harukana_Claire",
+    "fullName": "トーマス・紅愛"
+  },
+  "114": {
+    "m_FullName": "トーマス・恵美理",
+    "m_NickName": "エミリ",
+    "m_ResouceBaseName": "Harukana_Emiri",
+    "fullName": "トーマス・恵美理"
+  },
+  "115": {
+    "m_FullName": "桜ノ宮 愛香",
+    "m_NickName": "愛香",
+    "m_ResouceBaseName": "Blends_Aika",
+    "fullName": "桜ノ宮 愛香"
+  },
+  "116": {
+    "m_FullName": "ココア",
+    "m_NickName": "ココア",
+    "m_ResouceBaseName": "Gochiusa_Cocoa",
+    "fullName": "保登 心愛"
+  },
+  "117": {
+    "m_FullName": "チノ",
+    "m_NickName": "チノ",
+    "m_ResouceBaseName": "Gochiusa_Chino",
+    "fullName": "香風 智乃"
+  },
+  "118": {
+    "m_FullName": "鳩谷 こはね",
+    "m_NickName": "こはね",
+    "m_ResouceBaseName": "Anima_Kohane",
+    "fullName": "鳩谷 こはね"
+  },
+  "119": {
+    "m_FullName": "有馬 ひづめ",
+    "m_NickName": "ひづめ",
+    "m_ResouceBaseName": "Anima_Hizume",
+    "fullName": "有馬 ひづめ"
+  },
+  "120": {
+    "m_FullName": "猿渡 宇希",
+    "m_NickName": "宇希",
+    "m_ResouceBaseName": "Anima_Uki",
+    "fullName": "猿渡 宇希"
+  },
+  "121": {
+    "m_FullName": "舘島 虎徹",
+    "m_NickName": "虎徹",
+    "m_ResouceBaseName": "Anima_Kotetsu",
+    "fullName": "舘島 虎徹"
+  },
+  "122": {
+    "m_FullName": "牛久 花和",
+    "m_NickName": "花和",
+    "m_ResouceBaseName": "Anima_Kana",
+    "fullName": "牛久 花和"
+  },
+  "123": {
+    "m_FullName": "ランプ",
+    "m_NickName": "ランプ",
+    "m_ResouceBaseName": "Kirara_Lump",
+    "fullName": "ランプ"
+  },
+  "124": {
+    "m_FullName": "クレア",
+    "m_NickName": "クレア",
+    "m_ResouceBaseName": "Kirara_Claire",
+    "fullName": "クレア"
+  },
+  "125": {
+    "m_FullName": "ポルカ",
+    "m_NickName": "ポルカ",
+    "m_ResouceBaseName": "Kirara_Poruka",
+    "fullName": "ポルカ"
+  },
+  "126": {
+    "m_FullName": "コルク",
+    "m_NickName": "コルク",
+    "m_ResouceBaseName": "Kirara_Cork",
+    "fullName": "コルク"
+  },
+  "127": {
+    "m_FullName": "カンナ",
+    "m_NickName": "カンナ",
+    "m_ResouceBaseName": "Kirara_Kanna",
+    "fullName": "カンナ"
+  },
+  "128": {
+    "m_FullName": "ライネ",
+    "m_NickName": "ライネ",
+    "m_ResouceBaseName": "Kirara_Raine",
+    "fullName": "ライネ"
+  },
+  "129": {
+    "m_FullName": "ソラ",
+    "m_NickName": "ソラ",
+    "m_ResouceBaseName": "Kirara_Sola",
+    "fullName": "ソラ"
+  },
+  "130": {
+    "m_FullName": "アルシーヴ",
+    "m_NickName": "アルシーヴ",
+    "m_ResouceBaseName": "Kirara_Archives",
+    "fullName": "アルシーヴ"
+  },
+  "131": {
+    "m_FullName": "シュガー",
+    "m_NickName": "シュガー",
+    "m_ResouceBaseName": "Kirara_Sugar",
+    "fullName": "シュガー"
+  },
+  "132": {
+    "m_FullName": "セサミ",
+    "m_NickName": "セサミ",
+    "m_ResouceBaseName": "Kirara_Sesame",
+    "fullName": "セサミ"
+  },
+  "133": {
+    "m_FullName": "カルダモン",
+    "m_NickName": "カルダモン",
+    "m_ResouceBaseName": "Kirara_Cardamon",
+    "fullName": "カルダモン"
+  },
+  "134": {
+    "m_FullName": "ソルト",
+    "m_NickName": "ソルト",
+    "m_ResouceBaseName": "Kirara_Salt",
+    "fullName": "ソルト"
+  },
+  "135": {
+    "m_FullName": "ジンジャー",
+    "m_NickName": "ジンジャー",
+    "m_ResouceBaseName": "Kirara_Ginger",
+    "fullName": "ジンジャー"
+  },
+  "136": {
+    "m_FullName": "フェンネル",
+    "m_NickName": "フェンネル",
+    "m_ResouceBaseName": "Kirara_Fennel",
+    "fullName": "フェンネル"
+  },
+  "137": {
+    "m_FullName": "ハッカ",
+    "m_NickName": "ハッカ",
+    "m_ResouceBaseName": "Kirara_Hakka",
+    "fullName": "ハッカ"
+  },
+  "138": {
+    "m_FullName": "西川 葉子",
+    "m_NickName": "葉子",
+    "m_ResouceBaseName": "Sansha_Youko",
+    "fullName": "西川 葉子"
+  },
+  "139": {
+    "m_FullName": "小田切 双葉",
+    "m_NickName": "双葉",
+    "m_ResouceBaseName": "Sansha_Futaba",
+    "fullName": "小田切 双葉"
+  },
+  "140": {
+    "m_FullName": "葉山 照",
+    "m_NickName": "照",
+    "m_ResouceBaseName": "Sansha_Teru",
+    "fullName": "葉山 照"
+  },
+  "141": {
+    "m_FullName": "クロ",
+    "m_NickName": "クロ",
+    "m_ResouceBaseName": "Hitugi_Kuro",
+    "fullName": "クロ"
+  },
+  "142": {
+    "m_FullName": "万年 大会",
+    "m_NickName": "大会",
+    "m_ResouceBaseName": "SlowStart_Hiroe",
+    "fullName": "万年 大会"
+  },
+  "143": {
+    "m_FullName": "リゼ",
+    "m_NickName": "リゼ",
+    "m_ResouceBaseName": "Gochiusa_Rize",
+    "fullName": "天々座 理世"
+  },
+  "144": {
+    "m_FullName": "千夜",
+    "m_NickName": "千夜",
+    "m_ResouceBaseName": "Gochiusa_Chiya",
+    "fullName": "宇治松 千夜"
+  },
+  "145": {
+    "m_FullName": "シャロ",
+    "m_NickName": "シャロ",
+    "m_ResouceBaseName": "Gochiusa_Syaro",
+    "fullName": "桐間 紗路"
+  },
+  "146": {
+    "m_FullName": "大城 あかり",
+    "m_NickName": "あかり",
+    "m_ResouceBaseName": "Harukana_Akari",
+    "fullName": "大城 あかり"
+  },
+  "147": {
+    "m_FullName": "吉田 優子",
+    "m_NickName": "シャミ子",
+    "m_ResouceBaseName": "Matikado_Yuko",
+    "fullName": "吉田 優子"
+  },
+  "148": {
+    "m_FullName": "千代田 桃",
+    "m_NickName": "桃",
+    "m_ResouceBaseName": "Matikado_Momo",
+    "fullName": "千代田 桃"
+  },
+  "149": {
+    "m_FullName": "リリス",
+    "m_NickName": "リリス",
+    "m_ResouceBaseName": "Matikado_Lilith",
+    "fullName": "リリス"
+  },
+  "150": {
+    "m_FullName": "陽夏木 ミカン",
+    "m_NickName": "ミカン",
+    "m_ResouceBaseName": "Matikado_Mikan",
+    "fullName": "陽夏木 ミカン"
+  },
+  "151": {
+    "m_FullName": "マヤ",
+    "m_NickName": "マヤ",
+    "m_ResouceBaseName": "Gochiusa_Maya",
+    "fullName": "条河 麻耶"
+  },
+  "152": {
+    "m_FullName": "メグ",
+    "m_NickName": "メグ",
+    "m_ResouceBaseName": "Gochiusa_Megu",
+    "fullName": "奈津 恵"
+  },
+  "153": {
+    "m_FullName": "細野はるみ",
+    "m_NickName": "はるみ",
+    "m_ResouceBaseName": "Harumination_Harumi",
+    "fullName": "細野はるみ"
+  },
+  "154": {
+    "m_FullName": "怖浦 すず",
+    "m_NickName": "怖浦",
+    "m_ResouceBaseName": "Komiga_Suzu",
+    "fullName": "怖浦 すず"
+  },
+  "155": {
+    "m_FullName": "エンギ・スリーピース",
+    "m_NickName": "エンギ",
+    "m_ResouceBaseName": "Yumekui_Engi",
+    "fullName": "エンギ・スリーピース"
+  },
+  "156": {
+    "m_FullName": "きらら",
+    "m_NickName": "きらら",
+    "m_ResouceBaseName": "Kirara_Kirara",
+    "fullName": "きらら"
+  },
+  "157": {
+    "m_FullName": "萩生 響",
+    "m_NickName": "ヒビキ",
+    "m_ResouceBaseName": "Anhapi_Hibiki",
+    "fullName": "萩生 響"
+  },
+  "158": {
+    "m_FullName": "江古田 蓮",
+    "m_NickName": "レン",
+    "m_ResouceBaseName": "Anhapi_Ren",
+    "fullName": "江古田 蓮"
+  },
+  "159": {
+    "m_FullName": "町子 リョウ",
+    "m_NickName": "リョウ",
+    "m_ResouceBaseName": "Koufuku_Ryo",
+    "fullName": "町子 リョウ"
+  },
+  "160": {
+    "m_FullName": "森野 きりん",
+    "m_NickName": "きりん",
+    "m_ResouceBaseName": "Koufuku_Kirin",
+    "fullName": "森野 きりん"
+  },
+  "161": {
+    "m_FullName": "椎名",
+    "m_NickName": "椎名",
+    "m_ResouceBaseName": "Koufuku_Siina",
+    "fullName": "椎名"
+  },
+  "162": {
+    "m_FullName": "色川 美姫",
+    "m_NickName": "美姫",
+    "m_ResouceBaseName": "Komiga_Miki",
+    "fullName": "色川 美姫"
+  },
+  "163": {
+    "m_FullName": "京塚 志温",
+    "m_NickName": "志温",
+    "m_ResouceBaseName": "SlowStart_Shion",
+    "fullName": "京塚 志温"
+  },
+  "164": {
+    "m_FullName": "吉田 良子",
+    "m_NickName": "良子",
+    "m_ResouceBaseName": "Matikado_Ryoko",
+    "fullName": "吉田 良子"
+  },
+  "165": {
+    "m_FullName": "鶴瀬 まつり",
+    "m_NickName": "まつり",
+    "m_ResouceBaseName": "Stella_Maturi",
+    "fullName": "鶴瀬 まつり"
+  },
+  "166": {
+    "m_FullName": "木ノ幡 みら",
+    "m_NickName": "みら",
+    "m_ResouceBaseName": "Koiasu_Mira",
+    "fullName": "木ノ幡 みら"
+  },
+  "167": {
+    "m_FullName": "真中 あお",
+    "m_NickName": "あお",
+    "m_ResouceBaseName": "Koiasu_Ao",
+    "fullName": "真中 あお"
+  },
+  "168": {
+    "m_FullName": "モカ",
+    "m_NickName": "モカ",
+    "m_ResouceBaseName": "Gochiusa_Mocha",
+    "fullName": "保登 モカ"
+  },
+  "169": {
+    "m_FullName": "西山 芹奈",
+    "m_NickName": "西山",
+    "m_ResouceBaseName": "Sansha_Serina",
+    "fullName": "西山 芹奈"
+  },
+  "170": {
+    "m_FullName": "狭山 椿",
+    "m_NickName": "椿",
+    "m_ResouceBaseName": "Anhapi_Tubaki",
+    "fullName": "狭山 椿"
+  },
+  "171": {
+    "m_FullName": "西御門 多美",
+    "m_NickName": "タミ",
+    "m_ResouceBaseName": "Hanayamata_Tami",
+    "fullName": "西御門 多美"
+  },
+  "172": {
+    "m_FullName": "園田 美月",
+    "m_NickName": "美月",
+    "m_ResouceBaseName": "Sakura_Mituki",
+    "fullName": "園田 美月"
+  },
+  "173": {
+    "m_FullName": "武田 詠深",
+    "m_NickName": "詠深",
+    "m_ResouceBaseName": "Tamayomi_Yomi",
+    "fullName": "武田 詠深"
+  },
+  "174": {
+    "m_FullName": "山崎 珠姫",
+    "m_NickName": "珠姫",
+    "m_ResouceBaseName": "Tamayomi_Tamaki",
+    "fullName": "山崎 珠姫"
+  },
+  "175": {
+    "m_FullName": "祠堂 圭",
+    "m_NickName": "けい",
+    "m_ResouceBaseName": "Gakkou_Kei",
+    "fullName": "祠堂 圭"
+  },
+  "176": {
+    "m_FullName": "榎並 清瀬",
+    "m_NickName": "榎並",
+    "m_ResouceBaseName": "SlowStart_Kiyose",
+    "fullName": "榎並 清瀬"
+  },
+  "177": {
+    "m_FullName": "稲葉 兎和",
+    "m_NickName": "兎和",
+    "m_ResouceBaseName": "Anima_Towa",
+    "fullName": "稲葉 兎和"
+  },
+  "178": {
+    "m_FullName": "遠井 成美",
+    "m_NickName": "成美",
+    "m_ResouceBaseName": "Harukana_Narumi",
+    "fullName": "遠井 成美"
+  },
+  "179": {
+    "m_FullName": "立花 彩紗",
+    "m_NickName": "彩紗",
+    "m_ResouceBaseName": "Harukana_Ayasa",
+    "fullName": "立花 彩紗"
+  },
+  "180": {
+    "m_FullName": "御庭 つみき",
+    "m_NickName": "つみき",
+    "m_ResouceBaseName": "Acchikocchi_Tumiki",
+    "fullName": "御庭 つみき"
+  },
+  "181": {
+    "m_FullName": "春野 姫",
+    "m_NickName": "姫",
+    "m_ResouceBaseName": "Acchikocchi_Hime",
+    "fullName": "春野 姫"
+  },
+  "182": {
+    "m_FullName": "片瀬 真宵",
+    "m_NickName": "真宵",
+    "m_ResouceBaseName": "Acchikocchi_Mayoi",
+    "fullName": "片瀬 真宵"
+  },
+  "183": {
+    "m_FullName": "薗部 篠",
+    "m_NickName": "薗部",
+    "m_ResouceBaseName": "Sansha_Sonobe",
+    "fullName": "薗部 篠"
+  },
+  "184": {
+    "m_FullName": "桜 衣乃",
+    "m_NickName": "イノ",
+    "m_ResouceBaseName": "Ochifuru_Ino",
+    "fullName": "桜 衣乃"
+  },
+  "185": {
+    "m_FullName": "関野 ロコ",
+    "m_NickName": "ロコ",
+    "m_ResouceBaseName": "Ochifuru_Roko",
+    "fullName": "関野 ロコ"
+  },
+  "186": {
+    "m_FullName": "貫井 はゆ",
+    "m_NickName": "はゆ",
+    "m_ResouceBaseName": "Ochifuru_Hayu",
+    "fullName": "貫井 はゆ"
+  },
+  "187": {
+    "m_FullName": "前原 仁菜",
+    "m_NickName": "ニナ",
+    "m_ResouceBaseName": "Ochifuru_Nina",
+    "fullName": "前原 仁菜"
+  },
+  "188": {
+    "m_FullName": "猪瀬 舞",
+    "m_NickName": "イノ",
+    "m_ResouceBaseName": "Koiasu_Mai",
+    "fullName": "猪瀬 舞"
+  },
+  "189": {
+    "m_FullName": "篠華 まゆ",
+    "m_NickName": "まゆ",
+    "m_ResouceBaseName": "Pawasuma_Mayu",
+    "fullName": "篠華 まゆ"
+  },
+  "190": {
+    "m_FullName": "虎道 環",
+    "m_NickName": "環",
+    "m_ResouceBaseName": "Pawasuma_Tamaki",
+    "fullName": "虎道 環"
+  },
+  "191": {
+    "m_FullName": "小野坂 こはる",
+    "m_NickName": "こはる",
+    "m_ResouceBaseName": "Koharu_Koharu",
+    "fullName": "小野坂 こはる"
+  },
+  "192": {
+    "m_FullName": "橘 ニナ",
+    "m_NickName": "ニナ",
+    "m_ResouceBaseName": "Koharu_Nina",
+    "fullName": "橘 ニナ"
+  },
+  "193": {
+    "m_FullName": "光凪 由衣",
+    "m_NickName": "由衣",
+    "m_ResouceBaseName": "Yumekui_Yui",
+    "fullName": "光凪 由衣"
+  },
+  "194": {
+    "m_FullName": "坂本 香樹",
+    "m_NickName": "香樹",
+    "m_ResouceBaseName": "Harumination_Kaju",
+    "fullName": "坂本 香樹"
+  },
+  "195": {
+    "m_FullName": "高橋 ユキ",
+    "m_NickName": "ユキ",
+    "m_ResouceBaseName": "Harumination_Yuki",
+    "fullName": "高橋 ユキ"
+  },
+  "196": {
+    "m_FullName": "川口 芳乃",
+    "m_NickName": "芳乃",
+    "m_ResouceBaseName": "Tamayomi_Yosino",
+    "fullName": "川口 芳乃"
+  },
+  "197": {
+    "m_FullName": "常盤 真智",
+    "m_NickName": "マチ",
+    "m_ResouceBaseName": "Hanayamata_Mati",
+    "fullName": "常盤 真智"
+  },
+  "198": {
+    "m_FullName": "緑 へも",
+    "m_NickName": "へも",
+    "m_ResouceBaseName": "Ochifuru_Hemo",
+    "fullName": "緑 へも"
+  },
+  "199": {
+    "m_FullName": "近藤 亜紗子",
+    "m_NickName": "近藤",
+    "m_ResouceBaseName": "Sansha_Kondou",
+    "fullName": "近藤 亜紗子"
+  },
+  "200": {
+    "m_FullName": "日暮 香奈",
+    "m_NickName": "香奈",
+    "m_ResouceBaseName": "KinMosa_Kana",
+    "fullName": "日暮 香奈"
+  },
+  "201": {
+    "m_FullName": "細野 あるみ",
+    "m_NickName": "あるみ",
+    "m_ResouceBaseName": "Harumination_Arumi",
+    "fullName": "細野 あるみ"
+  },
+  "202": {
+    "m_FullName": "葉山 光",
+    "m_NickName": "光",
+    "m_ResouceBaseName": "Sansha_Kou",
+    "fullName": "葉山 光"
+  },
+  "203": {
+    "m_FullName": "十倉 光希",
+    "m_NickName": "光希",
+    "m_ResouceBaseName": "SlowStart_Miki",
+    "fullName": "十倉 光希"
+  },
+  "204": {
+    "m_FullName": "里中 チエ",
+    "m_NickName": "チエ",
+    "m_ResouceBaseName": "Mangatime_00Chie",
+    "fullName": "里中 チエ"
+  },
+  "205": {
+    "m_FullName": "白井 麗子",
+    "m_NickName": "麗子",
+    "m_ResouceBaseName": "Mangatime_00Reiko",
+    "fullName": "白井 麗子"
+  },
+  "206": {
+    "m_FullName": "倉橋 莉子",
+    "m_NickName": "リコ",
+    "m_ResouceBaseName": "Mangatime_01Riko",
+    "fullName": "倉橋 莉子"
+  },
+  "207": {
+    "m_FullName": "真木 夏緒",
+    "m_NickName": "マキ",
+    "m_ResouceBaseName": "Mangatime_01Maki",
+    "fullName": "真木 夏緒"
+  },
+  "208": {
+    "m_FullName": "小森 しゅり",
+    "m_NickName": "しゅり",
+    "m_ResouceBaseName": "Mangatime_02Syuri",
+    "fullName": "小森 しゅり"
+  },
+  "209": {
+    "m_FullName": "西鳥 めぐみ",
+    "m_NickName": "めぐみ",
+    "m_ResouceBaseName": "Mangatime_02Megumi",
+    "fullName": "西鳥 めぐみ"
+  },
+  "210": {
+    "m_FullName": "根岸 まさ子",
+    "m_NickName": "まさ子",
+    "m_ResouceBaseName": "Mangatime_02Masako",
+    "fullName": "根岸 まさ子"
+  },
+  "211": {
+    "m_FullName": "内木 ユキ",
+    "m_NickName": "ユキ",
+    "m_ResouceBaseName": "Koufuku_Uchiki",
+    "fullName": "内木 ユキ"
+  },
+  "212": {
+    "m_FullName": "虹野 美晴",
+    "m_NickName": "虹野先生",
+    "m_ResouceBaseName": "Komiga_Miharu",
+    "fullName": "虹野 美晴"
+  },
+  "213": {
+    "m_FullName": "花原 椿",
+    "m_NickName": "椿",
+    "m_ResouceBaseName": "Urara_Tsubaki",
+    "fullName": "花原 椿"
+  },
+  "214": {
+    "m_FullName": "桜川 キクヱ",
+    "m_NickName": "キクヱ",
+    "m_ResouceBaseName": "Acchikocchi_Sakuragawa",
+    "fullName": "桜川 キクヱ"
+  },
+  "215": {
+    "m_FullName": "桜井 美景",
+    "m_NickName": "桜",
+    "m_ResouceBaseName": "Koiasu_Mikage",
+    "fullName": "桜井 美景"
+  },
+  "216": {
+    "m_FullName": "森野 真理",
+    "m_NickName": "モンロー",
+    "m_ResouceBaseName": "Koiasu_Mari",
+    "fullName": "森野 真理"
+  },
+  "217": {
+    "m_FullName": "中村 希",
+    "m_NickName": "希",
+    "m_ResouceBaseName": "Tamayomi_Nozomi",
+    "fullName": "中村 希"
+  },
+  "218": {
+    "m_FullName": "北沢 みさき",
+    "m_NickName": "みさき",
+    "m_ResouceBaseName": "Koharu_Misaki",
+    "fullName": "北沢 みさき"
+  },
+  "219": {
+    "m_FullName": "牧之瀬 ひまり",
+    "m_NickName": "ひまり",
+    "m_ResouceBaseName": "Koharu_Himari",
+    "fullName": "牧之瀬 ひまり"
+  },
+  "220": {
+    "m_FullName": "大人の丈槍 由紀",
+    "m_NickName": "大人のゆき",
+    "m_ResouceBaseName": "Gakkou_YukiOtayori",
+    "fullName": "大人の丈槍 由紀"
+  },
+  "221": {
+    "m_FullName": "大人の直樹 美紀",
+    "m_NickName": "大人のみき",
+    "m_ResouceBaseName": "Gakkou_MiikunOtayori",
+    "fullName": "大人の直樹 美紀"
+  },
+  "222": {
+    "m_FullName": "マリ・キスピルクエット",
+    "m_NickName": "マリ",
+    "m_ResouceBaseName": "Urara_Mari",
+    "fullName": "マリ・キスピルクエット"
+  },
+  "223": {
+    "m_FullName": "風色 琴音",
+    "m_NickName": "琴音",
+    "m_ResouceBaseName": "Rpg_Kotone",
+    "fullName": "風色 琴音"
+  },
+  "224": {
+    "m_FullName": "ファー",
+    "m_NickName": "ファー",
+    "m_ResouceBaseName": "Rpg_Fa",
+    "fullName": "ファー"
+  },
+  "225": {
+    "m_FullName": "ルフリア",
+    "m_NickName": "ルフリア",
+    "m_ResouceBaseName": "Rpg_Rufuria",
+    "fullName": "ルフリア"
+  },
+  "226": {
+    "m_FullName": "ラキラ",
+    "m_NickName": "ラキラ",
+    "m_ResouceBaseName": "Rpg_Rakira",
+    "fullName": "ラキラ"
+  },
+  "227": {
+    "m_FullName": "叢園寺 観久",
+    "m_NickName": "観久",
+    "m_ResouceBaseName": "Pawasuma_Miku",
+    "fullName": "叢園寺 観久"
+  },
+  "228": {
+    "m_FullName": "クリオネ",
+    "m_NickName": "クリオネ",
+    "m_ResouceBaseName": "Yumekui_Clione",
+    "fullName": "クリオネ"
+  },
+  "229": {
+    "m_FullName": "青山ブルーマウンテン",
+    "m_NickName": "青山さん",
+    "m_ResouceBaseName": "Gochiusa_Aoyama",
+    "fullName": "青山ブルーマウンテン"
+  },
+  "230": {
+    "m_FullName": "土岐 綾乃",
+    "m_NickName": "綾乃",
+    "m_ResouceBaseName": "Yurukyan_Ayano",
+    "fullName": "土岐 綾乃"
+  },
+  "231": {
+    "m_FullName": "メディア",
+    "m_NickName": "メディア",
+    "m_ResouceBaseName": "Kirara_Media",
+    "fullName": "メディア"
+  },
+  "232": {
+    "m_FullName": "海凪 ひより",
+    "m_NickName": "ひより",
+    "m_ResouceBaseName": "SlowLoop_Hiyori",
+    "fullName": "海凪 ひより"
+  },
+  "233": {
+    "m_FullName": "海凪 小春",
+    "m_NickName": "小春",
+    "m_ResouceBaseName": "SlowLoop_Koharu",
+    "fullName": "海凪 小春"
+  },
+  "234": {
+    "m_FullName": "吉永 恋",
+    "m_NickName": "恋",
+    "m_ResouceBaseName": "SlowLoop_Koi",
+    "fullName": "吉永 恋"
+  },
+  "235": {
+    "m_FullName": "住良木 うつつ",
+    "m_NickName": "うつつ",
+    "m_ResouceBaseName": "Kirara_Ututu",
+    "fullName": "住良木 うつつ"
+  },
+  "236": {
+    "m_FullName": "大人の恵飛須沢 胡桃",
+    "m_NickName": "大人のくるみ",
+    "m_ResouceBaseName": "Gakkou_KurumiOtayori",
+    "fullName": "大人の恵飛須沢 胡桃"
+  },
+  "237": {
+    "m_FullName": "大人の若狭 悠里",
+    "m_NickName": "大人のゆうり",
+    "m_ResouceBaseName": "Gakkou_RiisanOtayori",
+    "fullName": "大人の若狭 悠里"
+  },
+  "238": {
+    "m_FullName": "小野坂 さおり",
+    "m_NickName": "さおり",
+    "m_ResouceBaseName": "Koharu_Saori",
+    "fullName": "小野坂 さおり"
+  },
+  "239": {
+    "m_FullName": "編沢 まゆ",
+    "m_NickName": "編沢",
+    "m_ResouceBaseName": "Komiga_Amisawa",
+    "fullName": "編沢 まゆ"
+  },
+  "240": {
+    "m_FullName": "後藤 ひとり",
+    "m_NickName": "ひとり",
+    "m_ResouceBaseName": "Botti_Hitori",
+    "fullName": "後藤 ひとり"
+  },
+  "241": {
+    "m_FullName": "伊地知 虹夏",
+    "m_NickName": "虹夏",
+    "m_ResouceBaseName": "Botti_Nizika",
+    "fullName": "伊地知 虹夏"
+  },
+  "242": {
+    "m_FullName": "山田 リョウ",
+    "m_NickName": "リョウ",
+    "m_ResouceBaseName": "Botti_Ryo",
+    "fullName": "山田 リョウ"
+  },
+  "243": {
+    "m_FullName": "喜多 郁代",
+    "m_NickName": "喜多",
+    "m_ResouceBaseName": "Botti_Kita",
+    "fullName": "喜多 郁代"
+  },
+  "244": {
+    "m_FullName": "大人の志摩 リン",
+    "m_NickName": "大人のリン",
+    "m_ResouceBaseName": "Yurukyan_RinMovie",
+    "fullName": "大人の志摩 リン"
+  },
+  "245": {
+    "m_FullName": "山中 さわ子",
+    "m_NickName": "さわ子",
+    "m_ResouceBaseName": "Keion_Sawako",
+    "fullName": "山中 さわ子"
+  },
+  "246": {
+    "m_FullName": "エニシダ",
+    "m_NickName": "エニシダ",
+    "m_ResouceBaseName": "Kirara_Enishida",
+    "fullName": "エニシダ"
+  },
+  "247": {
+    "m_FullName": "ハイプリス",
+    "m_NickName": "ハイプリス",
+    "m_ResouceBaseName": "Kirara_Highpris",
+    "fullName": "ハイプリス"
+  },
+  "248": {
+    "m_FullName": "サンストーン",
+    "m_NickName": "サンストーン",
+    "m_ResouceBaseName": "Kirara_Sunstone",
+    "fullName": "サンストーン"
+  }
+}

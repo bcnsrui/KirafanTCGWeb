@@ -17,10 +17,10 @@ import {
 import { deleteRoom, fetchRooms } from "./lobby-rooms.js";
 import { currentNick, loadMatchData, saveMatch } from "./match-store.js";
 import { getLang, puzzlesDataUrl, setLang } from "./lang.js";
-import { applyI18n, t } from "./ui-i18n.js?v=i18n42";
+import { applyI18n, t } from "./ui-i18n.js?v=i18n43";
 import { loadJson, mediaUrl } from "./local-assets.js?v=4";
 import { bindBoardFit, fitFieldContent } from "./stage-scale.js?v=14";
-import { clearLocalDevCaches } from "./dev-cache.js?v=3";
+import { clearLocalDevCaches } from "./dev-cache.js?v=4";
 
 bindBoardFit();
 await clearLocalDevCaches();
@@ -1712,26 +1712,140 @@ function optionLabel(o) {
   return effectText(o.desc) || t("duel.activateEffectShort");
 }
 
-/** chip color class for effect-choice bar: heal-single | heal-aoe | atk | status | draw | attack | other */
+/**
+ * Chip color from this option's effect text (label + effect; bare totteoki → card totteoki block).
+ * Multi-effect priority: draw > status > atk > summon > gauge > heal
+ * (heal then splits heal-aoe / heal-single)
+ */
+/** Drop "(배틀 페이즈 종료시) …" deferred bonuses so chip color follows the immediate effect only. */
+function stripDeferredBattleEnd(text, cardDesc = "") {
+  const END = /(?:\(?\s*|（\s*)?(?:배틀\s*페이즈\s*종료시|(?:自分の)?バトルフェイズ終了時|At\s+the\s+end\s+of\s+(?:your\s+)?Battle\s*Phase|Battle\s*Phase\s*Ends?)\s*(?:\)|）)?/i;
+  let out = String(text || "");
+  out = out.replace(new RegExp(END.source + "[\\s\\S]*", "i"), "");
+  const desc = String(cardDesc || "");
+  const hasEnd = END.test(desc);
+  const dm = desc.match(new RegExp(END.source + "\\s*([^\\n(（]+)", "i"));
+  if (dm) {
+    const bonus = dm[1].trim().replace(/\s+/g, " ")
+      .replace(/[＋]/g, "+").replace(/[－]/g, "-");
+    // 본효과가 게이지뿐인데 종료 보너스도 게이지면 flex 삭제로 본효과까지 날아감 → 복합 라벨에만 적용
+        const compound = /[,，、]|드로우|\bdraw\b|카드|부여|해제|회복|\bheal\b|攻撃|\batk\b/i.test(out);
+    if (bonus && compound) {
+      const flex = bonus
+        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        .replace(/\\\+/g, "\\s*\\+\\s*")
+        .replace(/\\-/g, "\\s*-\\s*")
+        .replace(/\s+/g, "\\s*");
+      out = out.replace(new RegExp(flex, "gi"), " ");
+    }
+  }
+  // 종료시 보너스만 제거 (본효과 게이지/드로우 문구는 유지)
+  if (hasEnd) {
+    const bonusLine = dm ? dm[1] : "";
+    const endIsDraw = /드로우|draw|カードを.*引|ドロー/i.test(bonusLine);
+    const endIsGauge = /게이지|gauge|ゲージ/i.test(bonusLine);
+    // 라벨이 "부여/해제 … 드로우" 형태면 desc 번역과 무관하게 꼬리 드로우 제거
+    const labelDeferredDraw = /(?:부여|해제|abnormals?|弱体|拘束|睡眠|不幸|空腹|孤立).{0,24}(?:드로우|draw|カードを)/i.test(out)
+      || /(?:드로우|draw|カードを).{0,12}$/i.test(out) && /부여|해제|abnormal|弱体|拘束|睡眠|不幸/i.test(out);
+    if (endIsDraw || labelDeferredDraw) {
+      out = out.replace(
+        /(?:\s|,|、)+?(?:드로우\s*\+?\s*\d*|draw\s*\d*\s*cards?|カードを\s*\d+\s*枚引[くく]?)\s*$/gi,
+        " ",
+      );
+      out = out.replace(/(부여|해제|解除|abnormals?)\s*(?:드로우\s*\+?\s*\d*|,\s*draw\s*\d*\s*cards?)/gi, "$1");
+    }
+    if (endIsGauge) {
+      out = out.replace(
+        /(?:\s|,|、)+?(?:돗테오키\s*게이지\s*[+\-]?\s*\d*|increase(?:\s+the)?\s+totteoki\s*gauge(?:\s*by\s*\d+)?|totteoki\s*gauge(?:\s*by)?\s*\d*|とっておきゲージ(?:を)?(?:\d+)?(?:増やす|増加|減らす)?)\s*$/gi,
+        " ",
+      );
+    }
+  }
+  return out.replace(/\s+/g, " ").trim();
+}
+
 function optionChipKind(o) {
-  if (o.kind === K.ATTACK) return "attack";
+  if (o.kind === K.ATTACK) return "attack"; // 통상공격 → 하늘색
   const label = optionLabel(o);
   const effect = effectText(o.desc) || "";
   const cardDesc = (o.card && cards.get(o.card.code)?.desc) || "";
-  const s = `${label}\n${effect}`;
-  if (/광역\s*회복|全体回復|area\s*heal|광역.*회복|회복.*광역|全体.*回復|all[-\s]?heal/i.test(s)
-    || (/광역|全体|aoe|전체/i.test(s) && /회복|heal|回復|recover|리커버리|リカバリー/i.test(s))) return "heal-aoe";
-  if (/단일\s*회복|単体回復|single\s*heal|단일.*회복|회복.*단일|単体.*回復/i.test(s)
-    || (/단일|単体|single/i.test(s) && /회복|heal|回復|recover|리커버리|リカバリー/i.test(s))) return "heal-single";
-  if (/회복|heal|回復|recover|리커버리|リカバリー/i.test(s)) return "heal-single";
-  if (/공격력|攻撃力|\batk\b|attack\s*power|공격\s*력/i.test(s)) return "atk";
-  if (/상태이상|状態異常|status|경직|약화|침묵|혼란|불행|독|silence|stiff|weak|misfortune|hunger|배고픔/i.test(s)) {
-    return "status";
+  let s = `${label}\n${effect}`;
+  // EN: The "Totteoki" Effect / The Second Totteoki Effect (따옴표·Second 포함)
+  const bareDotte = o.desc === DOTTE_EFFECT
+    || (/(?:돗테오키|とっておき|totteoki)/i.test(label)
+      && /(?:효과|効果|effect|スキル|skill)/i.test(label)
+      && !/(?:게이지|ゲージ|gauge)/i.test(label));
+  if (bareDotte) {
+    // 샤미코 등 ①/② 선택: 해당 선택지 본문으로 색 분류
+    const totteBlock = cardDesc.split(
+      /\[돗테오키 게이지[^\]]*\]|【とっておきゲージ[^\]]*】|\[とっておきゲージ[^\]]*\]|\[Totteoki[^\]]*\]|\[Consume[^\]]*Totteoki\s*Gauge[^\]]*\]/i,
+    )[1] || "";
+    if (totteBlock.trim()) {
+      const body = totteBlock.split(/\n\s*\n\s*\(/)[0];
+      const choices = [...body.matchAll(/[①②③][:：]\s*([^\n①②③]+)/g)].map((m) => m[1].trim());
+      const second = /두번째|第二|2つ目|second/i.test(label);
+      if (choices.length) {
+        const pick = second ? (choices[1] || choices[choices.length - 1]) : choices[0];
+        s = `${label}\n${pick}`;
+      } else {
+        s = `${label}\n${body}`;
+      }
+    }
   }
-  if (/드로우|ドロー|\bdraw\b/i.test(s)) return "draw";
-  // 드로우 카드의 「돗테오키 효과」는 하늘색
-  const isDotte = o.desc === DOTTE_EFFECT || /돗테오키|とっておき|totteoki/i.test(s);
-  if (isDotte && /드로우|ドロー|\bdraw\b/i.test(cardDesc)) return "draw";
+  const kind = optionChipKindFromText(s, cardDesc);
+  if (kind !== "other") return kind;
+  // 돗테오키 효과 버튼: EN/JA 문구 미매칭으로 연노랑(other) 떨어지지 않게
+  if (bareDotte) return "totteoki";
+
+  // 플레이버 라벨(앨리스 등): 서포트 [스킬]/[Skill]/【スキル】 본문으로 재분류 (돗테오키 버튼에는 적용하지 않음)
+  const skillBody = (cardDesc.match(/\[(?:스킬|スキル|Skill|Summon)\]\s*([\s\S]*?)(?=\n\s*\[|\n\s*【|$)/i)
+    || cardDesc.match(/【(?:スキル|召喚)】\s*([\s\S]*?)(?=\n\s*【|$)/i)
+    || [])[1];
+  if (skillBody && skillBody.trim()) {
+    const sk = stripDeferredBattleEnd(skillBody, cardDesc);
+    if (sk) {
+      const fromSkill = optionChipKindFromText(sk, cardDesc);
+      if (fromSkill !== "other") return fromSkill;
+    }
+  }
+  return "other";
+}
+
+/** optionChipKind 본문 분류만 (라벨·효과 문자열 s 기준) */
+function optionChipKindFromText(s, cardDesc = "") {
+  s = stripDeferredBattleEnd(String(s || ""), cardDesc);
+  const healAoe = /광역\s*회복|全体回復|area\s*heal|광역.*회복|회복.*광역|全体.*回復|all[-\s]?heal|heal\s+to\s+all|all\s+allies|味方全体|아군\s*전체.*회복|회복.*아군\s*전체|全員回復/i.test(s)
+    || (/(?:광역|aoe|아군\s*전체|味方全体|\ball\s+allies\b)/i.test(s) && /회복|heal|回復|recover|리커버리|リカバリー/i.test(s));
+  const healSingle = /단일\s*회복|単体回復|single\s*heal|단일.*회복|회복.*단일|単体.*回復|heal\s+to\s+a\s+single|single\s+ally/i.test(s)
+    || (/단일|単体|single/i.test(s) && /회복|heal|回復|recover|리커버리|リカバリー/i.test(s))
+    || (/회복|heal|回復|recover|리커버리|リカバリー/i.test(s) && !healAoe);
+  const hasHeal = healAoe || healSingle;
+  const isCleanse = /상태이상\s*해제|状態異常を?(?:すべて)?解除|解除.*状態異常|clear\s+(?:all\s+)?abnormals|remove\s+(?:all\s+)?(?:status|abnormal)/i.test(s)
+    || (/(?:상태이상|状態異常|abnormals?)/i.test(s) && /해제|解除|clear|cleanse|remove/i.test(s));
+  const cleanseAoe = isCleanse && (
+    /(?:광역|아군\s*전체|味方全体|all\s+allies|from\s+all\s+allies|全体の状態異常)/i.test(s)
+    || /(?:아군\s*전체|味方全体|all\s+allies).{0,48}(?:상태이상|abnormal|状態異常)|(?:상태이상|abnormal|状態異常).{0,48}(?:아군\s*전체|味方全体|all\s+allies|全体)/i.test(cardDesc)
+  );
+  // EN "+2 draws" — \bdraw\b alone misses plural "draws"
+  const hasDraw = /드로우|ドロー|\bdraws?\b|カードを\s*(?:\d+\s*枚)?引|draw\s+cards?|\+\s*\d+\s*draws?/i.test(s)
+    || /크리에메이트\s*\([^)]*속성\)\s*를\s*패에|サーチ|(?:속성).{0,20}패에|패에.{0,20}(?:속성)|add\s+.*(?:attribute|creamate).*\s+to\s+(?:your\s+)?hand|手札に加/i.test(s)
+    || (/(?:불|물|바람|땅|해|달|어둠)\s*속성|火|水|風|地|陽|月|闇/i.test(s) && /패에\s*넣|手札/i.test(s));
+  const hasStatus = !isCleanse && /상태이상|状態異常|abnormals?|\bstatus\b|경직|硬直|load\s*factor|stiff|나약함|약화|弱体|weak(?:ness)?|침묵|沈黙|silence|혼란|混乱|confusion|불행|不幸|misfortune|unhappy|독|고립|孤立|isolat(?:e|ion)|수면|睡眠|\bsleep\b|속박|束縛|拘束|paralysis|\bbind\b|배고픔|空腹|hunger/i.test(s);
+  const hasAtk = /공격력|攻撃力|\batk\b|attack\s*power|공격\s*력|攻撃力を|攻撃力アップ|atk\s*up/i.test(s)
+    || (/통상\s*공격|通常攻撃|normal\s*attack/i.test(s)
+      && /(?:적\s*)?전체|全体|all\s+enemies|데미지|damage|횟수|回数|target(?:s)?\s+all/i.test(s));
+  const hasSummon = /배틀\s*존에\s*소환|バトルゾーンに召喚|summon\s+to\s+battle|battle\s*zone.*summon|소환.*배틀|バトル.*召喚/i.test(s)
+    || (/배틀\s*존|バトルゾーン|battle\s*zone/i.test(s) && /소환|召喚|summon/i.test(s));
+  // JA MT leftovers → treat as とっておきゲージ
+  const hasGauge = /돗테오키\s*게이지|とっておき(?:」)?ゲージ|totteoki\s*gauge|特選ゲージ|特技ゲージ|秘蔵ゲージ|必殺ゲージ|スペシャルゲージ|お宝ゲージ|秘策ゲージ|トッテオキゲージ|(?:^|[^ぁ-んァ-ヶ一-龯a-z])ゲージ\s*[+\-＋－]/i.test(s)
+    && (/[+\-＋－]|증가|감소|減ら|増や|increase|decrease|上昇|低下|\+\d|\-\d|ゲージ増加|ゲージ減少/i.test(s)
+      || /게이지를|ゲージを|gauge\s+by/i.test(s));
+  if (hasDraw) return "draw";
+  if (hasStatus) return "status";
+  if (hasAtk) return "atk";
+  if (hasSummon) return "summon";
+  if (hasGauge) return "gauge";
+  if (hasHeal || isCleanse) return (healAoe || cleanseAoe) ? "heal-aoe" : "heal-single";
   return "other";
 }
 

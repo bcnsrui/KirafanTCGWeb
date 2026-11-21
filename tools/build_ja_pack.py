@@ -1,5 +1,6 @@
 """Build data/ja/{cards,engine,puzzles}.json — JP names curated, effects MT + TCG terms.
 
+Card effects / engine strings / puzzle hints: KO→JA directly (never via English).
 MT backend: DeepL API (env DEEPL_AUTH_KEY or DEEPL_API_KEY).
 Put the key in KirafanWeb/.env (gitignored), e.g. DEEPL_AUTH_KEY=xxxx:fx
 Free keys end with :fx and use api-free.deepl.com automatically.
@@ -75,6 +76,7 @@ _SRC_LANG = {"en": "EN", "ko": "KO", "ja": "JA", "auto": None}
 
 # Official / wiki-style Japanese names (きらファン / 原作準拠)
 NAME_JA: dict[int, str] = {
+    10050011: "シュガー",  # wiki NamedList
     10050111: "きらら(召喚士カード)",
     10050112: "ランプ(召喚士カード)",
     10050113: "クレア(召喚士カード)",
@@ -96,10 +98,10 @@ NAME_JA: dict[int, str] = {
     10051321: "御庭つみき",
     10051322: "ファー",
     10051331: "ソーニャ",  # wiki: ソ+ー+ニ+ャ
-    10051332: "キョージュ(大道 雅)",
+    10051332: "キョージュ(大道 雅)",  # wiki NamedList: 大道 雅
     10051411: "烏丸さくら",
     10051421: "牛久花和",
-    10051431: "ココア",
+    10051431: "ココア",  # wiki NamedList
     10051511: "沙英",
     10051521: "大宮忍",
     10051531: "宮子",
@@ -123,16 +125,16 @@ NAME_JA: dict[int, str] = {
     10052432: "園田優",
     10052433: "中野梓",
     10052521: "緑へも",
-    10052531: "桐間紗路",
+    10052531: "桐間 紗路",
     10052621: "陽夏木ミカン",
-    10052631: "香風智乃",
+    10052631: "チノ",  # wiki NamedList
     10053111: "百木るん",
     10053121: "遠井成美",
     10053131: "千矢",
     10053211: "海凪ひより",
     10053221: "篠華 まゆ",
-    10053231: "リゼ",
-    10053311: "雨宮まゆ",
+    10053231: "リゼ",  # wiki NamedList
+    10053311: "雨宮 まゆ",
     10053321: "飯島ゆん",
     10053331: "折部やすな",
     10053332: "非運の人物？",
@@ -154,10 +156,10 @@ NAME_JA: dict[int, str] = {
     10054222: "一之瀬花名",
     10054311: "木ノ幡みら",
     10054312: "若狭悠里",
-    10054321: "かおす(萌田薫子)",
+    10054321: "かおす",  # wiki NamedList
     10054411: "棗ノノ",
     10054412: "小田切双葉",
-    10054421: "宇治松千夜",
+    10054421: "千夜",  # wiki NamedList
     10054512: "奈津恵",
     10054521: "ゆの",
     10054522: "里中千枝",
@@ -165,31 +167,28 @@ NAME_JA: dict[int, str] = {
     10054524: "関谷なる",
     10054611: "真中蒼",
     10054621: "布田 裕美音",
-    10054622: "シャミ子(吉田優子)",
+    10054622: "シャミ子",  # wiki NamedList; 吉田 優子
     10055111: "町子リョウ",
     10055112: "闇のアリス・カータレット",
     10055113: "不思議の国のアリス・カータレット",
     10055114: "榎並清瀬",
     10055211: "高山春香",
-    10055212: "吉田優子",  # リリス側表記差あり → リリスママ表記は別
-    10055213: "小野寺小春",
-    10055221: "桜ノ宮苺香",
-    10055222: "山口綺羅星",
+    10055212: "リリス",  # wiki NamedList (吉田涼子 / Lilith)
+    10055213: "小野坂 こはる",  # wiki NamedList (not 小野寺)
+    10055221: "桜ノ宮 苺香",
+    10055222: "山口 如月",  # wiki NamedList
     10055311: "色川琉姫",
     10055312: "天王寺渚",
     10055411: "葉山照",
     10055421: "二条臣",
-    10055511: "おかあさん(松本頼子)",
-    10055512: "百地たまて",
-    10055513: "ハナ・N・フォンテーンスタンド",
+    10055511: "おかあさん",  # wiki-ish; 松本 頼子
+    10055512: "百地 たまて",
+    10055513: "ハナ・Ｎ・フォンテーンスタンド",  # wiki NamedList
     10055611: "狭山 椿",
-    10055612: "花小泉杏",
-    10055621: "有馬ひづめ",
+    10055612: "花小泉 杏",
+    10055621: "有馬 ひづめ",
     10055622: "クロ",
 }
-
-# 55212 is 吉田涼子 (Lilith) not Yuuko - fix
-NAME_JA[10055212] = "吉田涼子"
 
 SERIES_JA = {
     "키라라 판타지아": "きららファンタジア",
@@ -244,6 +243,7 @@ TERM_EN_JA = [
     (r"\bSanctuary\b", "聖典"),
     (r"\bVillage\b", "里"),
     (r"\bCastle Stones?\b", "城石"),
+    (r"\bStarlight Stones?\b", "城石"),
     (r"\bBattle Phase\b", "バトルフェイズ"),
     (r"\bMain Phase\b", "メインフェイズ"),
     (r"\bStandby Phase\b", "スタンバイフェイズ"),
@@ -252,7 +252,9 @@ TERM_EN_JA = [
     (r"\bTrue Hand\b", "真実の手"),
     (r"\bbasic attack\b", "通常攻撃"),
     (r"\bnormal attack\b", "通常攻撃"),
-    (r"\[Summon\]", "【召喚】"),
+    (r"\[Skill\]", "【スキル】"),
+    (r"\[Summon\]", "【スキル】"),  # legacy EN support-skill header
+    (r"\[When Summoned\]", "[登場]"),
     (r"\[Totteoki Gauge (\d+)\]", r"【とっておきゲージ\1】"),
     (r"\bATK\b", "攻撃力"),
     (r"\bHP\b", "体力"),
@@ -313,6 +315,24 @@ TERM_KO_JA = [
     ("아군 전체", "味方全体"),
     ("아군단일", "味方単体"),
     ("아군전체", "味方全体"),
+    ("[패시브]", "【パッシブ】"),
+    ("[스킬]", "【スキル】"),
+    ("[등장]", "[登場]"),
+    ("선택 효과", "1つ選択"),
+    ("추가 경직", "追加硬直"),
+    ("불 속성", "火属性"),
+    ("물 속성", "水属性"),
+    ("땅 속성", "土属性"),
+    ("바람 속성", "風属性"),
+    ("해 속성", "日属性"),
+    ("달 속성", "月属性"),
+    ("전사", "戦士"),
+    ("마법사", "魔法使い"),
+    ("나이트", "ナイト"),
+    ("승려", "僧侶"),
+    ("알케미스트", "アルケミスト"),
+    ("상태이상", "状態異常"),
+    ("드로우", "ドロー"),
 ]
 
 # TCG-style leftovers → Kirafan wiki terms + wiki.kirafan.moe NamedList fixes
@@ -332,13 +352,65 @@ TERM_JA_CLEANUP = [
     ("保登ココア", "ココア"),
     ("天々座理世", "リゼ"),
     ("大道寺美弥", "大道 雅"),
+    ("小野寺小春", "小野坂 こはる"),
+    ("山口綺羅星", "山口 如月"),
+    ("香風智乃", "チノ"),
+    ("桐間紗路", "桐間 紗路"),
+    ("アリス・カーターレット", "アリス・カータレット"),
+    ("カーターレット", "カータレット"),
+    ("カルテレ【パッシブ】ト", "カータレット"),
+    ("カルテレット", "カータレット"),
+    ("トッテオキゲージ", "とっておきゲージ"),
+    ("トッテオキ・ゲージ", "とっておきゲージ"),
+    ("トッテオキゾーン", "とっておきゾーン"),
+    ("トッテオキ・ゾーン", "とっておきゾーン"),
+    ("トッテキゲージ", "とっておきゲージ"),
+    ("トッテキゾーン", "とっておきゾーン"),
+    ("トッテオキ", "とっておき"),
+    ("ヴィレッジ", "里"),
+    ("Village", "里"),
+    ("スティフ", "硬直"),
+    ("クリームメイト", "クリエメイト"),
+    ("クリーメート", "クリエメイト"),
+    ("クリーメイト", "クリエメイト"),
+    ("ナイト・クリエメイト", "ナイトのクリエメイト"),
+    ("メイジ・クリエメイト", "魔法使いのクリエメイト"),
+    ("ワンダーランド・アリス・カータレット", "不思議の国のアリス・カータレット"),
+    ("ダークネス・アリス・カータレット", "闇のアリス・カータレット"),
+    ("秘策ゲージ", "とっておきゲージ"),
+    ("秘策ゾーン", "とっておきゾーン"),
+    ("特選ゲージ", "とっておきゲージ"),
+    ("特技ゲージ", "とっておきゲージ"),
+    ("秘蔵ゲージ", "とっておきゲージ"),
+    ("必殺ゲージ", "とっておきゲージ"),
+    ("必殺ゾーン", "とっておきゾーン"),
+    ("必殺効果", "とっておき効果"),
+    ("必殺技", "とっておき"),
+    ("スペシャルゲージ", "とっておきゲージ"),
+    ("お宝ゲージ", "とっておきゲージ"),
+    ("お宝効果", "とっておき効果"),
+    ("お宝ゾーン", "とっておきゾーン"),
+    ("トッテオキゲージ", "とっておきゲージ"),
+    ("トッテオキ・ゲージ", "とっておきゲージ"),
+    ("秘策", "とっておき"),
+    ("必殺", "とっておき"),
+    ("【「とっておきゾーン」に送られたとき】", "【とっておきゾーンに送られたとき】"),
+    ("[「とっておきゾーン」に送られたとき]", "【とっておきゾーンに送られたとき】"),
+    ("【「とっておき」ゾーンに送られたとき】", "【とっておきゾーンに送られたとき】"),
+    ("[「とっておき」ゾーンに送られたとき]", "【とっておきゾーンに送られたとき】"),
+    ("「とっておき」ゲージ", "とっておきゲージ"),
+    ("「とっておき」 ゲージ", "とっておきゲージ"),
+    ("「とっておき」ゾーン", "とっておきゾーン"),
+    ("お気に入りゾーン", "とっておきゾーン"),
 ]
 
 
 def apply_terms(text: str, pairs: list[tuple[str, str]]) -> str:
+    """Apply glossary pairs. Regex only when pattern uses escapes (\\b, \\[, \\d, …)."""
     out = text
     for a, b in pairs:
-        if a.startswith("\\") or "[" in a or "\\b" in a:
+        # Literal "[패시브]" must NOT become a character class.
+        if "\\b" in a or "\\d" in a or "\\[" in a or "\\]" in a or a.startswith("\\"):
             out = re.sub(a, b, out, flags=re.IGNORECASE)
         else:
             out = out.replace(a, b)
@@ -407,27 +479,47 @@ def translate_batch(texts: list[str], src: str = "en") -> list[str]:
 
 
 def build_cards() -> None:
+    """KO → JA directly (do not route through English)."""
     ko = json.loads((ROOT / "data/cards.json").read_text(encoding="utf-8"))
-    en_by_id = {c["id"]: c for c in json.loads((ROOT / "data/en/cards.json").read_text(encoding="utf-8"))["cards"]}
 
     missing = [c["id"] for c in ko["cards"] if c["id"] not in NAME_JA]
     if missing:
         raise SystemExit(f"Missing JA names for: {missing}")
 
-    descs_en = []
+    ko_name_by_id = {c["id"]: c["name"] for c in ko["cards"]}
+    prepared: list[str] = []
     for c in ko["cards"]:
-        e = en_by_id[c["id"]]
-        descs_en.append(e.get("desc") or "")
+        desc = c.get("desc") or ""
+        # quoted card-name refs → wiki JA names before MT
+        for kid, kn in ko_name_by_id.items():
+            jn = NAME_JA[kid]
+            if not kn:
+                continue
+            desc = desc.replace(f'"{kn}"', f'「{jn}」').replace(f"'{kn}'", f"「{jn}」")
+        # Lock effect headers before MT
+        desc = re.sub(
+            r"\[돗테오키 게이지\s*(\d+)\s*,\s*추가 경직\s*(\d+)\s*장?\]",
+            r"【とっておきゲージ\1、追加硬直\2】",
+            desc,
+        )
+        desc = re.sub(r"\[돗테오키 게이지\s*(\d+)\]", r"【とっておきゲージ\1】", desc)
+        desc = desc.replace("[돗테오키 존으로 보내졌을 때]", "【とっておきゾーンに送られたとき】")
+        desc = desc.replace("[자신 배틀 페이즈 개시시]", "【自分のバトルフェイズ開始時】")
+        prepared.append(apply_terms(desc, TERM_KO_JA))
 
-    print(f"Translating {len(descs_en)} card texts EN→JA…")
-    descs_ja = translate_batch(descs_en, "en")
+    print(f"Translating {len(prepared)} card texts KO→JA…")
+    descs_ja = translate_batch(prepared, "ko")
 
     cards = []
     for c, desc_raw in zip(ko["cards"], descs_ja):
-        e = en_by_id[c["id"]]
-        desc = apply_terms(desc_raw or "", TERM_EN_JA)
-        desc = apply_terms(desc, [(a, b) for a, b in TERM_KO_JA])  # leftover
+        desc = apply_terms(desc_raw or "", TERM_KO_JA)  # leftover Korean
         desc = apply_ja_cleanup(desc)
+        desc = re.sub(
+            r"【とっておきゲージ\s*(\d+)\s*[,、]\s*追加硬直\s*(\d+)\s*(?:장|枚)?】",
+            r"【とっておきゲージ\1、追加硬直\2】",
+            desc,
+        )
+        desc = re.sub(r"【とっておきゲージ\s*(\d+)\s*】", r"【とっておきゲージ\1】", desc)
         card = dict(c)
         card["name"] = NAME_JA[c["id"]]
         card["desc"] = desc
@@ -442,42 +534,58 @@ def build_cards() -> None:
 
 
 def build_engine() -> None:
-    en = json.loads((ROOT / "data/en/engine.json").read_text(encoding="utf-8"))
-    cards = en.get("cards") or {}
-    # collect strings to translate
-    jobs: list[tuple[str, str, int | None]] = []  # (card_id, field, str_index or None for name)
+    """KO → JA directly for engine card strings (do not route through English)."""
+    ko = json.loads((ROOT / "data/engine.json").read_text(encoding="utf-8"))
+    prev_ja = {}
+    prev_path = OUT / "engine.json"
+    if prev_path.is_file():
+        prev_ja = json.loads(prev_path.read_text(encoding="utf-8"))
+
+    cards_out: dict = {}
+    jobs: list[tuple[str, str, int | None]] = []
     texts: list[str] = []
-    for cid, info in cards.items():
-        name = info.get("name") or ""
-        # map name if known id
+    for cid, info in (ko.get("cards") or {}).items():
+        # Keep atk/def/level/type/race/attribute/setcode from KO; only localize name/strings.
+        entry = dict(info)
+        entry["strings"] = list(info.get("strings") or [])
         try:
             iid = int(cid)
         except ValueError:
             iid = None
         if iid in NAME_JA:
-            info["name"] = NAME_JA[iid]
+            entry["name"] = NAME_JA[iid]
         else:
-            # Sugar boss etc.
-            jobs.append((cid, "name", None))
-            texts.append(name)
-        for i, s in enumerate(info.get("strings") or []):
+            if (entry.get("name") or "").strip():
+                jobs.append((cid, "name", None))
+                texts.append(apply_terms(entry["name"], TERM_KO_JA))
+        for i, s in enumerate(entry["strings"]):
             if s and s.strip():
                 jobs.append((cid, "strings", i))
-                texts.append(s)
+                texts.append(apply_terms(s, TERM_KO_JA))
+        cards_out[cid] = entry
 
-    print(f"Translating {len(texts)} engine strings EN→JA…")
-    translated = translate_batch(texts, "en")
+    print(f"Translating {len(texts)} engine strings KO→JA…")
+    translated = translate_batch(texts, "ko") if texts else []
     ti = 0
     for cid, field, idx in jobs:
-        val = apply_ja_cleanup(apply_terms(translated[ti], TERM_EN_JA))
+        val = apply_ja_cleanup(apply_terms(translated[ti], TERM_KO_JA))
         ti += 1
         if field == "name":
-            cards[cid]["name"] = val
+            cards_out[cid]["name"] = val
         else:
-            cards[cid]["strings"][idx] = val
+            cards_out[cid]["strings"][idx] = val
 
-    en["cards"] = cards
-    (OUT / "engine.json").write_text(json.dumps(en, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    # Keep prior JA-only token cards if still referenced
+    for cid, info in (prev_ja.get("cards") or {}).items():
+        if cid not in cards_out:
+            cards_out[cid] = info
+
+    out = {
+        "cards": cards_out,
+        # Prefer existing JA system if present; else keep KO system untouched
+        "system": prev_ja.get("system") or {},
+    }
+    (OUT / "engine.json").write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"Wrote {OUT / 'engine.json'}")
 
 
