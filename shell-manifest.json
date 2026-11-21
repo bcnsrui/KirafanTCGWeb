@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-21T13:55:53Z",
+  "generatedAt": "2026-11-21T14:04:47Z",
   "files": {
     "admin.html": {
       "sha256": "c14bc46d02f56967b1a1e327de9326925781fb4cb4f1d8cb675b78af37afc05c",
@@ -19,8 +19,8 @@
       "size": 9784
     },
     "index.html": {
-      "sha256": "976bf26784fc8d960dcb8c44a940e7d514902217d6bc941166c78e72aaf29204",
-      "size": 9203
+      "sha256": "880d9d1047b462014b4e938181259675c371870349cc438f193bc492424e004a",
+      "size": 9288
     },
     "puzzle.html": {
       "sha256": "460294b0bffb09345e8ccfad03e726d97f2e3ea22ff10352f229ae1dcd523477",
@@ -91,8 +91,8 @@
       "size": 13253
     },
     "js/config.js": {
-      "sha256": "f9a9e13ec6b96cb113518500b9f1855180a13311ca3dec308a8bfc23052a14e3",
-      "size": 4983
+      "sha256": "fa9968fc9d44c1415d8b724efcc9b6aa06413a155ae121ed5299ae56cd6130db",
+      "size": 5060
     },
     "js/deck.js": {
       "sha256": "1f3221e59034be9f951c79b156c16f66b84d66ba73e2415be580194cbca5e846",

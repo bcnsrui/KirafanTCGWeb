@@ -87,7 +87,10 @@ export const GOOGLE_CLIENT_ID = stored("googleClientId", "");
  * Windows exe installer / portable download (Google Drive etc.).
  * Empty: header icon shows “준비 중”. Set via localStorage exeDownloadUrl or this default.
  */
-export const EXE_DOWNLOAD_URL = stored("exeDownloadUrl", "");
+export const EXE_DOWNLOAD_URL = stored(
+  "exeDownloadUrl",
+  "https://drive.google.com/file/d/1BkiTL3xN3DjB5HfVcJloLyeFLlhKG7BB/view",
+);
 
 /** Resolve a manifest path (e.g. data/cards.json, pics/10051111.jpg, sound/BGM/…) to a fetch URL. */
 export function assetUrl(relPath, source) {
