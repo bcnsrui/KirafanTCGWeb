@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-21T14:22:49Z",
+  "generatedAt": "2026-11-21T14:28:21Z",
   "files": {
     "admin.html": {
       "sha256": "c14bc46d02f56967b1a1e327de9326925781fb4cb4f1d8cb675b78af37afc05c",
@@ -87,8 +87,8 @@
       "size": 7342
     },
     "js/boot.js": {
-      "sha256": "db459cfe0e22214a6cd5d61512e7e90d0be089b8deca7de0a2f395b0aacf59d9",
-      "size": 13253
+      "sha256": "29df3258af08058234c1caab5ec017ce46d8fbf3445dc1b9de1d8dde5875cec2",
+      "size": 13634
     },
     "js/config.js": {
       "sha256": "fa9968fc9d44c1415d8b724efcc9b6aa06413a155ae121ed5299ae56cd6130db",
@@ -203,8 +203,8 @@
       "size": 405
     },
     "js/update.js": {
-      "sha256": "efb77ed4e42250250efc42f57f4f7e8bf62fe0c8fc20aa17ced24aba50d95516",
-      "size": 21594
+      "sha256": "d2a64c4af555af3dc95a6b2fbda0107eb0d9a67294bfecbfdc5c82c80483aae3",
+      "size": 21832
     },
     "js/ai/agent.js": {
       "sha256": "ebf4efebf298a89ef42e5de23388698515334cd37644f844239aea08460b9ed3",

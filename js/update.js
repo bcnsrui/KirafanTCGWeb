@@ -554,9 +554,19 @@ export async function checkAndApplyShellUpdates(onProgress) {
   });
 }
 
-/** Switch the webview to the on-disk www/ overlay (custom protocol). */
+/** Switch the webview to the on-disk www/ overlay (custom protocol).
+ *  Already on disk shell: hard-reload so freshly written www/ files take effect. */
 export async function reloadToDiskShell() {
-  if (!isTauri() || isDiskShell()) return false;
+  if (!isTauri()) return false;
+  if (isDiskShell()) {
+    try {
+      location.reload();
+      return true;
+    } catch (err) {
+      console.warn("disk shell reload", err);
+      return false;
+    }
+  }
   try {
     return !!(await invoke("reload_to_disk_shell"));
   } catch (err) {

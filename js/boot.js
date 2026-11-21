@@ -224,11 +224,20 @@ export async function runBootSequence() {
           if (info.total) setProgress(Math.min(25, (info.index / info.total) * 25));
         }
       });
-      if (shell.needReload && !isDiskShell()) {
+      // Apply www/ changes: first switch to disk overlay, or hard-reload if already on it.
+      // (Previously skipped reload when isDiskShell — updates sat on disk unused.)
+      if (shell.needReload || (shell.updated | 0) > 0) {
         $("boot-status").textContent = shell.message || t("boot.checking");
-        $("boot-detail").textContent = "껍데기 적용 중…";
+        $("boot-detail").textContent = isDiskShell()
+          ? "껍데기 갱신 적용 중…"
+          : "껍데기 디스크 오버레이로 전환…";
         const ok = await reloadToDiskShell();
-        if (ok) return { status: "reload", message: "껍데기 디스크 오버레이로 전환" };
+        if (ok) {
+          return {
+            status: "reload",
+            message: isDiskShell() ? "껍데기 갱신 적용" : "껍데기 디스크 오버레이로 전환",
+          };
+        }
       }
     } catch (err) {
       console.warn("shell sync", err);

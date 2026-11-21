@@ -53,6 +53,14 @@ export function setupSideLang() {
     const next = setLang(btn.dataset.lang);
     syncSettingsLangButtons(root);
     if (next !== prev) {
+      // 멀티 대전 중 언어 변경: 새로고침 복구 플래그 (game.js softResume 과 동일)
+      try {
+        const room = new URLSearchParams(location.search).get("room");
+        if (room) {
+          sessionStorage.setItem("kirafan.pvp.softResume", String(room));
+          sessionStorage.setItem("kirafan.pvp.langReload", String(room));
+        }
+      } catch { /* ignore */ }
       toast(next === "en" ? t("toast.langEn") : next === "ja" ? t("toast.langJa") : t("toast.langKo"));
       setTimeout(() => location.reload(), 450);
     } else {

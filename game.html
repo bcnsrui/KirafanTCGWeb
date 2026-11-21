@@ -9,7 +9,7 @@
   <title data-i18n="app.title">대전 - 키라라 판타지아 카드게임</title>
   <link rel="stylesheet" href="css/style.css?v=w28">
   <link rel="stylesheet" href="css/deck.css?v=48">
-  <link rel="stylesheet" href="css/game.css?v=flagLang3">
+  <link rel="stylesheet" href="css/game.css?v=awayWait1">
 </head>
 <body class="window-theme window-theme-fill">
   <div id="duel-background" aria-hidden="true"></div>
@@ -20,7 +20,8 @@
       <img id="preview" class="preview" alt="" src="">
       <div class="tabs">
         <button class="tab active" data-tab="info" data-i18n="game.cardInfo">카드 정보</button>
-        <button class="tab" data-tab="log" data-i18n="game.logChat">기록 · 대화</button>
+        <button class="tab" data-tab="log" data-i18n="game.tabLog">기록</button>
+        <button class="tab" data-tab="chat" id="tab-chat" data-i18n="game.tabChat">채팅</button>
         <button class="tab" data-tab="settings" data-i18n="game.settings">설정</button>
         <span class="text-size">
           <button class="size-button" id="text-smaller" data-i18n="common.textSizeMinus" data-i18n-title="common.textSmaller" title="글자 작게">가-</button>
@@ -29,8 +30,11 @@
         </span>
       </div>
       <div class="tab-page card-info panel" id="card-info" data-page="info"></div>
-      <div class="tab-page panel feed chat" id="feed" data-page="log" hidden>
+      <div class="tab-page panel feed" id="feed" data-page="log" hidden>
         <ol id="duel-log"></ol>
+      </div>
+      <div class="tab-page panel feed chat" id="chat-feed" data-page="chat" hidden>
+        <ol id="duel-chat"></ol>
         <input id="chat-input" class="field" maxlength="120" data-i18n-placeholder="game.chatPlaceholder" placeholder="메시지를 입력하고 Enter">
       </div>
       <div class="tab-page panel settings" data-page="settings" hidden>
@@ -163,7 +167,7 @@
   <!-- a creamate on its way from a hand to its place (playFlights) -->
   <div class="fly" id="fly" aria-hidden="true"></div>
 
-  <script type="module" src="js/game.js?v=starlightStones2"></script>
+  <script type="module" src="js/game.js?v=langTab1"></script>
   <script type="module" src="js/presence.js?v=1"></script>
 </body>
 </html>

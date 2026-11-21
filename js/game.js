@@ -3,7 +3,7 @@ import {
   ATTRIBUTE_ICONS, aiRecipeLabel, loadAiDecks, loadCards, setupTextSize, writeCardInfo,
 } from "./decks.js";
 import { newDuel, describe } from "./engine/index.js?v=standby2";
-import { K, NOOP_DESCS } from "./engine/flow.js?v=standby2";
+import { DuelEnd, K, NOOP_DESCS } from "./engine/flow.js?v=standby2";
 import { puzzlePlayer, simplePlayer, SANCTUARY_HINT, SANCTUARY_ONE_HINT } from "./engine/players.js?v=hp2";
 import { modelPlayer } from "./ai/agent.js";
 import { loadSounds, playBgm, playCue, setVolume, voice, volume } from "./sound.js?v=9";
@@ -11,14 +11,16 @@ import { FORMAT, deleteReplay, diff, getReplay, saveReplay, unpack } from "./rep
 import { makeMatchRecord, submitMatchRecord } from "./records.js";
 import { API_BASE } from "./config.js";
 import {
-  beaconPvpResign, clearPvpDuel, createResignGate, fetchPvpDuel, initPvpDuel, lockstepPlayers, OppResignedError,
-  postPvpCoin, postPvpResign, seededRng, waitPvpCoin, waitPvpInit, watchPvpResign,
-} from "./pvp.js";
+  answersArrayFromDuel, beaconClearRoom, beaconPvpAway, beaconPvpResign, clearPvpDuel, createResignGate,
+  fetchPvpDuel, initPvpDuel, lockstepPlayers, lockstepSpectator, OppResignedError, postPvpAnswer, postPvpChat,
+  postPvpCoin, postPvpResign, postPvpResume, seededRng, waitPvpCoin, waitPvpInit, watchPvpChat,
+  watchPvpPresence,
+} from "./pvp.js?v=awayNick1";
 import { deleteRoom, fetchRooms } from "./lobby-rooms.js";
 import { currentNick, loadMatchData, saveMatch } from "./match-store.js";
 import { getLang, puzzlesDataUrl } from "./lang.js";
-import { setupSideLang } from "./side-settings.js";
-import { applyI18n, t } from "./ui-i18n.js?v=i18n43";
+import { setupSideLang } from "./side-settings.js?v=langReload1";
+import { applyI18n, t } from "./ui-i18n.js?v=i18n47";
 import { loadJson, mediaUrl } from "./local-assets.js?v=4";
 import { bindBoardFit, fitFieldContent } from "./stage-scale.js?v=14";
 import { clearLocalDevCaches } from "./dev-cache.js?v=4";
@@ -150,6 +152,8 @@ const LAST_ALCHEMISTS = 3;
 const lastAlchemist = [[], []];    // per player the codes of the alchemists whose 돗테오키 존 effect came last (newest first)
 let entering = null;       // the player whose summoner comes out in this drawing
 let replaying = false;     // the page shows a saved game (game.html?replay=<id>) instead of playing one
+/** PvP 관전: 양 손패를 뒷면으로 (필드만 공개) */
+let spectateMode = false;
 /** 개막 성전 4장: 양쪽이 다 고를 때까지 성전 내용·로그를 숨긴다 (먼저 고른 쪽이 불리하지 않게) */
 let concealOpeningSanctuary = false;
 let pendingSanctuaryLogs = [];   // conceal 중 flushSanctuary 보류분
@@ -1076,8 +1080,12 @@ function draw(state, { fx = true, speed = 1, ahead = null } = {}) {
   requestAnimationFrame(() => fitFieldContent());
   if (pileSections) pileSections();
   document.getElementById("op-hand").replaceChildren(...state.op.hand.map(() => back("op", state.op.summoner)));
-  document.getElementById("my-hand").replaceChildren(...state.me.hand.map((c) => leveled(c.code, c)));
-  handArrivals(fx ? before : null, state, speed);
+  document.getElementById("my-hand").replaceChildren(
+    ...(spectateMode
+      ? state.me.hand.map(() => back("me", state.me.summoner))
+      : state.me.hand.map((c) => leveled(c.code, c))),
+  );
+  if (!spectateMode) handArrivals(fx ? before : null, state, speed);
   playFlights(from && before, state, speed, from, ahead);
   const turnBox = document.getElementById("turn-box") || document.querySelector(".turn-box");
   const whoTurn = state.turnPlayer === "me" ? t("game.myTurn") : t("game.oppTurn");
@@ -1995,6 +2003,7 @@ function hideWaitingPrompt() {
 /** 대기/선택 프롬프트를 강제로 닫아 보드가 가려지지 않게 합니다. */
 function clearPromptOverlay() {
   hideOppWaitNotice(true);
+  hideOppAwayNotice();
   const box = document.getElementById("prompt");
   if (!box) return;
   box.hidden = true;
@@ -2019,11 +2028,13 @@ function showOppWaitNotice() {
     box.id = "opp-wait";
     const body = el("div", "notice-text");
     const line = el("span", "opp-wait-line");
-    line.append(document.createTextNode(t("duel.waitOpp")), el("span", "opp-wait-dots", "."));
+    line.append(el("span", "opp-wait-text", ""), el("span", "opp-wait-dots", "."));
     body.append(line);
     box.append(body);
     host.prepend(box);
   }
+  const waitText = box.querySelector(".opp-wait-text");
+  if (waitText) waitText.textContent = t("duel.waitOpp");
   box.hidden = false;
   box.removeAttribute("hidden");
   const dots = box.querySelector(".opp-wait-dots");
@@ -2047,6 +2058,73 @@ function hideOppWaitNotice(force = false) {
     box.hidden = true;
     box.setAttribute("hidden", "");
   }
+}
+
+/** 상대 탭 종료/이탈 — 재입장 대기 + (플레이어만) 승리하고 나가기 */
+let oppAwayDotsTimer = 0;
+let oppAwayClaim = null; // async () => void
+
+function hideOppAwayNotice() {
+  clearInterval(oppAwayDotsTimer);
+  oppAwayDotsTimer = 0;
+  oppAwayClaim = null;
+  const wrap = document.getElementById("opp-away-wrap");
+  if (wrap) {
+    wrap.hidden = true;
+    wrap.setAttribute("hidden", "");
+  }
+}
+
+function showOppAwayNotice({ canClaim = false, onClaim = null } = {}) {
+  const host = document.getElementById("notices");
+  if (!host) return;
+  hideOppWaitNotice(true);
+  let wrap = document.getElementById("opp-away-wrap");
+  if (!wrap) {
+    wrap = el("div", "opp-away-wrap");
+    wrap.id = "opp-away-wrap";
+    const box = el("div", "notice panel opp-wait opp-away");
+    box.id = "opp-away";
+    const body = el("div", "notice-text");
+    body.append(el("div", "opp-away-title", ""));
+    const line = el("span", "opp-wait-line opp-away-line");
+    line.append(el("span", "opp-away-wait-text", ""), el("span", "opp-wait-dots", "."));
+    body.append(line);
+    box.append(body);
+    const claim = el("button", "menu-button small opp-away-claim");
+    claim.type = "button";
+    claim.id = "opp-away-claim";
+    claim.addEventListener("click", () => {
+      if (claim.disabled) return;
+      claim.disabled = true;
+      const fn = oppAwayClaim;
+      if (fn) void Promise.resolve(fn()).catch((err) => console.warn(err));
+    });
+    wrap.append(box, claim);
+    host.prepend(wrap);
+  }
+  // 항상 이 탭 언어로 갱신 (다른 탭 setLang 과 무관)
+  const title = wrap.querySelector(".opp-away-title");
+  const waitText = wrap.querySelector(".opp-away-wait-text");
+  if (title) title.textContent = t("duel.oppLeft");
+  if (waitText) waitText.textContent = t("duel.oppRejoinWait");
+  const claimBtn = wrap.querySelector("#opp-away-claim");
+  if (claimBtn) {
+    claimBtn.hidden = !canClaim;
+    claimBtn.disabled = !canClaim;
+    claimBtn.textContent = t("duel.claimWinExit");
+  }
+  oppAwayClaim = canClaim ? onClaim : null;
+  wrap.hidden = false;
+  wrap.removeAttribute("hidden");
+  const dots = wrap.querySelector(".opp-wait-dots");
+  let n = 1;
+  if (dots) dots.textContent = ".";
+  clearInterval(oppAwayDotsTimer);
+  oppAwayDotsTimer = setInterval(() => {
+    n = (n % 3) + 1;
+    if (dots) dots.textContent = ".".repeat(n);
+  }, 450);
 }
 
 /** the Korean particle after a name: 이/가, 을/를 by whether its last syllable ends in a consonant (a last digit
@@ -2506,8 +2584,10 @@ function matchFromRoom(remoteMatch, nick, roomId) {
   const oppKey = remoteMatch.host === nick ? remoteMatch.opp : remoteMatch.host;
   const theirs = remoteMatch.players[oppKey];
   if (!mine || !theirs) return null;
+  const vsAi = !!remoteMatch.vsAi;
   return {
-    pvp: remoteMatch.pvp === true || (!remoteMatch.vsAi && !!remoteMatch.host && !!remoteMatch.opp),
+    pvp: remoteMatch.pvp === true || (!vsAi && !!remoteMatch.host && !!remoteMatch.opp),
+    vsAi,
     roomId: remoteMatch.roomId || roomId,
     matchId: remoteMatch.matchId || "",
     host: remoteMatch.host,
@@ -2542,9 +2622,38 @@ async function loadMatch() {
     try {
       const rooms = await fetchRooms();
       let room = roomId ? rooms.find((r) => String(r.id) === String(roomId)) : null;
+      const wantSpectate = params.get("spectate") === "1";
       // URL room 이 옛 값이거나 비면, 이 닉이 들어 있는 게임중 방으로 복구
       if (!room?.match) {
-        room = rooms.find((r) => r.status === "게임중" && r.match?.players?.[nick]) || null;
+        room = rooms.find((r) => {
+          if (r.status !== "게임중" || !r.match) return false;
+          if (r.match.players?.[nick]) return true;
+          if (wantSpectate && (r.spectators || []).includes(nick)) return true;
+          return false;
+        }) || null;
+      }
+      if (wantSpectate && room?.match?.host && room.match.opp) {
+        const hostPack = room.match.players?.[room.match.host];
+        const oppPack = room.match.players?.[room.match.opp];
+        if (hostPack && oppPack) {
+          const fromServer = {
+            pvp: !room.match.vsAi,
+            vsAi: !!room.match.vsAi,
+            spectate: true,
+            roomId: room.id || roomId,
+            matchId: room.match.matchId || "",
+            host: room.match.host,
+            opp: room.match.opp,
+            localNick: nick,
+            players: room.match.players,
+            level: room.match.level || 4,
+            bot: room.match.bot || "",
+            me: hostPack,
+            ai: oppPack,
+          };
+          saveMatch(fromServer, nick);
+          return fromServer;
+        }
       }
       const fromServer = matchFromRoom(room?.match, nick, room?.id || roomId);
       if (fromServer) {
@@ -2560,7 +2669,7 @@ async function loadMatch() {
   if (match && match.me && match.ai) {
     if (nick && !match.localNick) match.localNick = nick;
     if (roomId && !match.roomId) match.roomId = roomId;
-    if (match.roomId && match.host) match.pvp = true;
+    if (match.roomId && match.host && !match.vsAi) match.pvp = true;
     return match;
   }
   const { bots, decks } = await loadAiDecks(cards);
@@ -2774,6 +2883,7 @@ async function clearMatchRoom(match, { keepDuel = false } = {}) {
 async function finishMatch(match, { pvp = false } = {}) {
   menu = null;
   hideOppWaitNotice(true);
+  hideOppAwayNotice();
   render();
   const winner = duel.winner;
   if (winner === me || winner === 1 - me) playBgm(winner === me ? "win" : "lose");
@@ -2782,9 +2892,10 @@ async function finishMatch(match, { pvp = false } = {}) {
   const text = surrenderedWin ? WIN_REASONS.surrender : endDetailText(duel, me);
   surrendering = null;
   log(`${title}${text ? ` - ${text.replace(/\n/g, " ")}` : ""}`);
-  await clearMatchRoom(match);
   const fromRoom = !!match?.roomId;
+  // 방 삭제 전에 리플레이·전적 저장
   const id = await keepReplay(match, title.replace("!", "").replace("！", ""));
+  await clearMatchRoom(match);
   const left = Number(new URLSearchParams(location.search).get("auto")) || 0;
   if (AUTO && left > 0) {
     if (duel.turn <= 2 && id) await deleteReplay(id);
@@ -2866,29 +2977,115 @@ function hostFirstFromChooser(match, chooser, chooserGoesFirst) {
 }
 
 const PVP_LIVE_KEY = "kirafan.pvp.live";
-let pvpUnloadResign = null; // { roomId, nick } — 새로고침·탭 닫기 = 항복
+const PVP_LANG_RELOAD_KEY = "kirafan.pvp.langReload";
+const PVP_SOFT_RESUME_KEY = "kirafan.pvp.softResume";
+/** @type {{ roomId: string, nick: string, clearRoom?: boolean, clearDuel?: boolean, match?: any } | null} */
+let pvpUnloadResign = null; // 탭 닫기=항복 / 새로고침=softResume 후 복구
+/** 언어 변경·새로고침 재접속 중: 효과음/대기 UI 생략 */
+let pvpCatchingUp = false;
 
-function armPvpUnloadResign(roomId, nick) {
-  pvpUnloadResign = { roomId: String(roomId), nick: nick || "" };
+function armPvpUnloadResign(roomId, nick, { clearRoom = true, clearDuel = false, match = null } = {}) {
+  pvpUnloadResign = {
+    roomId: String(roomId),
+    nick: nick || "",
+    clearRoom: clearRoom !== false,
+    clearDuel: !!clearDuel,
+    match: match || null,
+  };
   try { sessionStorage.setItem(PVP_LIVE_KEY, String(roomId)); } catch { /* ignore */ }
 }
 
 function disarmPvpUnloadResign() {
   pvpUnloadResign = null;
   try { sessionStorage.removeItem(PVP_LIVE_KEY); } catch { /* ignore */ }
+  try { sessionStorage.removeItem(PVP_SOFT_RESUME_KEY); } catch { /* ignore */ }
+  try { sessionStorage.removeItem(PVP_LANG_RELOAD_KEY); } catch { /* ignore */ }
 }
 
 function isPvpLiveReload(roomId) {
   try { return sessionStorage.getItem(PVP_LIVE_KEY) === String(roomId); } catch { return false; }
 }
 
-// 새로고침·탭 닫기 → 항복 전송. 상대 watch 가 감지하면 resignGate 로 대기 ask 중단
+function markPvpSoftResume(roomId) {
+  try {
+    sessionStorage.setItem(PVP_SOFT_RESUME_KEY, String(roomId));
+    sessionStorage.setItem(PVP_LANG_RELOAD_KEY, String(roomId));
+  } catch { /* ignore */ }
+}
+
+function consumePvpSoftResume(roomId) {
+  let hit = false;
+  try {
+    if (sessionStorage.getItem(PVP_SOFT_RESUME_KEY) === String(roomId)) {
+      sessionStorage.removeItem(PVP_SOFT_RESUME_KEY);
+      hit = true;
+    }
+  } catch { /* ignore */ }
+  try {
+    if (sessionStorage.getItem(PVP_LANG_RELOAD_KEY) === String(roomId)) {
+      sessionStorage.removeItem(PVP_LANG_RELOAD_KEY);
+      hit = true;
+    }
+  } catch { /* ignore */ }
+  return hit;
+}
+
+/** pagehide용: 방 지우기 전에 리플레이를 최대한 남김 (await 불가 → fire-and-forget + keepalive). */
+function flushReplayOnUnload(match) {
+  if (!match || spectateMode || !duel || replaying) return;
+  try {
+    flushSanctuary();
+    recordFrame();
+    if (!recorder.frames.length) return;
+    const payload = {
+      id: recorder.id || Date.now(),
+      format: FORMAT,
+      date: new Date().toISOString(),
+      names: [...(me === 0 ? names : [names[1], names[0]])],
+      myDeck: match.me?.name || "",
+      aiDeck: match.ai?.name || "",
+      level: match.level,
+      bot: match.bot || "",
+      result: t("game.replayResignAsLoss"),
+      turns: duel.turn,
+      frames: recorder.frames,
+    };
+    void saveReplay(payload).then((id) => { recorder.id = id; }).catch(() => {});
+    try {
+      fetch(`${API_BASE}/replays/archive`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...payload,
+          mode: match.pvp || match.roomId ? "pvp" : "ai",
+          roomId: match.roomId || "",
+        }),
+        keepalive: true,
+        cache: "no-store",
+        mode: "cors",
+      });
+    } catch { /* ignore */ }
+  } catch { /* ignore */ }
+}
+
+// 새로고침·탭 닫기: softResume + away(재입장 대기). 항복/방삭제는 하지 않음.
+// 나간 쪽 리플은 가능하면 남김. 상대는 「승리하고 나가기」로 확정 가능.
 window.addEventListener("pagehide", (e) => {
   if (e.persisted || !pvpUnloadResign) return;
-  beaconPvpResign(pvpUnloadResign.roomId, pvpUnloadResign.nick);
+  const info = pvpUnloadResign;
+  markPvpSoftResume(info.roomId);
+  // 새로고침에도 불리므로 여기서는 리플을 확정 저장하지 않음.
+  // 「승리하고 나가기」 측에서 승자 리플 저장. 이탈자 리플은 재접속·패배 확정 시 저장.
+  beaconPvpAway(info.roomId, info.nick);
 });
 
-/** 진행 중/이미 항복·새로고침이면 로비로. true면 호출측은 return. */
+window.addEventListener("beforeunload", () => {
+  if (!pvpUnloadResign) return;
+  markPvpSoftResume(pvpUnloadResign.roomId);
+});
+
+/** 진행 중/이미 항복이면 로비로. true면 호출측은 return.
+ *  softResume·away·좌석 닉 재접속은 수순 복구. */
 async function leaveIfPvpAlreadyGone(match, roomId, localNick) {
   let existing = null;
   try {
@@ -2898,36 +3095,54 @@ async function leaveIfPvpAlreadyGone(match, roomId, localNick) {
   }
   const resigned = !!(existing?.phase === "resigned" || existing?.resignedBy);
   const resignedBy = resigned ? String(existing.resignedBy || "") : null;
-  const hasAnswers = !!(existing?.answers && typeof existing.answers === "object"
-    && Object.keys(existing.answers).length > 0);
-  const refreshed = isPvpLiveReload(roomId);
+  const softResume = consumePvpSoftResume(roomId) || isPvpLiveReload(roomId);
+  const awayNick = String(existing?.away || "").trim();
+  const iAmAway = !!awayNick && awayNick === localNick;
+  // 플레이어 복구는 이탈자(away) 닉 또는 같은 탭 softResume 만 허용 (잔류 플레이어 닉 도용 방지)
 
-  if (!resigned && !hasAnswers && !refreshed) return false;
-
-  if (!resigned) {
-    try {
-      await postPvpResign(roomId, localNick);
-    } catch (err) {
-      console.warn("resign on reload failed", err);
+  if (resigned && resignedBy && resignedBy !== localNick) {
+    disarmPvpUnloadResign();
+    toast(t("duel.resignToastOpp"));
+    await clearMatchRoom(match, { keepDuel: true });
+    location.href = "server.html";
+    return true;
+  }
+  if (resigned && (resignedBy === localNick || !resignedBy)) {
+    // 상대가 「승리하고 나가기」로 확정한 뒤 재접속 → 패배
+    if (!(softResume || iAmAway)) {
+      disarmPvpUnloadResign();
+      toast(t("duel.resignToastSelf"));
+      await clearMatchRoom(match, { keepDuel: true });
+      location.href = "server.html";
+      return true;
     }
   }
-  disarmPvpUnloadResign();
-  const mine = !resigned || resignedBy === localNick || resignedBy === "";
-  toast(mine ? t("duel.resignToastSelf") : t("duel.resignToastOpp"));
-  await clearMatchRoom(match, { keepDuel: true });
-  location.href = "server.html";
-  return true;
+
+  if (softResume || iAmAway) {
+    try {
+      await postPvpResume(roomId, localNick);
+    } catch (err) {
+      console.warn("resume after reconnect failed", err);
+    }
+    pvpCatchingUp = true;
+    return false;
+  }
+  return false;
 }
 
 async function playPvpMatch(match) {
   concealOpeningSanctuary = false;
   pendingSanctuaryLogs = [];
   // URL nick 을 최우선 (같은 브라우저 두 창이 localStorage 닉을 공유해도 섞이지 않게)
-  const urlNick = (new URLSearchParams(location.search).get("nick") || "").trim();
+  const urlParams = new URLSearchParams(location.search);
+  const urlNick = (urlParams.get("nick") || "").trim();
   const localNick = (urlNick || match.localNick || currentNick() || "").trim();
   match.localNick = localNick;
+  const spectating = !!(match.spectate || urlParams.get("spectate") === "1");
+  match.spectate = spectating;
+  spectateMode = spectating;
   let isHost = !!(localNick && match.host && localNick === match.host);
-  log(`플레이어 대전 준비: ${match.host || "?"} vs ${match.opp || "?"} · 나=${localNick || "?"} · ${isHost ? "방장" : "게스트"} · room=${match.roomId || "?"}`);
+  log(`플레이어 대전 준비: ${match.host || "?"} vs ${match.opp || "?"} · 나=${localNick || "?"} · ${spectating ? "관전" : isHost ? "방장" : "게스트"} · room=${match.roomId || "?"}`);
 
   let hostFirst;
   let seed;
@@ -2936,28 +3151,68 @@ async function playPvpMatch(match) {
     isHost = await resolvePvpHost(match, localNick);
     const roomId = match.roomId;
     if (!roomId) throw new Error("roomId 없음");
-    // 새로고침·재입장: clearPvpDuel 하기 전에 항복/진행중 여부 확인
-    if (await leaveIfPvpAlreadyGone(match, roomId, localNick)) return;
-    armPvpUnloadResign(roomId, localNick);
-    if (isHost && !match.matchId) {
+    startChatSync(roomId, localNick);
+    if (spectating) {
+      // 관전은 항복·새로고침 처리를 하지 않음. 이미 끝난 대전은 승자 알림 후 로비.
+      // 중도 입장·언어 변경: 소환사 등장 모션 없이 수순만 조용히 따라가 실시간으로 붙음.
+      consumePvpSoftResume(roomId);
+      pvpCatchingUp = true;
+      try {
+        const existing = await fetchPvpDuel(roomId);
+        if (existing?.phase === "resigned" || existing?.resignedBy) {
+          const resignBy = String(existing.resignedBy || "");
+          const winnerNick = [match.host, match.opp]
+            .map((n) => String(n || "").trim())
+            .find((n) => n && n !== resignBy) || "?";
+          await askPrompt(
+            t("duel.resultWin"),
+            t("duel.specWinner", { name: winnerNick }),
+            [{ label: t("duel.exit"), value: "server.html", primary: true }],
+            { result: true },
+          );
+          location.href = "server.html";
+          return;
+        }
+      } catch { /* ignore */ }
+      const exitBtn = document.getElementById("surrender");
+      if (exitBtn) exitBtn.textContent = t("duel.exit");
+    } else {
+      // 새로고침·재입장: clearPvpDuel 하기 전에 항복/진행중 여부 확인
+      if (await leaveIfPvpAlreadyGone(match, roomId, localNick)) return;
+      armPvpUnloadResign(roomId, localNick, { match });
+    }
+    if (isHost && !spectating && !match.matchId) {
       match.matchId = `${roomId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     }
 
     // 1) 방장만 동전(누가 고를지)을 올려 공유. 실제 선후공은 랜덤 당첨자가 정함.
+    //    언어 변경 재접속 시에는 기존 듀얼을 유지한다.
     let coin = null;
-    if (isHost) {
-      const chooser = Math.random() < 0.5 ? match.host : match.opp;
-      seed = (Math.random() * 0xffffffff) >>> 0 || 1;
-      if (!match.matchId) match.matchId = `${roomId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      await clearPvpDuel(roomId);
-      coin = await postPvpCoin(roomId, {
-        seed,
-        chooser,
-        host: match.host,
-        opp: match.opp,
-        matchId: match.matchId,
-      });
-      log(`동전: ${chooser} 님이 선후공을 정합니다`);
+    if (isHost && !spectating) {
+      let existing = null;
+      try { existing = await fetchPvpDuel(roomId); } catch { existing = null; }
+      const resumable = !!(existing?.ok && existing.seed != null && existing.chooser
+        && existing.phase !== "resigned" && !existing.resignedBy);
+      if (resumable) {
+        coin = existing;
+        seed = coin.seed;
+        if (coin.matchId) match.matchId = coin.matchId;
+        log("기존 대전 정보로 재접속합니다");
+      } else {
+        pvpCatchingUp = false;
+        const chooser = Math.random() < 0.5 ? match.host : match.opp;
+        seed = (Math.random() * 0xffffffff) >>> 0 || 1;
+        if (!match.matchId) match.matchId = `${roomId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        await clearPvpDuel(roomId);
+        coin = await postPvpCoin(roomId, {
+          seed,
+          chooser,
+          host: match.host,
+          opp: match.opp,
+          matchId: match.matchId,
+        });
+        log(`동전: ${chooser} 님이 선후공을 정합니다`);
+      }
     } else {
       // 이미 선후공까지 끝난 뒤 들어온 게스트는 coin 단계를 건너뜀
       showWaitingPrompt("대기 중", "동전을 던지는 중입니다.\n창을 닫지 마세요.");
@@ -2985,9 +3240,9 @@ async function playPvpMatch(match) {
     }
 
     const chooser = String(coin.chooser || "");
-    const iChoose = chooser === localNick;
+    const iChoose = !spectating && chooser === localNick;
 
-    // 2) 앞면 당첨자만 선후공 선택, 나머지는 대기
+    // 2) 앞면 당첨자만 선후공 선택, 나머지는 대기 (관전은 항상 대기)
     if (typeof coin.hostFirst === "boolean" && coin.phase === "ready" && !iChoose) {
       hostFirst = !!coin.hostFirst;
       log("상대의 선후공 설정을 받았습니다");
@@ -3036,26 +3291,73 @@ async function playPvpMatch(match) {
   const roomId = match.roomId;
   if (!roomId) throw new Error("roomId 없음");
 
-  // 엔진 좌석: 선공이 player 0. 방장 닉 기준
+  // 엔진 좌석: 선공이 player 0. 방장 닉 기준 (관전은 방장 시점)
   const hostIsPlayer0 = hostFirst;
-  const localIsPlayer0 = localNick === match.host ? hostIsPlayer0 : !hostIsPlayer0;
+  const localIsPlayer0 = spectating
+    ? hostIsPlayer0
+    : (localNick === match.host ? hostIsPlayer0 : !hostIsPlayer0);
   me = localIsPlayer0 ? 0 : 1;
   isHost = localNick === match.host;
 
   let stopResignWatch = null;
   let oppResigned = false;
+  let leaveAfterOppResign = null;
+  let specEndPrompt = null;
   const resignGate = createResignGate();
+  const winnerNickOf = (resignBy) => {
+    const by = String(resignBy || "");
+    return [match.host, match.opp]
+      .map((n) => String(n || "").trim())
+      .find((n) => n && n !== by) || "?";
+  };
+  const showSpectatorResignResult = (resignBy) => {
+    if (specEndPrompt) return specEndPrompt;
+    const winnerNick = winnerNickOf(resignBy);
+    log(t("duel.specWinner", { name: winnerNick }));
+    specEndPrompt = (async () => {
+      disarmPvpUnloadResign();
+      hideOppAwayNotice();
+      hideOppWaitNotice(true);
+      try {
+        await askPrompt(
+          t("duel.resultWin"),
+          t("duel.specWinner", { name: winnerNick }),
+          [{ label: t("duel.exit"), value: "server.html", primary: true }],
+          { result: true },
+        );
+      } catch (err) {
+        console.warn("spectator resign prompt failed", err);
+      }
+      location.href = "server.html";
+    })();
+    return specEndPrompt;
+  };
   try {
-    armPvpUnloadResign(roomId, localNick);
+    if (!spectating) armPvpUnloadResign(roomId, localNick, { match });
 
     const isCancelled = () => oppResigned || resignGate.isCancelled()
       || !!(duel && duel.over && duel.winReason === "surrender");
-    const { players } = lockstepPlayers(roomId, human, { human: true, ask: async () => 0 }, localIsPlayer0, {
-      onRemoteWait: () => showOppWaitNotice(),
+    const lockOpts = {
+      onRemoteWait: () => {
+        if (spectating || pvpCatchingUp) return;
+        showOppWaitNotice();
+      },
       onRemoteDone: () => hideOppWaitNotice(),
       isCancelled,
       resignGate,
-    });
+      onCatchUpDone: () => {
+        pvpCatchingUp = false;
+        toast(t("log.resumeDone"));
+        render();
+      },
+    };
+    // AI전 관전: 호스트 좌석만 human — AI 전용 페이즈 윈도우 ask 횟수를 방장과 맞춤
+    const humanSeats = match.vsAi
+      ? (hostIsPlayer0 ? [true, false] : [false, true])
+      : [true, true];
+    const { players } = spectating
+      ? lockstepSpectator(roomId, { ...lockOpts, humanSeats })
+      : lockstepPlayers(roomId, human, { human: true, ask: async () => 0 }, localIsPlayer0, lockOpts);
     duel = await newDuel({ players: players.map(recordedPlayer), rng: seededRng(seed) });
     window.kirafanDuel = duel;
 
@@ -3070,25 +3372,34 @@ async function playPvpMatch(match) {
     ];
     const name0 = hostIsPlayer0 ? match.host : match.opp;
     const name1 = hostIsPlayer0 ? match.opp : match.host;
-    names = [
-      me === 0 ? t("game.meDeck", { name: deck0.name }) : name0,
-      me === 1 ? t("game.meDeck", { name: deck1.name }) : name1,
-    ];
-    if (me === 0) names[1] = t("game.oppDeck", { name: deck1.name });
-    else names[0] = t("game.oppDeck", { name: deck0.name });
+    if (spectating) {
+      // 방장 시점으로 관전: 아래 진영 = 방장
+      names = [name0, name1];
+    } else {
+      names = [
+        me === 0 ? t("game.meDeck", { name: deck0.name }) : name0,
+        me === 1 ? t("game.meDeck", { name: deck1.name }) : name1,
+      ];
+      if (me === 0) names[1] = t("game.oppDeck", { name: deck1.name });
+      else names[0] = t("game.oppDeck", { name: deck0.name });
+    }
 
     duel.listeners.push((e) => {
       if (!isSanctuaryPut(e)) flushSanctuary();
       logEntry(e);
-      soundOf(e);
+      if (!pvpCatchingUp) soundOf(e);
       const actor = actorOf(e);
       if (actor) recorder.actor = actor;
       attackEvent(e);
       if (recorder.lines.length || recorder.cues.length) recordFrame();
       noticeEvent(e);
-      render();
+      if (!pvpCatchingUp) render();
     });
     surrendering = async () => {
+      if (spectating) {
+        disarmPvpUnloadResign();
+        return null;
+      }
       log(t("duel.resignSelf"));
       try {
         await postPvpResign(roomId, localNick);
@@ -3099,11 +3410,12 @@ async function playPvpMatch(match) {
       disarmPvpUnloadResign();
       return keepReplay(match, t("game.replayResignAsLoss"));
     };
-    let leaveAfterOppResign = null;
+    let awayNickNow = "";
     const endByOppResign = (by) => {
-      if (by && by === localNick) return; // 내가 올린 항복
+      if (!spectating && by && by === localNick) return; // 내가 올린 항복
       if (oppResigned) return;
       oppResigned = true;
+      hideOppAwayNotice();
       clearPromptOverlay();
       menu = null;
       const exitBtn = document.getElementById("surrender");
@@ -3111,11 +3423,18 @@ async function playPvpMatch(match) {
         exitBtn.disabled = true;
         exitBtn.setAttribute("aria-disabled", "true");
       }
-      log("상대가 항복하여 게임에서 승리하였습니다.");
+      const resignBy = String(by || "");
+      if (spectating) {
+        // 관전: 즉시 승자 알림. duel.over 로 DuelEnd 가 나도 이 Promise 를 기다린다.
+        showSpectatorResignResult(resignBy);
+        if (duel && !duel.over) duel.over = true;
+        resignGate.trip(by || "");
+        return;
+      }
+      log(t("duel.resignOppWin"));
       if (duel && !duel.over) duel.lose(1 - me, "surrender");
       resignGate.trip(by || "");
       playBgm("win");
-      // 엔진 종료를 기다리지 않고 바로 알림창 — 나가기 → 방 목록
       leaveAfterOppResign = (async () => {
         disarmPvpUnloadResign();
         try { await keepReplay(match, t("duel.resultWin")); } catch { /* ignore */ }
@@ -3123,33 +3442,107 @@ async function playPvpMatch(match) {
         await askPrompt(t("duel.win"), WIN_REASONS.surrender, [
           { label: t("duel.exit"), value: "server.html", primary: true },
         ], { result: true });
+        try {
+          await fetch(`${API_BASE}/duels/${encodeURIComponent(roomId)}`, { method: "DELETE" });
+        } catch { /* ignore */ }
         location.href = "server.html";
       })();
     };
-    stopResignWatch = watchPvpResign(roomId, endByOppResign);
+    const claimWinVsAway = async () => {
+      const left = awayNickNow || (localNick === match.host ? match.opp : match.host) || "";
+      if (!left || oppResigned) return;
+      try {
+        await postPvpResign(roomId, left);
+      } catch (err) {
+        console.warn("claim win resign failed", err);
+        beaconPvpResign(roomId, left);
+      }
+      endByOppResign(left);
+    };
+    stopResignWatch = watchPvpPresence(roomId, {
+      onAway(nick) {
+        if (oppResigned) return;
+        if (nick && nick === localNick) return;
+        awayNickNow = nick || "";
+        showOppAwayNotice({
+          canClaim: !spectating,
+          onClaim: claimWinVsAway,
+        });
+      },
+      onBack() {
+        awayNickNow = "";
+        hideOppAwayNotice();
+      },
+      onResign: endByOppResign,
+    });
     duel.onActivate = alchemistNotice;
     playBgm("duel");
-    log(`플레이어 대전: ${match.host} vs ${match.opp}`);
+    log(`플레이어 대전: ${match.host} vs ${match.opp}${spectating ? " (관전)" : ""}`);
     log(`선공: ${hostIsPlayer0 ? match.host : match.opp}`);
-    toast(isHost ? t("duel.syncGuest") : t("duel.syncHost"));
-    await summonersEnter();
+    if (spectating || pvpCatchingUp) {
+      // 관전·재접속: 소환사 등장 연출 생략 → 보드만 맞춘 뒤 실시간
+      pvpCatchingUp = true;
+      revealed[0] = revealed[1] = true;
+      toast(spectating ? t("room.nowSpectating") : t("log.resuming"));
+    } else {
+      toast(isHost ? t("duel.syncGuest") : t("duel.syncHost"));
+      await summonersEnter();
+    }
     try {
       await duel.play(duel.decks);
     } catch (err) {
-      if (!(err instanceof OppResignedError)) throw err;
-      if (!duel.over) duel.lose(1 - me, "surrender");
+      // 관전 중 항복 처리로 over 가 켜지면 DuelEnd 가 난다 → 에러로 보지 않음
+      if (err instanceof OppResignedError || err instanceof DuelEnd || oppResigned || specEndPrompt) {
+        if (!duel?.over) {
+          if (spectating) duel.over = true;
+          else if (err instanceof OppResignedError) duel.lose(1 - me, "surrender");
+        }
+      } else {
+        throw err;
+      }
     }
+    pvpCatchingUp = false;
     disarmPvpUnloadResign();
+    if (spectating) {
+      if (specEndPrompt) {
+        await specEndPrompt;
+        return;
+      }
+      // watch 가 늦을 수 있어 항복 상태를 짧게 재확인
+      let resignBy = "";
+      for (let i = 0; i < 15; i++) {
+        try {
+          const existing = await fetchPvpDuel(roomId);
+          if (existing?.phase === "resigned" || existing?.resignedBy) {
+            resignBy = String(existing.resignedBy || "");
+            break;
+          }
+          if (existing?.gone) break;
+        } catch { /* ignore */ }
+        await new Promise((r) => setTimeout(r, 200));
+      }
+      if (resignBy || oppResigned) {
+        await showSpectatorResignResult(resignBy);
+        return;
+      }
+      location.href = "server.html";
+      return;
+    }
     if (leaveAfterOppResign) {
       await leaveAfterOppResign;
       return;
     }
     await finishMatch(match, { pvp: true });
   } catch (err) {
+    // 관전 항복 알림이 이미 떠 있으면 에러 화면으로 덮지 않음
+    if (spectating && (specEndPrompt || oppResigned)) {
+      await (specEndPrompt || showSpectatorResignResult(""));
+      return;
+    }
     disarmPvpUnloadResign();
     console.error(err);
     toast(t("duel.error", { msg: err?.message || err }));
-    await clearMatchRoom(match);
+    if (!spectating) await clearMatchRoom(match);
     await askPrompt(t("common.error"), t("duel.aborted", { msg: err?.message || err }), [
       { label: t("duel.toRoomList"), value: "server.html", primary: true },
     ]);
@@ -3157,6 +3550,7 @@ async function playPvpMatch(match) {
   } finally {
     stopResignWatch?.();
     hideOppWaitNotice(true);
+    hideOppAwayNotice();
   }
 }
 
@@ -3201,6 +3595,7 @@ function wrapAnswerLog(player, store) {
       if (i < store.answers.length) return store.answers[i];
       if (store.resuming) {
         store.resuming = false;
+        pvpCatchingUp = false;
         toast(t("log.resumeDone"));
         render();
       }
@@ -3212,12 +3607,164 @@ function wrapAnswerLog(player, store) {
   };
 }
 
+/** 방 AI전: 수순을 서버에 올려 관전자가 따라갈 수 있게 합니다. */
+function wrapBroadcastAsk(player, roomId, counter) {
+  return {
+    human: !!player.human,
+    async ask(duel, decision) {
+      const n = counter.step++;
+      const answer = await player.ask(duel, decision);
+      try {
+        await postPvpAnswer(roomId, n, answer);
+      } catch (err) {
+        console.warn("broadcast answer failed", err);
+      }
+      return answer;
+    },
+  };
+}
+
+async function playRoomAiBroadcast(match) {
+  concealOpeningSanctuary = false;
+  pendingSanctuaryLogs = [];
+  spectateMode = false;
+  const roomId = match.roomId;
+  if (!roomId) throw new Error("roomId 없음");
+  const localNick = (match.localNick || match.host || currentNick() || "").trim();
+  startChatSync(roomId, localNick);
+  // 새로고침·재입장 = 항복 후 로비 (PvP와 동일). AI전은 상대가 방을 안 지우므로 clearRoom.
+  // 언어 변경 리로드는 leaveIf 가 false 를 반환하며 pvpCatchingUp 을 켠다.
+  if (await leaveIfPvpAlreadyGone(match, roomId, localNick)) return;
+  armPvpUnloadResign(roomId, localNick, { clearRoom: true, clearDuel: true, match });
+
+  let existing = null;
+  try { existing = await fetchPvpDuel(roomId); } catch { existing = null; }
+  const resumable = !!(pvpCatchingUp && existing?.ok && existing.seed != null
+    && typeof existing.hostFirst === "boolean"
+    && existing.phase !== "resigned" && !existing.resignedBy);
+
+  let seed;
+  let hostFirst;
+  let matchId;
+  let savedAnswers = [];
+  if (resumable) {
+    seed = existing.seed;
+    hostFirst = !!existing.hostFirst;
+    me = hostFirst ? 0 : 1;
+    matchId = existing.matchId || match.matchId || `${roomId}-resume`;
+    match.matchId = matchId;
+    savedAnswers = answersArrayFromDuel(existing);
+    log("기존 AI전 수순으로 재접속합니다");
+  } else {
+    pvpCatchingUp = false;
+    seed = (Math.random() * 0xffffffff) >>> 0 || 1;
+    const first = (QUICK_START || AUTO) ? Math.random() < 0.5 : await coinToss();
+    me = first ? 0 : 1;
+    hostFirst = me === 0;
+    matchId = match.matchId || `${roomId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    match.matchId = matchId;
+    try {
+      await clearPvpDuel(roomId);
+      await postPvpCoin(roomId, {
+        seed,
+        chooser: localNick,
+        host: match.host || localNick,
+        opp: match.opp || match.bot || "",
+        matchId,
+      });
+      await initPvpDuel(roomId, {
+        seed,
+        hostFirst,
+        host: match.host || localNick,
+        opp: match.opp || match.bot || "",
+        matchId,
+        chooser: localNick,
+      });
+    } catch (err) {
+      console.warn("room AI broadcast init failed", err);
+    }
+  }
+
+  const counter = { step: 0 };
+  const store = {
+    match,
+    seed,
+    me,
+    answers: savedAnswers,
+    step: 0,
+    resuming: savedAnswers.length > 0,
+  };
+  const ai = await opponent(match, AUTO ? 0 : AI_DELAY);
+  const seat = AUTO ? await opponent(match, 0) : human;
+  const players = (me === 0 ? [seat, ai] : [ai, seat])
+    .map((p) => wrapAnswerLog(p, store))
+    .map((p) => wrapBroadcastAsk(p, roomId, counter))
+    .map(recordedPlayer);
+  duel = await newDuel({ players, rng: seededRng(seed) });
+  window.kirafanDuel = duel;
+  const mine = { main: match.me.main, summoner: match.me.summoner };
+  const theirs = { main: match.ai.main, summoner: match.ai.summoner };
+  duel.decks = me === 0 ? [mine, theirs] : [theirs, mine];
+  const aiName = aiSideLabel(match);
+  const myLabel = localizeSideName(match.me.name);
+  names = me === 0
+    ? [t("game.meDeck", { name: myLabel }), aiName]
+    : [aiName, t("game.meDeck", { name: myLabel })];
+  duel.listeners.push((e) => {
+    if (!isSanctuaryPut(e)) flushSanctuary();
+    logEntry(e);
+    if (!store.resuming) soundOf(e);
+    const actor = actorOf(e);
+    if (actor) recorder.actor = actor;
+    attackEvent(e);
+    if (recorder.lines.length || recorder.cues.length) recordFrame();
+    noticeEvent(e);
+    if (!store.resuming) render();
+  });
+  surrendering = async () => {
+    log(t("duel.resignSelf"));
+    disarmPvpUnloadResign();
+    try { await postPvpResign(roomId, localNick); } catch { /* ignore */ }
+    return keepReplay(match, t("game.replayResignAsLoss"));
+  };
+  duel.onActivate = alchemistNotice;
+  playBgm("duel");
+  log(t("log.matchStart", { me: t("game.me"), myDeck: myLabel, opp: aiName }));
+  log(t("log.firstPlayer", { who: me === 0 ? t("game.me") : t("game.opp") }));
+  if (store.resuming) {
+    toast(t("log.resuming"));
+    revealed[0] = revealed[1] = true;
+  } else {
+    await summonersEnter();
+  }
+  try {
+    await duel.play(duel.decks);
+    pvpCatchingUp = false;
+    disarmPvpUnloadResign();
+    await finishMatch(match, { pvp: false });
+  } catch (err) {
+    pvpCatchingUp = false;
+    disarmPvpUnloadResign();
+    throw err;
+  }
+}
+
 async function playMatch(match) {
-  if (match?.pvp && match.roomId) {
+  const urlSpectate = new URLSearchParams(location.search).get("spectate") === "1";
+  if ((match?.spectate || urlSpectate) && match?.roomId) {
+    match.spectate = true;
+    // 관전은 PvP·AI전 모두 서버 수순 추적
     return playPvpMatch(match);
+  }
+  if (match?.pvp && match.roomId && !match.vsAi) {
+    return playPvpMatch(match);
+  }
+  if (match?.roomId && match.vsAi) {
+    return playRoomAiBroadcast(match);
   }
   concealOpeningSanctuary = false;
   pendingSanctuaryLogs = [];
+  spectateMode = false;
   const saved = AUTO ? null : loadAiProgress(match);
   let seed;
   if (saved) {
@@ -3583,14 +4130,111 @@ function setupTabs() {
   }));
 }
 
+/** @type {{ roomId: string, nick: string, stop: (() => void) | null, rendered: number } | null} */
+let chatSync = null;
+
+function chatListEl() {
+  return document.getElementById("duel-chat");
+}
+
+function formatChatLine(nick, text) {
+  return `${String(nick || "?").trim()} : ${String(text || "").trim()}`;
+}
+
+function updateChatTabBadge(count) {
+  const tab = document.getElementById("tab-chat");
+  if (!tab) return;
+  const n = Math.max(0, Number(count) || 0);
+  tab.textContent = n > 0 ? t("game.tabChatCount", { n }) : t("game.tabChat");
+  tab.classList.toggle("has-chat", n > 0);
+}
+
+function appendChatLines(chats, { replace = false } = {}) {
+  const list = chatListEl();
+  if (!list) return;
+  const rows = Array.isArray(chats) ? chats : [];
+  if (replace) {
+    list.replaceChildren();
+    for (const c of rows) {
+      list.append(el("li", "chat-line", formatChatLine(c.nick, c.text)));
+    }
+  } else {
+    const from = chatSync?.rendered || 0;
+    for (let i = from; i < rows.length; i++) {
+      const c = rows[i];
+      list.append(el("li", "chat-line", formatChatLine(c.nick, c.text)));
+    }
+  }
+  if (chatSync) chatSync.rendered = rows.length;
+  list.scrollTop = list.scrollHeight;
+  updateChatTabBadge(rows.length);
+}
+
+function stopChatSync() {
+  if (chatSync?.stop) {
+    try { chatSync.stop(); } catch { /* ignore */ }
+  }
+  chatSync = null;
+}
+
+/** 방 듀얼 채팅 폴링 시작 (플레이어·관전 공통) */
+function startChatSync(roomId, nick) {
+  const id = String(roomId || "").trim();
+  const who = String(nick || "").trim();
+  if (!id) return;
+  if (chatSync?.roomId === id && chatSync?.nick === who) return;
+  stopChatSync();
+  chatSync = { roomId: id, nick: who, stop: null, rendered: 0 };
+  appendChatLines([], { replace: true });
+  chatSync.stop = watchPvpChat(id, (chats) => {
+    if (!chatSync || chatSync.roomId !== id) return;
+    const rows = Array.isArray(chats) ? chats : [];
+    if (rows.length < chatSync.rendered) appendChatLines(rows, { replace: true });
+    else appendChatLines(rows);
+  });
+}
+
 function setupChat() {
   const input = document.getElementById("chat-input");
-  input.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter" || !input.value.trim()) return;
-    const list = document.getElementById("duel-log");
-    list.append(el("li", "chat-line", `나: ${input.value.trim()}`));
-    list.scrollTop = list.scrollHeight;
+  if (!input) return;
+  updateChatTabBadge(0);
+  input.addEventListener("keydown", async (e) => {
+    if (e.key !== "Enter") return;
+    const text = input.value.trim();
+    if (!text) return;
+    e.preventDefault();
+    const params = new URLSearchParams(location.search);
+    const nick = (
+      chatSync?.nick
+      || params.get("nick")
+      || currentNick()
+      || ""
+    ).trim() || "?";
+    const roomId = chatSync?.roomId || params.get("room") || "";
     input.value = "";
+    if (roomId) {
+      try {
+        const res = await postPvpChat(roomId, nick, text);
+        if (Array.isArray(res?.chats)) appendChatLines(res.chats, { replace: true });
+        else if (!chatSync) startChatSync(roomId, nick);
+      } catch (err) {
+        console.warn("chat post failed", err);
+        // 서버 실패 시라도 로컬에 보이게
+        const list = chatListEl();
+        if (list) {
+          list.append(el("li", "chat-line", formatChatLine(nick, text)));
+          list.scrollTop = list.scrollHeight;
+          updateChatTabBadge(list.children.length);
+        }
+      }
+      return;
+    }
+    // 로컬/퍼즐: 방 없으면 로컬만
+    const list = chatListEl();
+    if (!list) return;
+    list.append(el("li", "chat-line", formatChatLine(nick, text)));
+    list.scrollTop = list.scrollHeight;
+    updateChatTabBadge(list.children.length);
   });
 }
 
@@ -3793,7 +4437,13 @@ async function start() {
     const btn = document.getElementById("surrender");
     if (btn?.disabled) return;
     const toLobby = !!match.roomId || !!match.pvp;
+    const spectating = !!(match.spectate || params.get("spectate") === "1");
     if (surrendering) await surrendering();
+    // 관전 퇴장은 방/듀얼을 지우지 않음
+    if (spectating) {
+      location.href = "server.html";
+      return;
+    }
     // PvP: 듀얼 파일에 항복을 남긴 뒤 방만 지움 — 상대가 승리 알림을 받도록
     await clearMatchRoom(match, { keepDuel: toLobby });
     location.href = toLobby ? "server.html" : "ai.html";

@@ -22,6 +22,48 @@ function normalizeSeats(seats, host, summoners) {
   return next;
 }
 
+/** 한 방에 앉아 있는 닉(방장·좌석·관전·match 플레이어) */
+export function nicksInRoom(room) {
+  const set = new Set();
+  const add = (n) => {
+    const s = String(n || "").trim();
+    if (s) set.add(s);
+  };
+  if (!room) return set;
+  add(room.host);
+  const seats = room.seats || {};
+  add(seats[1]);
+  add(seats[2]);
+  add(seats["1"]);
+  add(seats["2"]);
+  for (const name of room.spectators || []) add(name);
+  for (const part of String(room.summoners || "").split(",")) add(part);
+  const m = room.match;
+  if (m && typeof m === "object") {
+    add(m.host);
+    add(m.opp);
+    if (m.players && typeof m.players === "object") {
+      for (const k of Object.keys(m.players)) add(k);
+    }
+    if (Array.isArray(m.spectators)) {
+      for (const name of m.spectators) add(name);
+    }
+  }
+  return set;
+}
+
+/** 로비 전체(대기·진행)에서 닉이 쓰이는지. exceptRoomId 방은 제외(본인 재입장용). */
+export function nickTakenInLobby(rooms, nick, { exceptRoomId = null } = {}) {
+  const want = String(nick || "").trim();
+  if (!want) return false;
+  const skip = exceptRoomId != null ? String(exceptRoomId) : null;
+  for (const room of rooms || []) {
+    if (skip && String(room.id) === skip) continue;
+    if (nicksInRoom(room).has(want)) return true;
+  }
+  return false;
+}
+
 /** @param {any[]} list */
 export function normalizeRooms(list) {
   const byId = new Map();

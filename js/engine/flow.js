@@ -124,8 +124,14 @@ Object.assign(Duel.prototype, {
     if (min >= cards.length && !cancelable) return [...cards];
     // Non-cancelable picks: refuse cancel / under-min and ask again
     for (;;) {
-      const picked = await this.ask(p, { type: "cards", cards, min, max, cancelable, hint });
-      if (picked === null) {
+      let picked = await this.ask(p, { type: "cards", cards, min, max, cancelable, hint });
+      if (picked === null || picked === undefined) {
+        if (cancelable) return null;
+        continue;
+      }
+      // 관전/락스텝 JSON 등으로 단일 인덱스가 오면 배열로 맞춤
+      if (typeof picked === "number") picked = [picked];
+      if (!Array.isArray(picked)) {
         if (cancelable) return null;
         continue;
       }

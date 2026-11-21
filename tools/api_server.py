@@ -841,6 +841,7 @@ class Handler(BaseHTTPRequestHandler):
                 data = read_duel(room_id)
                 if action == "coin":
                     # 동전: 누가 선후공을 고를지만 공유 (hostFirst 아직 없음)
+                    prev = data if isinstance(data, dict) else {}
                     data = {
                         "ok": True,
                         "phase": "coin",
@@ -850,6 +851,7 @@ class Handler(BaseHTTPRequestHandler):
                         "opp": str(body.get("opp") or ""),
                         "matchId": str(body.get("matchId") or ""),
                         "answers": {},
+                        "chats": list(prev.get("chats") or []),
                     }
                     write_duel(room_id, data)
                     return self._json(200, data)
@@ -865,6 +867,7 @@ class Handler(BaseHTTPRequestHandler):
                         "opp": str(body.get("opp") or prev.get("opp") or ""),
                         "matchId": str(body.get("matchId") or prev.get("matchId") or ""),
                         "answers": {},
+                        "chats": list(prev.get("chats") or []),
                     }
                     write_duel(room_id, data)
                     return self._json(200, data)
@@ -882,6 +885,43 @@ class Handler(BaseHTTPRequestHandler):
                     write_duel(room_id, data)
                     step_out = int(key) if key.lstrip("-").isdigit() else key
                     return self._json(200, {"ok": True, "step": step_out})
+                if action == "chat":
+                    nick = str(body.get("nick") or "").strip()[:40]
+                    text = str(body.get("text") or "").strip()[:120]
+                    if not nick or not text:
+                        return self._text(400, "nick and text required")
+                    if not isinstance(data, dict) or not data:
+                        data = {"ok": True, "answers": {}, "chats": []}
+                    chats = list(data.get("chats") or [])
+                    entry = {
+                        "nick": nick,
+                        "text": text,
+                        "t": int(body.get("t") or 0) or int(time.time() * 1000),
+                    }
+                    chats.append(entry)
+                    # keep last 200
+                    data["chats"] = chats[-200:]
+                    data["ok"] = True
+                    write_duel(room_id, data)
+                    return self._json(200, {"ok": True, "chats": data["chats"], "chat": entry})
+                if action == "away":
+                    # 탭 닫기/이탈: 항복이 아니라 재입장 대기
+                    nick = str(body.get("nick") or "").strip()[:40]
+                    if not nick:
+                        return self._text(400, "nick required")
+                    if not isinstance(data, dict) or not data:
+                        data = {"ok": True, "answers": {}, "chats": []}
+                    if data.get("phase") == "resigned" or data.get("resignedBy"):
+                        return self._json(200, {
+                            "ok": False,
+                            "resigned": True,
+                            "resignedBy": str(data.get("resignedBy") or ""),
+                        })
+                    data["ok"] = True
+                    data["away"] = nick
+                    data["awayAt"] = int(body.get("t") or 0) or int(time.time() * 1000)
+                    write_duel(room_id, data)
+                    return self._json(200, {"ok": True, "away": nick})
                 if action == "resign":
                     # 항복: 듀얼 파일은 남겨 상대가 승리 처리를 하도록 한다
                     if not isinstance(data, dict) or not data:
@@ -889,9 +929,40 @@ class Handler(BaseHTTPRequestHandler):
                     data["ok"] = True
                     data["phase"] = "resigned"
                     data["resignedBy"] = str(body.get("nick") or "")
+                    data["resignedAt"] = int(time.time() * 1000)
                     data.pop("resignSoft", None)
+                    data.pop("away", None)
+                    data.pop("awayAt", None)
                     write_duel(room_id, data)
                     return self._json(200, {"ok": True, "phase": "resigned", "resignedBy": data["resignedBy"]})
+                if action == "resume":
+                    # 재입장/새로고침: away·본인 항복 표시 취소
+                    nick = str(body.get("nick") or "").strip()
+                    if not isinstance(data, dict) or not data:
+                        return self._json(200, {"ok": False, "gone": True})
+                    by = str(data.get("resignedBy") or "")
+                    if data.get("phase") == "resigned" or by:
+                        if by and nick and by != nick:
+                            return self._json(200, {
+                                "ok": False,
+                                "resigned": True,
+                                "resignedBy": by,
+                            })
+                        data.pop("resignedBy", None)
+                        data.pop("resignedAt", None)
+                        if data.get("phase") == "resigned":
+                            data["phase"] = "ready"
+                    away = str(data.get("away") or "")
+                    if away and (not nick or away == nick):
+                        data.pop("away", None)
+                        data.pop("awayAt", None)
+                    data["ok"] = True
+                    write_duel(room_id, data)
+                    return self._json(200, {
+                        "ok": True,
+                        "phase": data.get("phase") or "ready",
+                        "away": data.get("away") or "",
+                    })
                 return self._text(400, "unknown action")
             except Exception as e:
                 return self._text(400, str(e))

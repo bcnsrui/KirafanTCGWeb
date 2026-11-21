@@ -1,9 +1,10 @@
 import { toast } from "./ui.js";
 import { loadSounds, playBgm } from "./sound.js";
 import { aiRecipeLabel, classCounts, deckProblems, loadAiDecks, loadCards, readLibraryAsync } from "./decks.js";
-import { deleteRoom, fetchRooms, upsertRoom } from "./lobby-rooms.js";
+import { deleteRoom, fetchRooms, nickTakenInLobby, upsertRoom } from "./lobby-rooms.js";
+import { fetchPvpDuel } from "./pvp.js?v=awayNick1";
 import { saveMatch } from "./match-store.js";
-import { applyI18n, t } from "./ui-i18n.js?v=i18n21";
+import { applyI18n, t } from "./ui-i18n.js?v=i18n47";
 import { mediaUrl } from "./local-assets.js";
 
 function setPic(el, rel) {
@@ -240,6 +241,12 @@ function applyRemoteRoom(remote, { join = false } = {}) {
           seats[2] = me;
         } else if (!seats[1] || seats[1] === me) {
           seats[1] = me;
+        } else if (canJoinAsSpectator(me)) {
+          // 대전 자리 둘 다 참 → 자동 관전
+          if (!spectators.includes(me)) spectators.push(me);
+          spectating = true;
+          ready = false;
+          setPlayerReady(me, false);
         }
       }
     }
@@ -288,18 +295,36 @@ async function loadRoomSettingsFromLobby() {
     seats[2] = null;
     return;
   }
-  const remoteHost = String(current.host || "").trim();
   const gateOk = sessionStorage.getItem(ROOM_GATE_STORE) === `${roomId}:${me}`;
-  // Host nick without a valid lobby gate → duplicate host; kick back to the list.
-  if (remoteHost && me === remoteHost && !gateOk) {
-    toast(t("server.toast.nickSameAsHost"));
+  let awayNick = "";
+  if (current.status === STATUS_PLAYING) {
+    try {
+      const duel = await fetchPvpDuel(roomId);
+      awayNick = String(duel?.away || "").trim();
+    } catch { /* ignore */ }
+  }
+  const awayReclaim = !!(awayNick && me === awayNick);
+  const canEnterAsPlayer = gateOk || awayReclaim;
+  // 로비 전체 중복 금지. 이탈자 닉 재입장·본인 gate 만 이 방 예외.
+  if (nickTakenInLobby(lobbyRoomsCache, me, { exceptRoomId: canEnterAsPlayer ? roomId : null })) {
+    toast(t("server.toast.nickTaken"));
     sessionStorage.removeItem(ROOM_ID_STORE);
+    sessionStorage.removeItem(ROOM_GATE_STORE);
     location.href = "server.html";
     return;
   }
   applyRemoteRoom(current, { join: true });
   // 다시 들어오면 강퇴 목록에서 제외
   kickedPlayers.delete(me);
+  // 자리도 없고 관전도 못 하면(게임중·관전 비허용 등) 로비로
+  if (seats[1] !== me && seats[2] !== me && !spectating) {
+    toast(gameStarted ? t("room.spectateBlockedMid") : t("room.noEmptySeat"));
+    sessionStorage.removeItem(ROOM_ID_STORE);
+    sessionStorage.removeItem(ROOM_GATE_STORE);
+    location.href = "server.html";
+    return;
+  }
+  if (spectating) toast(t("room.nowSpectating"));
   current = buildLobbyPayload(lobbyStatus());
   lobbyRoomsCache = await upsertRoom(current);
 }
@@ -495,17 +520,24 @@ function humanOpponentName() {
     ?.name || null;
 }
 
-function enterDuel(matchPayload) {
-  if (enteringDuel || leavingRoom || spectating) return;
+function enterDuel(matchPayload, { spectate = false } = {}) {
+  if (enteringDuel || leavingRoom) return;
+  if (!spectate && spectating) return;
   if (!matchPayload?.me || !matchPayload?.ai) return;
   enteringDuel = true;
-  const payload = { ...matchPayload, localNick: matchPayload.localNick || me, roomId: matchPayload.roomId || roomId };
+  const payload = {
+    ...matchPayload,
+    localNick: matchPayload.localNick || me,
+    roomId: matchPayload.roomId || roomId,
+    spectate: !!spectate || !!matchPayload.spectate,
+  };
   saveMatch(payload, me);
   const q = new URLSearchParams({
     pvp: "1",
     room: String(payload.roomId || roomId),
     nick: me,
   });
+  if (payload.spectate) q.set("spectate", "1");
   location.href = `game.html?${q}`;
 }
 
@@ -515,9 +547,11 @@ function matchForMe(remoteMatch) {
   const oppKey = remoteMatch.host === me ? remoteMatch.opp : remoteMatch.host;
   const theirs = remoteMatch.players[oppKey];
   if (!mine || !theirs) return null;
-  const pvp = remoteMatch.pvp === true || (!remoteMatch.vsAi && !!remoteMatch.host && !!remoteMatch.opp);
+  const vsAi = !!remoteMatch.vsAi;
+  const pvp = remoteMatch.pvp === true || (!vsAi && !!remoteMatch.host && !!remoteMatch.opp);
   return {
     pvp,
+    vsAi,
     roomId: remoteMatch.roomId || roomId,
     matchId: remoteMatch.matchId || "",
     host: remoteMatch.host,
@@ -529,6 +563,49 @@ function matchForMe(remoteMatch) {
     me: mine,
     ai: theirs,
   };
+}
+
+/** 관전자용: 방장 시점으로 양 덱을 들고 대전 화면으로 들어갑니다. (PvP·AI전 모두) */
+function matchForSpectator(remoteMatch) {
+  if (!remoteMatch?.players || !remoteMatch.host || !remoteMatch.opp) return null;
+  const hostPack = remoteMatch.players[remoteMatch.host];
+  const oppPack = remoteMatch.players[remoteMatch.opp];
+  if (!hostPack || !oppPack) return null;
+  const vsAi = !!remoteMatch.vsAi;
+  const pvp = remoteMatch.pvp === true || (!vsAi && !!remoteMatch.host && !!remoteMatch.opp);
+  return {
+    pvp,
+    vsAi,
+    spectate: true,
+    roomId: remoteMatch.roomId || roomId,
+    matchId: remoteMatch.matchId || "",
+    host: remoteMatch.host,
+    opp: remoteMatch.opp,
+    localNick: me,
+    players: remoteMatch.players,
+    level: remoteMatch.level || 4,
+    bot: remoteMatch.bot || "",
+    me: hostPack,
+    ai: oppPack,
+  };
+}
+
+function tryEnterPlayingMatch(remote) {
+  if (!remote || remote.status !== STATUS_PLAYING || !remote.match || enteringDuel) return false;
+  if (spectating) {
+    if (!canJoinAsSpectator(me)) return false;
+    const local = matchForSpectator(remote.match);
+    if (!local) return false;
+    enterDuel(local, { spectate: true });
+    return true;
+  }
+  if (seats[1] === me || seats[2] === me) {
+    const local = matchForMe(remote.match);
+    if (!local) return false;
+    enterDuel(local);
+    return true;
+  }
+  return false;
 }
 
 async function startDuel() {
@@ -993,19 +1070,7 @@ async function pollRoom() {
       status: lobbyStatus(),
     });
     applyRemoteRoom(remote);
-    if (
-      remote.status === STATUS_PLAYING &&
-      remote.match &&
-      !spectating &&
-      !enteringDuel &&
-      (seats[1] === me || seats[2] === me)
-    ) {
-      const local = matchForMe(remote.match);
-      if (local) {
-        enterDuel(local);
-        return;
-      }
-    }
+    if (tryEnterPlayingMatch(remote)) return;
     // 방장만 좌석이 비면 다시 앉음. 게스트는 강퇴/퇴장 후 자동 재입장하지 않음.
     let reseated = false;
     if (isHost() && !spectating && seats[1] !== me && seats[2] !== me) {
@@ -1129,6 +1194,14 @@ loadRoomSettingsFromLobby()
   .then(() => {
     syncRoomHeaderControls();
     return syncLobbyRoom();
+  })
+  .then(async () => {
+    // 이미 게임중이면(관전 포함) 바로 대전 화면으로
+    try {
+      lobbyRoomsCache = await fetchRooms();
+      const remote = lobbyRoomsCache.find((r) => r.id === roomId);
+      if (remote) tryEnterPlayingMatch(remote);
+    } catch { /* ignore */ }
   })
   .finally(() => {
     syncRoomHeaderControls();

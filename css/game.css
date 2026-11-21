@@ -99,11 +99,17 @@
 
 .feed.chat .field {
   margin-top: 6px;
+  flex-shrink: 0;
 }
 
-/* (a chat message among the log lines) */
-.feed .chat-line {
-  color: #9fd8ff;
+/* chat messages — readable on the light panel */
+.feed .chat-line,
+#duel-chat .chat-line {
+  color: #1a1a1a;
+}
+
+.tabs .tab#tab-chat.has-chat {
+  font-weight: 600;
 }
 
 .tab-page.settings p {
@@ -1269,7 +1275,7 @@ button.pile:hover {
 }
 
 .opp-wait-line {
-  font-size: 17px;
+  font-size: 21px;
   text-align: center;
 }
 
@@ -1278,6 +1284,45 @@ button.pile:hover {
   min-width: 1.4em;
   text-align: left;
   color: #f2d060;
+}
+
+/* 상대 이탈: 알림 + 승리하고 나가기 */
+.opp-away-wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 100%;
+  pointer-events: none;
+}
+
+.opp-away-wrap[hidden] {
+  display: none !important;
+}
+
+.opp-away-wrap .notice.opp-away {
+  pointer-events: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 24px;
+}
+
+.opp-away-title {
+  font-size: 21px;
+  text-align: center;
+  color: #2a1a12;
+}
+
+.opp-away-wrap .opp-away-claim {
+  pointer-events: auto;
+  flex: none;
+  white-space: nowrap;
+}
+
+.opp-away-wrap .opp-away-claim[hidden] {
+  display: none !important;
 }
 
 /* ---- the middle: turn, phases, the turn player's buttons ---- */

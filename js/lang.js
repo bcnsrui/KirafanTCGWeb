@@ -1,20 +1,39 @@
-/** Card/duel/UI language (settings → localStorage). */
+/** Card/duel/UI language.
+ *  Tab language lives in sessionStorage so each window/player keeps its own lang
+ *  (host changing Japanese must not flip a spectator tab on the same PC).
+ *  localStorage is only the default for brand-new tabs. */
 
 export const LANG_STORE = "kirafan.lang";
+const LANG_TAB = "kirafan.lang.tab";
+
+function normalizeLang(v) {
+  if (v === "en" || v === "ja") return v;
+  return "ko";
+}
 
 export function getLang() {
   try {
-    const v = localStorage.getItem(LANG_STORE) || "ko";
-    if (v === "en" || v === "ja") return v;
-    return "ko";
+    let tab = sessionStorage.getItem(LANG_TAB);
+    if (tab !== "en" && tab !== "ja" && tab !== "ko") {
+      // First use in this tab: seed from local default, then lock to this tab
+      tab = normalizeLang(localStorage.getItem(LANG_STORE) || "ko");
+      sessionStorage.setItem(LANG_TAB, tab);
+    }
+    return normalizeLang(tab);
   } catch {
     return "ko";
   }
 }
 
 export function setLang(lang) {
-  const v = lang === "en" ? "en" : lang === "ja" ? "ja" : "ko";
-  localStorage.setItem(LANG_STORE, v);
+  const v = normalizeLang(lang);
+  try {
+    sessionStorage.setItem(LANG_TAB, v);
+  } catch { /* ignore */ }
+  try {
+    // Default for newly opened tabs only — existing tabs keep LANG_TAB
+    localStorage.setItem(LANG_STORE, v);
+  } catch { /* ignore */ }
   return v;
 }
 
