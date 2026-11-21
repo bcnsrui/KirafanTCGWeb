@@ -97,7 +97,6 @@ function saveDeck() {
   const old = library.current;
   const name = typedName() || old;
   if (name !== old) {
-    if (library.decks[name] && !confirm(t("deck.alreadyExists", { name }))) return;
     delete library.decks[old];
     library.current = name;
   }
@@ -109,9 +108,9 @@ function saveDeck() {
   });
 }
 
-/** true when there is nothing unsaved, or the player agrees to drop it */
+/** always leave; unsaved edits are discarded without prompting */
 function leaveOk() {
-  return !dirty || confirm(t("deck.unsavedConfirm", { name: openName() }));
+  return true;
 }
 
 function open(name) {
@@ -156,7 +155,6 @@ function typedName() {
 function saveAs() {
   const name = typedName();
   if (!name) return toast(t("deck.needName"));
-  if (library.decks[name] && !confirm(t("deck.overwrite", { name }))) return;
   library.decks[name] = copyOf(deck);
   library.current = name;
   viewing = null;
@@ -169,7 +167,6 @@ function saveAs() {
 
 function deleteDeck() {
   if (viewing) return toast(t("deck.cannotDeleteAi"));
-  if (!confirm(t("deck.deleteConfirm", { name: library.current }))) return;
   delete library.decks[library.current];
   const left = Object.keys(library.decks);
   if (left.length) open(left[0]);
@@ -506,12 +503,8 @@ async function start() {
   await loadStored();
 
   document.getElementById("exit").addEventListener("click", () => {
-    if (!leaveOk()) return;
     dirty = false;
     location.href = "index.html?v=i18n6";
-  });
-  window.addEventListener("beforeunload", (e) => {
-    if (dirty) e.preventDefault();
   });
   document.getElementById("save-deck").addEventListener("click", saveDeck);
   document.getElementById("clear").addEventListener("click", () => {

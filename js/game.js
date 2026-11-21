@@ -3333,7 +3333,7 @@ async function playPuzzle(id) {
   if (!puzzle) return toast(t("puzzle.missing"));
   document.getElementById("surrender").textContent = t("duel.surrenderPuzzle");
   document.getElementById("surrender").addEventListener("click", () => {
-    if (confirm(t("puzzle.quitConfirm"))) location.href = "puzzle.html";
+    location.href = "puzzle.html";
   });
   me = 0;
   revealed[0] = revealed[1] = true;
@@ -3793,7 +3793,6 @@ async function start() {
     const btn = document.getElementById("surrender");
     if (btn?.disabled) return;
     const toLobby = !!match.roomId || !!match.pvp;
-    if (!confirm(toLobby ? t("duel.resignConfirmLobby") : t("duel.resignConfirmAi"))) return;
     if (surrendering) await surrendering();
     // PvP: 듀얼 파일에 항복을 남긴 뒤 방만 지움 — 상대가 승리 알림을 받도록
     await clearMatchRoom(match, { keepDuel: toLobby });

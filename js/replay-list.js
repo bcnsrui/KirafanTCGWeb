@@ -64,7 +64,6 @@ async function showList() {
       button(t("replay.view"), () => (location.href = `game.html?replay=${r.id}`), true),
       button(t("replay.saveFile"), () => download(r)),
       button(t("replay.delete"), async () => {
-        if (!confirm(t("replay.deleteConfirm"))) return;
         await deleteReplay(r.id);
         showList();
       }),

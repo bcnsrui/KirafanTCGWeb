@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-21T14:14:13Z",
+  "generatedAt": "2026-11-21T14:22:49Z",
   "files": {
     "admin.html": {
       "sha256": "c14bc46d02f56967b1a1e327de9326925781fb4cb4f1d8cb675b78af37afc05c",
@@ -95,8 +95,8 @@
       "size": 5060
     },
     "js/deck.js": {
-      "sha256": "1f3221e59034be9f951c79b156c16f66b84d66ba73e2415be580194cbca5e846",
-      "size": 20062
+      "sha256": "06096bcb1c17be622dad521a7ac5499cb845dc5e5b71150bc8942c3f9253e9c5",
+      "size": 19635
     },
     "js/decks.js": {
       "sha256": "3e4a2755317946cf40482ee3341cd7886b958e09f9fe000545c74794145b911d",
@@ -107,8 +107,8 @@
       "size": 1093
     },
     "js/game.js": {
-      "sha256": "b6112b87b03ca4ed4f8614855c47ff4a2b31184e8392c209ef00dca6c1f91122",
-      "size": 164913
+      "sha256": "335a96a9c75d69f73410870313f8ed50c3b7820c8a42d412c17078d0a173a280",
+      "size": 164781
     },
     "js/i18n.js": {
       "sha256": "f228a12d6b229ed497950da67f388233316b10f73f37cff76b6193920d44544b",
@@ -155,8 +155,8 @@
       "size": 3147
     },
     "js/replay-list.js": {
-      "sha256": "12a824434313867485d27ac042a98cc3682e66bd22423133f24d927c46ac3a4a",
-      "size": 3939
+      "sha256": "6e3e2f78463bee50fcf88b78bd3f22ec06d4561f9b42fed9fdc28002d13f7788",
+      "size": 3882
     },
     "js/replays.js": {
       "sha256": "9ec331423ac93f59dea387dbc13d1c5cfa7db852721c945b82112acd21fb5285",
