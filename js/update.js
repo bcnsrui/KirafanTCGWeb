@@ -1,14 +1,16 @@
 /* Fetch remote manifest, verify sha-256, download into browser cache or exe data folder. */
 
-import { assetUrl, dataUrl } from "./config.js";
+import { assetUrl, dataUrl, shellFileUrl, shellManifestUrl } from "./config.js";
 import { CACHE_NAME, cacheKey } from "./update-cache.js";
-import { isTauri } from "./runtime.js";
+import { isTauri, invoke } from "./runtime.js";
 import {
   getDataPath,
   readStored,
   storedHash,
   writeStored,
 } from "./storage.js";
+
+const SHELL_META_KEY = "kirafan-shell-manifest-meta";
 
 export { CACHE_NAME, cacheKey } from "./update-cache.js";
 
@@ -431,6 +433,136 @@ export async function checkAndApplyUpdates(onProgress) {
     bytesTotal,
     revision,
   });
+}
+
+/** True when the window is already served from the on-disk shell overlay. */
+export function isDiskShell() {
+  try {
+    const h = location.hostname || "";
+    return h === "kirafanshell.localhost" || h.endsWith(".kirafanshell.localhost");
+  } catch {
+    return false;
+  }
+}
+
+function shellMetaGet() {
+  try {
+    return JSON.parse(localStorage.getItem(SHELL_META_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
+
+function shellMetaSet(manifest) {
+  localStorage.setItem(SHELL_META_KEY, JSON.stringify({
+    generatedAt: manifest.generatedAt,
+    count: Object.keys(manifest.files || {}).length,
+    hashes: Object.fromEntries(
+      Object.entries(manifest.files || {}).map(([k, v]) => [k, v.sha256]),
+    ),
+  }));
+}
+
+/**
+ * Exe only: compare KirafanTCGWeb shell-manifest and write changed files under www/.
+ * Returns { updated, checked, needReload, revision, status, message }.
+ */
+export async function checkAndApplyShellUpdates(onProgress) {
+  const report = (status, message, extra = {}) => {
+    const info = { status, message, updated: 0, checked: 0, needReload: false, ...extra };
+    onProgress?.(info);
+    return info;
+  };
+  if (!isTauri()) {
+    return report("ok", "브라우저 — 껍데기는 배포 서버를 따름");
+  }
+
+  let manifest;
+  try {
+    const res = await fetch(bustRemoteCache(shellManifestUrl()), { cache: "no-store" });
+    if (!res.ok) throw new Error(`shell-manifest ${res.status}`);
+    manifest = await res.json();
+    if (!manifest?.files || manifest.version !== 1) throw new Error("shell-manifest 형식 오류");
+  } catch (err) {
+    const prev = shellMetaGet();
+    if (prev) {
+      return report("offline", `껍데기 확인 실패 — 이전 파일 유지 (${err.message || err})`, {
+        revision: prev.generatedAt ? `s:${prev.generatedAt}` : null,
+      });
+    }
+    return report("error", `껍데기 확인 실패: ${err.message || err}`);
+  }
+
+  const revision = manifest.generatedAt ? `s:${manifest.generatedAt}` : `s:${Object.keys(manifest.files).length}`;
+  const entries = Object.entries(manifest.files);
+  const need = [];
+  for (let i = 0; i < entries.length; i++) {
+    const [rel, info] = entries[i];
+    if (i % 10 === 0 || i + 1 === entries.length) {
+      onProgress?.({
+        status: "checking",
+        message: `껍데기 확인 중… ${i + 1} / ${entries.length}`,
+        index: i + 1,
+        total: entries.length,
+        current: rel,
+      });
+      await new Promise((r) => setTimeout(r, 0));
+    }
+    const diskRel = `www/${rel}`;
+    const have = await storedHash(diskRel);
+    if (!have || have !== info.sha256) need.push([rel, info, diskRel]);
+  }
+
+  if (!need.length) {
+    shellMetaSet(manifest);
+    const haveIndex = await storedHash("www/index.html");
+    return report("ok", "껍데기 최신", {
+      checked: entries.length,
+      updated: 0,
+      needReload: !isDiskShell() && !!haveIndex,
+      revision,
+    });
+  }
+
+  let updated = 0;
+  for (let i = 0; i < need.length; i++) {
+    const [rel, info, diskRel] = need[i];
+    onProgress?.({
+      status: "downloading",
+      message: `껍데기 다운로드 ${i + 1}/${need.length}`,
+      current: rel,
+      index: i + 1,
+      total: need.length,
+      updated,
+    });
+    const url = bustRemoteCache(shellFileUrl(rel));
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`${rel}: HTTP ${res.status}`);
+    const buf = await res.arrayBuffer();
+    const hash = await sha256(buf);
+    if (hash !== info.sha256) throw new Error(`${rel}: 무결성 불일치`);
+    await writeStored(diskRel, buf, hash, guessType(rel));
+    updated++;
+  }
+
+  shellMetaSet(manifest);
+  return report("ok", updated ? `껍데기 ${updated}개 갱신` : "껍데기 최신", {
+    checked: entries.length,
+    updated,
+    needReload: true,
+    revision,
+  });
+}
+
+/** Switch the webview to the on-disk www/ overlay (custom protocol). */
+export async function reloadToDiskShell() {
+  if (!isTauri() || isDiskShell()) return false;
+  try {
+    return !!(await invoke("reload_to_disk_shell"));
+  } catch (err) {
+    console.warn("reload_to_disk_shell", err);
+    return false;
+  }
 }
 
 export async function ensureServiceWorker() {

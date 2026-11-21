@@ -1,11 +1,11 @@
 import { API_BASE, EXE_DOWNLOAD_URL, VERSION } from "./config.js";
 import { toast } from "./ui.js";
-import { runBootSequence } from "./boot.js?v=i18n39";
+import { runBootSequence } from "./boot.js?v=shellSync1";
 import { isTauri } from "./runtime.js";
 import { loadSounds, playBgm, setVolume, volume } from "./sound.js";
 import "./local-assets.js?v=4";
-import { LANG_STORE, getLang, setLang } from "./lang.js";
 import { applyI18n, t } from "./ui-i18n.js?v=i18n34";
+import { setupSideLang } from "./side-settings.js";
 import "./presence.js";
 import { bindHomeCardsFit } from "./stage-scale.js?v=14";
 
@@ -69,7 +69,7 @@ function loadSettingsForm() {
   );
   document.getElementById("settings-sfx").value = String(Math.round(volume("voice") * 100));
   document.getElementById("settings-bgm").value = String(Math.round(volume("bgm") * 100));
-  document.getElementById("settings-lang").value = localStorage.getItem(LANG_STORE) || getLang();
+  setupSideLang();
 }
 
 function openSettings() {
@@ -139,16 +139,7 @@ document.getElementById("settings-sfx").addEventListener("input", (e) => {
 document.getElementById("settings-bgm").addEventListener("input", (e) => {
   setVolume("bgm", Number(e.target.value) / 100);
 });
-document.getElementById("settings-lang").addEventListener("change", (e) => {
-  const prev = getLang();
-  const next = setLang(e.target.value);
-  if (next !== prev) {
-    toast(next === "en" ? t("toast.langEn") : next === "ja" ? t("toast.langJa") : t("toast.langKo"));
-    setTimeout(() => location.reload(), 450);
-  } else {
-    toast(t("toast.langSaved"));
-  }
-});
+setupSideLang();
 
 runBootSequence().then(async (result) => {
   if (result?.status === "design") return;

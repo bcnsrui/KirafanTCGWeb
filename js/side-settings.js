@@ -30,13 +30,28 @@ export function setupSideVolume() {
   }
 }
 
+function syncSettingsLangButtons(root) {
+  const cur = getLang();
+  root.querySelectorAll(".settings-lang-btn").forEach((btn) => {
+    const on = btn.dataset.lang === cur;
+    btn.classList.toggle("is-active", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+}
+
+/** Flag buttons (#settings-lang) — reload when language changes so packs match. */
 export function setupSideLang() {
-  const sel = document.getElementById("settings-lang");
-  if (!sel) return;
-  sel.value = getLang();
-  sel.addEventListener("change", () => {
+  const root = document.getElementById("settings-lang");
+  if (!root) return;
+  syncSettingsLangButtons(root);
+  if (root.dataset.langBound === "1") return;
+  root.dataset.langBound = "1";
+  root.addEventListener("click", (e) => {
+    const btn = e.target.closest(".settings-lang-btn");
+    if (!btn || !root.contains(btn)) return;
     const prev = getLang();
-    const next = setLang(sel.value);
+    const next = setLang(btn.dataset.lang);
+    syncSettingsLangButtons(root);
     if (next !== prev) {
       toast(next === "en" ? t("toast.langEn") : next === "ja" ? t("toast.langJa") : t("toast.langKo"));
       setTimeout(() => location.reload(), 450);

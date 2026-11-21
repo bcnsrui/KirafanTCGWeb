@@ -135,15 +135,44 @@
 }
 
 .settings-lang {
-  grid-template-columns: 1fr;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
 }
 
-.settings-lang .field {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 6px 10px;
-  font: inherit;
-  font-size: 15px;
+.settings-lang-btn {
+  appearance: none;
+  margin: 0;
+  padding: 3px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+  transition: border-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+}
+
+.settings-lang-btn img {
+  display: block;
+  width: var(--lang-flag-w, 52px);
+  height: var(--lang-flag-h, 35px);
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(60, 30, 40, 0.2);
+}
+
+.settings-lang-btn:hover {
+  transform: translateY(-1px);
+}
+
+.settings-lang-btn:focus-visible {
+  outline: 2px solid #a07048;
+  outline-offset: 1px;
+}
+
+.settings-lang-btn.is-active {
+  border-color: #a07048;
+  box-shadow: 0 0 0 1px rgba(160, 112, 72, 0.28);
 }
 
 /* (board top-right — same pill as phase button; beat .window-theme .menu-button.small) */

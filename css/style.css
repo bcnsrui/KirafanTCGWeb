@@ -622,6 +622,59 @@ html[lang="ja"] .home-card[data-action="story"] .home-card-label {
   height: 28px;
 }
 
+/* Shared with boot-lang — main menu settings is the reference size */
+:root {
+  --lang-flag-w: 52px;
+  --lang-flag-h: 35px;
+}
+
+.settings-lang {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-lang-btn {
+  appearance: none;
+  margin: 0;
+  padding: 3px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+  transition: border-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+}
+
+.settings-lang-btn img,
+.boot-lang-btn img {
+  display: block;
+  width: var(--lang-flag-w);
+  height: var(--lang-flag-h);
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(60, 30, 40, 0.2);
+}
+
+/* FHD stage scales the whole UI — undo so flags match main-menu on-screen size */
+.fhd-stage .settings-lang-btn img {
+  width: calc(var(--lang-flag-w) / var(--fhd-scale, 1));
+  height: calc(var(--lang-flag-h) / var(--fhd-scale, 1));
+}
+
+.settings-lang-btn:hover {
+  transform: translateY(-1px);
+}
+
+.settings-lang-btn:focus-visible {
+  outline: 2px solid #a07048;
+  outline-offset: 1px;
+}
+
+.settings-lang-btn.is-active {
+  border-color: #a07048;
+  box-shadow: 0 0 0 1px rgba(160, 112, 72, 0.28);
+}
+
 .icon-button svg {
   width: 100%;
   height: 100%;
@@ -767,14 +820,6 @@ html.boot-skip .home-menu.booting {
   cursor: pointer;
   line-height: 0;
   transition: border-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
-}
-
-.boot-lang-btn img {
-  display: block;
-  width: 28px;
-  height: 19px;
-  border-radius: 3px;
-  box-shadow: 0 1px 2px rgba(60, 30, 40, 0.18);
 }
 
 .boot-lang-btn:hover {

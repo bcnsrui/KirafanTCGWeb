@@ -1,12 +1,12 @@
 import { toast } from "./ui.js";
-import { applyI18n, attrLabel, classLabel, t } from "./ui-i18n.js?v=i18n10";
+import { applyI18n, attrLabel, classLabel, t } from "./ui-i18n.js?v=i18n44";
 import {
-  ATTRIBUTE_ICONS, CLASS_ICONS, FIRST_DECK, LEVELS, OLD_STORE, STORE, aiRecipeLabel, classCounts, classRank, cleanDeck,
+  ATTRIBUTE_ICONS, CLASS_ICONS, CLASS_ORDER, FIRST_DECK, LEVELS, OLD_STORE, STORE, aiRecipeLabel, classCounts, classRank, cleanDeck,
   deckFromYdk, deckOrder, deckProblems, deckToYdk, handOrder, loadAiDecks, loadCards, readJson,
   readLibraryAsync, saveLibraryAsync, setupTextSize, writeCardInfo,
 } from "./decks.js";
 import { loadSounds, playBgm, voice } from "./sound.js";
-import { mediaUrl } from "./local-assets.js";
+import { loadJson, mediaUrl } from "./local-assets.js";
 import { bindFhdStage } from "./stage-scale.js?v=14";
 import { clearLocalDevCaches } from "./dev-cache.js?v=1";
 import { setupSideSettings } from "./side-settings.js";
@@ -408,6 +408,97 @@ function renderList() {
   }));
 }
 
+// ---- AI card ranking modal (pile-list style: class sections top→bottom) ----
+let aiRankRows = null;
+
+const AI_RANK_CLASSES = CLASS_ORDER.filter((c) => c !== "소환사");
+
+function isDrawRank(rank) {
+  return rank === "드로우" || rank === "draw";
+}
+
+function setAiRankOpen(open) {
+  document.getElementById("ai-rank-backdrop").hidden = !open;
+  document.getElementById("ai-rank-panel").hidden = !open;
+}
+
+function aiRankCardEl(row) {
+  const card = cards.get(row.code);
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "ai-rank-card";
+  btn.title = card?.name || String(row.code);
+  const img = document.createElement("img");
+  img.alt = card?.name || "";
+  img.loading = "lazy";
+  setPic(img, `pics/small/${row.code}.jpg`);
+  const elo = document.createElement("span");
+  elo.className = "elo";
+  elo.textContent = t("deck.aiRankElo", { n: row.elo });
+  btn.append(img, elo);
+  if (card) {
+    btn.addEventListener("mouseenter", () => show(card));
+    btn.addEventListener("click", () => add(card));
+    btn.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      add(card);
+    });
+  }
+  return btn;
+}
+
+function aiRankSection(title, rows) {
+  const nodes = [];
+  const heading = document.createElement("h3");
+  heading.className = "ai-rank-section-title";
+  heading.textContent = title;
+  nodes.push(heading);
+  const row = document.createElement("div");
+  row.className = "ai-rank-row";
+  if (!rows.length) {
+    const empty = document.createElement("p");
+    empty.className = "ai-rank-empty";
+    empty.textContent = t("deck.aiRankEmpty");
+    row.append(empty);
+  } else {
+    row.append(...rows.map(aiRankCardEl));
+  }
+  nodes.push(row);
+  return nodes;
+}
+
+function sortByEloDesc(rows) {
+  return [...rows].sort((a, b) => b.elo - a.elo || a.code - b.code);
+}
+
+function renderAiRankBody() {
+  const body = document.getElementById("ai-rank-body");
+  const all = aiRankRows || [];
+  const drawRows = sortByEloDesc(all.filter((r) => isDrawRank(r.rank)));
+  const parts = [];
+  for (const cls of AI_RANK_CLASSES) {
+    const rows = sortByEloDesc(all.filter((r) => r.class === cls && !isDrawRank(r.rank)));
+    parts.push(...aiRankSection(classLabel(cls), rows));
+  }
+  parts.push(...aiRankSection(t("deck.aiRankDrawSection"), drawRows));
+  body.replaceChildren(...parts);
+}
+
+async function openAiCardRanking() {
+  try {
+    if (!aiRankRows) {
+      const data = await loadJson("data/card_ranking.json");
+      aiRankRows = Array.isArray(data?.rows) ? data.rows : [];
+    }
+  } catch {
+    toast(t("deck.aiRankLoadFail"));
+    return;
+  }
+  renderAiRankBody();
+  applyI18n(document.getElementById("ai-rank-panel"));
+  setAiRankOpen(true);
+}
+
 // ---- start --------------------------------------------------------------
 async function start() {
   ({ rules, cards } = await loadCards());
@@ -445,6 +536,9 @@ async function start() {
   });
   document.getElementById("deck-select").addEventListener("change", (e) => switchTo(e.target.value));
   document.getElementById("ai-deck-select").addEventListener("change", (e) => openAi(e.target.value));
+  document.getElementById("ai-card-ranking").addEventListener("click", () => void openAiCardRanking());
+  document.getElementById("ai-rank-close").addEventListener("click", () => setAiRankOpen(false));
+  document.getElementById("ai-rank-backdrop").addEventListener("click", () => setAiRankOpen(false));
   document.getElementById("new-deck").addEventListener("click", () => {
     if (leaveOk()) newDeck(freeName(t("deck.new")));
   });

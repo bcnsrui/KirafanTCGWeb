@@ -61,6 +61,7 @@ function normalizeRel(rel) {
     || path.startsWith("sound/")
     || path.startsWith("Deck/")
     || path.startsWith("Replay/")
+    || path.startsWith("www/")
   ) {
     return path;
   }

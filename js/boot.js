@@ -3,8 +3,15 @@
  * you return to the main menu from deck / AI / server / replay / etc. */
 
 import {
-  checkAndApplyUpdates, ensureServiceWorker, installDataFetchHook, manifestRevisionToken, metaGet,
-} from "./update.js?v=i18n39";
+  checkAndApplyShellUpdates,
+  checkAndApplyUpdates,
+  ensureServiceWorker,
+  installDataFetchHook,
+  isDiskShell,
+  manifestRevisionToken,
+  metaGet,
+  reloadToDiskShell,
+} from "./update.js?v=shellSync1";
 import { isTauri } from "./runtime.js";
 import {
   defaultDataPath,
@@ -198,6 +205,36 @@ export async function runBootSequence() {
   const forceBoot = bootParam !== null;
   const designBoot = bootParam === "design";
   if (forceBoot) clearCheckedFlag();
+
+  // Exe: sync KirafanTCGWeb shell (html/js/css) before data packs, then switch to disk overlay.
+  if (isTauri() && !designBoot && bootParam !== "demo") {
+    document.documentElement.classList.remove("boot-skip");
+    overlay?.classList.remove("hidden");
+    if (overlay) overlay.hidden = false;
+    showSetup(false);
+    startDots();
+    setProgress(0);
+    $("boot-status").textContent = t("boot.checking");
+    $("boot-detail").textContent = "";
+    try {
+      const shell = await checkAndApplyShellUpdates((info) => {
+        if (info.status === "checking" || info.status === "downloading") {
+          $("boot-status").textContent = info.message || t("boot.checking");
+          $("boot-detail").textContent = info.current || "";
+          if (info.total) setProgress(Math.min(25, (info.index / info.total) * 25));
+        }
+      });
+      if (shell.needReload && !isDiskShell()) {
+        $("boot-status").textContent = shell.message || t("boot.checking");
+        $("boot-detail").textContent = "껍데기 적용 중…";
+        const ok = await reloadToDiskShell();
+        if (ok) return { status: "reload", message: "껍데기 디스크 오버레이로 전환" };
+      }
+    } catch (err) {
+      console.warn("shell sync", err);
+      // Continue with bundled shell + data integrity.
+    }
+  }
 
   if (designBoot || bootParam === "demo") {
     overlay?.classList.remove("hidden");

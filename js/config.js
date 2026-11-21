@@ -13,7 +13,7 @@ const stored = (key, fallback) => {
 };
 
 /** App shell version (exe / menu). Data version lives in data/manifest.json. */
-export const VERSION = "0.1.0";
+export const VERSION = "0.1.1";
 
 /**
  * GitHub raw bases (bcnsrui). Large packs download from here into Cache Storage / exe data folder.
@@ -33,7 +33,24 @@ export const REPOS = {
     "updateBaseSound",
     "https://raw.githubusercontent.com/bcnsrui/KirafanTCG/main",
   ),
+  /** html/js/css/assets — exe syncs these from KirafanTCGWeb every launch */
+  shell: stored(
+    "updateBaseShell",
+    "https://raw.githubusercontent.com/bcnsrui/KirafanTCGWeb/main",
+  ),
 };
+
+/** Shell manifest URL (exe overlay). */
+export function shellManifestUrl() {
+  const base = String(REPOS.shell || "").replace(/\/$/, "");
+  return base ? `${base}/shell-manifest.json` : "shell-manifest.json";
+}
+
+export function shellFileUrl(relPath) {
+  const path = String(relPath || "").replace(/^\//, "");
+  const base = String(REPOS.shell || "").replace(/\/$/, "");
+  return base ? `${base}/${path}` : path;
+}
 
 /**
  * Base URL for data/ updates (no trailing slash).

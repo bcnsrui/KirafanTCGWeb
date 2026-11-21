@@ -16,7 +16,8 @@ import {
 } from "./pvp.js";
 import { deleteRoom, fetchRooms } from "./lobby-rooms.js";
 import { currentNick, loadMatchData, saveMatch } from "./match-store.js";
-import { getLang, puzzlesDataUrl, setLang } from "./lang.js";
+import { getLang, puzzlesDataUrl } from "./lang.js";
+import { setupSideLang } from "./side-settings.js";
 import { applyI18n, t } from "./ui-i18n.js?v=i18n43";
 import { loadJson, mediaUrl } from "./local-assets.js?v=4";
 import { bindBoardFit, fitFieldContent } from "./stage-scale.js?v=14";
@@ -3608,22 +3609,6 @@ function setupVolume() {
   }
 }
 
-/** settings tab: language select (reload so card/UI packs match) */
-function setupLang() {
-  const sel = document.getElementById("settings-lang");
-  if (!sel) return;
-  sel.value = getLang();
-  sel.addEventListener("change", () => {
-    const prev = getLang();
-    const next = setLang(sel.value);
-    if (next !== prev) {
-      toast(next === "en" ? t("toast.langEn") : next === "ja" ? t("toast.langJa") : t("toast.langKo"));
-      setTimeout(() => location.reload(), 450);
-    } else {
-      toast(t("toast.langSaved"));
-    }
-  });
-}
 
 const isSummoner = (card) => card.isType(duel.C.TYPE_EXTRA);   // (an Xyz monster in EDOPro)
 
@@ -3795,7 +3780,7 @@ async function start() {
   setupTabs();
   setupChat();
   setupVolume();
-  setupLang();
+  setupSideLang();
   await loadSounds();
   setupPhaseButtons();
   document.getElementById("pile-list-close").addEventListener("click", closePile);

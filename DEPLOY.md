@@ -15,7 +15,7 @@ raw: data → `…/KirafanTCG/main/web` · pics/sound → `…/KirafanTCG/main`
 | 실행 | 저장 | 다시 열 때 |
 |------|------|------------|
 | 브라우저 | 브라우저 전용 저장소 (웹은 `%AppData%`에 직접 쓸 수 없음) | 같은 브라우저·같은 사이트면 그대로 검사 |
-| exe | 첫 실행에 **다운로드 폴더 선택** (기본값 = **exe가 있는 폴더**). 선택 경로는 AppData 설정에 저장 | **실행할 때마다** 깃허브 매니페스트와 해시 비교 → 다르면 덮어쓰기 |
+| exe | **exe가 있는 폴더**에 `data/`·`pics/`·`sound/`·`www/` | **실행할 때마다** KirafanTCG `manifest` + KirafanTCGWeb `shell-manifest` 해시 비교 → 다르면 덮어쓰기 (껍데기는 `www/` 오버레이) |
 
 웹 메뉴 Discord 옆 **Windows 설치** 아이콘은 `localStorage.exeDownloadUrl` 또는 `js/config.js`의 `EXE_DOWNLOAD_URL`로 링크를 넣습니다. 비어 있으면 “곧 추가” 안내만 뜹니다.
 

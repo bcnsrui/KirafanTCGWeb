@@ -1,0 +1,766 @@
+{
+  "version": 1,
+  "generatedAt": "2026-11-21T13:53:07Z",
+  "files": {
+    "admin.html": {
+      "sha256": "c14bc46d02f56967b1a1e327de9326925781fb4cb4f1d8cb675b78af37afc05c",
+      "size": 4443
+    },
+    "ai.html": {
+      "sha256": "3fe3b33a311ebbac755c07438c16c3b48ffde80ce4951e6fd9089a0a217e7e85",
+      "size": 5627
+    },
+    "deck.html": {
+      "sha256": "4d986b64eae8c47671ab21c9ff3cb02f433b00df3dace5b162f16d8634cf25f8",
+      "size": 7571
+    },
+    "game.html": {
+      "sha256": "07dbd111aff4a1bd474e3ddb529e19e9c96e73006caf63de4d6f940079093a7d",
+      "size": 9784
+    },
+    "index.html": {
+      "sha256": "976bf26784fc8d960dcb8c44a940e7d514902217d6bc941166c78e72aaf29204",
+      "size": 9203
+    },
+    "puzzle.html": {
+      "sha256": "460294b0bffb09345e8ccfad03e726d97f2e3ea22ff10352f229ae1dcd523477",
+      "size": 1466
+    },
+    "records.html": {
+      "sha256": "388f38763f6adca0382403a89ea6d3305ebef8ba171acf62837ec27b36882f5e",
+      "size": 1821
+    },
+    "replay.html": {
+      "sha256": "c4ed211d6b50afede917de0eb33564868c3fc0636696108ddd82e82e5530d3c8",
+      "size": 1662
+    },
+    "room.html": {
+      "sha256": "db0547050ae950983b2ec863b8f383ca0199bd3dce1ca65ddc5a3b4e6e2c8815",
+      "size": 5920
+    },
+    "server.html": {
+      "sha256": "a8fa94782f40b4341a90ac1cf2cf112348593b6a910dfc63273e2bd02e88ac9e",
+      "size": 2963
+    },
+    "css/ai.css": {
+      "sha256": "2e07156126766063fdf550e731c001196c8ae1da3330b0fb812bc7890f563a98",
+      "size": 6182
+    },
+    "css/deck.css": {
+      "sha256": "294b5b5a8ac69ec6613c80ae182333d6f6774b95d3f3c8291239a4635f35d695",
+      "size": 13740
+    },
+    "css/game.css": {
+      "sha256": "b756c5cb17966aaa7be1c63b03f44a425506fec9e8959111126e98af3b4515fc",
+      "size": 45620
+    },
+    "css/records.css": {
+      "sha256": "4cc8a483edf1e502b7544fdbef7be5cc4f5b68395f66f6aef1edb7499b81340c",
+      "size": 2099
+    },
+    "css/replay.css": {
+      "sha256": "5cbf5f6ed28719e03da5bca7cd49536f45ae216db337977a1c14d1e738a4fca2",
+      "size": 3896
+    },
+    "css/room.css": {
+      "sha256": "fb5efc4ff37311a9654431b69e60f4e13064b1ea9c9e1ca7b45a7c68eb5b9cb7",
+      "size": 7187
+    },
+    "css/server.css": {
+      "sha256": "077827f3a0ecefd9fd66ef3d7fbf21314fe8a7f05881f12656ece7eded7d7276",
+      "size": 3448
+    },
+    "css/style.css": {
+      "sha256": "75a376555582c85e2beed5f9d500f8e78417ec00b2fd7d9582afce76df0dcc2a",
+      "size": 19027
+    },
+    "js/admin.js": {
+      "sha256": "e32f078d97a8b38e9ec3de63ef8df07f8e5e23336c0b06a4d7a8d90f2e0a4b65",
+      "size": 4822
+    },
+    "js/ai.js": {
+      "sha256": "7fbf388c5c5bc910da3bfdcad8bdc7e3e2163bf0385828a54580d26e777addf6",
+      "size": 18159
+    },
+    "js/auth.js": {
+      "sha256": "5e7fa3ad7e2d5e24b6ffbc1f5b4cbf7d8b79025e890370e2b05fc6c5d22651b1",
+      "size": 7342
+    },
+    "js/boot.js": {
+      "sha256": "db459cfe0e22214a6cd5d61512e7e90d0be089b8deca7de0a2f395b0aacf59d9",
+      "size": 13253
+    },
+    "js/config.js": {
+      "sha256": "f9a9e13ec6b96cb113518500b9f1855180a13311ca3dec308a8bfc23052a14e3",
+      "size": 4983
+    },
+    "js/deck.js": {
+      "sha256": "1f3221e59034be9f951c79b156c16f66b84d66ba73e2415be580194cbca5e846",
+      "size": 20062
+    },
+    "js/decks.js": {
+      "sha256": "3e4a2755317946cf40482ee3341cd7886b958e09f9fe000545c74794145b911d",
+      "size": 11970
+    },
+    "js/dev-cache.js": {
+      "sha256": "150b0cd159fbdca3aa9fdfadb9154b9eee45b7f587d06ba6e9f5cbc0cf451af4",
+      "size": 1093
+    },
+    "js/game.js": {
+      "sha256": "b6112b87b03ca4ed4f8614855c47ff4a2b31184e8392c209ef00dca6c1f91122",
+      "size": 164913
+    },
+    "js/i18n.js": {
+      "sha256": "f228a12d6b229ed497950da67f388233316b10f73f37cff76b6193920d44544b",
+      "size": 132
+    },
+    "js/lang.js": {
+      "sha256": "322ea1c2fc317b7997b00ce2e901111f816b41b104fa8afa9f1c17533438ff46",
+      "size": 1147
+    },
+    "js/lobby-rooms.js": {
+      "sha256": "d45ec443b10d22a7d68414ba2961aa4e58f33ada16dc5190d7cf69edd7ebeeae",
+      "size": 4424
+    },
+    "js/local-assets.js": {
+      "sha256": "8cc27810cedeaef86702f4ccdc6ac61aff704217b4643a29890bf22ef0ae5924",
+      "size": 1542
+    },
+    "js/main.js": {
+      "sha256": "17646a2de767ffa5f978e9665047d5bc76398d8c007a12d91808ce46231b1f02",
+      "size": 5481
+    },
+    "js/match-store.js": {
+      "sha256": "963779dd199c0a4678761870c4d1c1e277b81a1f57052f295eb5f1c77ff2d867",
+      "size": 1799
+    },
+    "js/presence.js": {
+      "sha256": "4f061d3b10695196385684a67b1fd2226cbe058a42bc8e2c6e6e9ada3fea7d32",
+      "size": 1838
+    },
+    "js/puzzle-list.js": {
+      "sha256": "94730595fea8b55dde78607fa5478b68086f70620b7d8eaac8bbf34966f8bc79",
+      "size": 2775
+    },
+    "js/pvp.js": {
+      "sha256": "b4ce8eeaa289b3e223584f2f543466f60e5b1cea2ac2db3875e5e2a3c27bc94d",
+      "size": 8939
+    },
+    "js/records-page.js": {
+      "sha256": "eecb5d7e53a623c183ad269be30e9154e987454d5292ad55e6e8eb1c97e0be44",
+      "size": 2456
+    },
+    "js/records.js": {
+      "sha256": "86a3b1e4edd4c9ad6e362f7e01bee8d31ec1d7d60561d52065018a595cb102e6",
+      "size": 3147
+    },
+    "js/replay-list.js": {
+      "sha256": "12a824434313867485d27ac042a98cc3682e66bd22423133f24d927c46ac3a4a",
+      "size": 3939
+    },
+    "js/replays.js": {
+      "sha256": "9ec331423ac93f59dea387dbc13d1c5cfa7db852721c945b82112acd21fb5285",
+      "size": 5119
+    },
+    "js/room.js": {
+      "sha256": "33829589103eed58fdc43cfb396658920e2f54015187549bea0a33942ab75c04",
+      "size": 35720
+    },
+    "js/runtime.js": {
+      "sha256": "e16a0b6f41bb9cdfcb575743a527164dbd4e877574716cd017426289add796a3",
+      "size": 402
+    },
+    "js/server.js": {
+      "sha256": "a3bb0dbc5d5326b1c6c2173e21df69cb8bf4833a5ae736e25c918af0e733ec73",
+      "size": 6268
+    },
+    "js/side-settings.js": {
+      "sha256": "71acb0de4729fb2b012dc7d1b30f02b8815dda890164af7b8e08c6092a2aded2",
+      "size": 2326
+    },
+    "js/sound.js": {
+      "sha256": "256119f385a5e94f505325b7945e1db18a5db3df95fc29c4648f2950988aa510",
+      "size": 4069
+    },
+    "js/stage-scale.js": {
+      "sha256": "7109b8696f75ce0acfb9baffe07eb6f0fd808e887d77c666a314a4f9f8181699",
+      "size": 5846
+    },
+    "js/storage.js": {
+      "sha256": "cd4db06cc53ab94f65ddfeb1fa33414cf4eb14a2a7be104824828c4652794265",
+      "size": 4885
+    },
+    "js/ui-i18n.js": {
+      "sha256": "27d4a901df57c1d7f928e34872a4d99347173c0626d515124a9d37606e758539",
+      "size": 70222
+    },
+    "js/ui.js": {
+      "sha256": "4dab15ca2a944401f6a17e10d764c6c1728044ca7d0780a1ad5c037ff928322f",
+      "size": 338
+    },
+    "js/update-cache.js": {
+      "sha256": "716119b642da493957c5b37acd85445c5aa6ff769fa28e74288209b567747210",
+      "size": 405
+    },
+    "js/update.js": {
+      "sha256": "efb77ed4e42250250efc42f57f4f7e8bf62fe0c8fc20aa17ced24aba50d95516",
+      "size": 21594
+    },
+    "js/ai/agent.js": {
+      "sha256": "ebf4efebf298a89ef42e5de23388698515334cd37644f844239aea08460b9ed3",
+      "size": 9702
+    },
+    "js/ai/data.js": {
+      "sha256": "0cccc70cb0759b7d7537f7b76e3830eb32fae60644b00c88cb43307d1da9b31b",
+      "size": 7143
+    },
+    "js/ai/derived.js": {
+      "sha256": "67f8f52926efc9f34570be2663b4eb3a09cff21064c597376a53880be91c2753",
+      "size": 3735
+    },
+    "js/ai/features.js": {
+      "sha256": "cd2203e4abc3442f4a61900c71294c28acfe603580557a5293ed777943cebd22",
+      "size": 55578
+    },
+    "js/ai/model.js": {
+      "sha256": "26025438b351d051c42ddb9e4135b1a2432c7e782a4ba9169d7d2980cfcfecad",
+      "size": 6212
+    },
+    "js/ai/parity.js": {
+      "sha256": "88754c3875243e8fd1ff1123962bc4a30a8da004fce4f444afcb7108ee511edf",
+      "size": 2917
+    },
+    "js/ai/policy.js": {
+      "sha256": "32474c8e590916a3e06837d438a83caa2ee629895275fee542057f6fd9a30621",
+      "size": 4348
+    },
+    "js/ai/selfplay.js": {
+      "sha256": "739ebf4618b804e58da0af41a00ff1370d5bae58089de62f08d387834ba1652c",
+      "size": 2629
+    },
+    "js/ai/tactical.js": {
+      "sha256": "430ccac993019e665ef21eca4f94a990a9ed6818bf26e74abdf6865cf22f576a",
+      "size": 29289
+    },
+    "js/ai/view.js": {
+      "sha256": "50f8db876a7c00e5f495cb76039866e21ac465974983e2ccdffd8c40e49f6926",
+      "size": 5132
+    },
+    "js/engine/actions.js": {
+      "sha256": "400c3986e9c25d59ac23bcf5548d21b16b8652b16b971908dcc9e10348c6a7ea",
+      "size": 8729
+    },
+    "js/engine/duel.js": {
+      "sha256": "632668cd4e397f604c42594ffe7bcb28380d6ecd84c7af7e51cd6674b0d12947",
+      "size": 20370
+    },
+    "js/engine/flow.js": {
+      "sha256": "b52917844a9f18400799132c18d07ce20e7c3979c88743320d0e43f0c1a33feb",
+      "size": 37081
+    },
+    "js/engine/index.js": {
+      "sha256": "c567893c1907244d0b7a7005a6273e60de65e7fac85befb078ff1bdc0ce2f5d9",
+      "size": 2218
+    },
+    "js/engine/players.js": {
+      "sha256": "9d9aeb0581dfd78200e2b5bb53ed450e5d7c3745b18340736bf11efe66be2bc0",
+      "size": 4585
+    },
+    "js/engine/puzzle.js": {
+      "sha256": "3b004539f7fbf8e0deb063e3022612a81c4fb5e268da3eab4deea7a97f1e85de",
+      "size": 3963
+    },
+    "js/engine/replay.js": {
+      "sha256": "225488f336aab35db0626e7c3054fd403effd75387883a96fb3fb79b3ee8fd72",
+      "size": 26653
+    },
+    "js/engine/rulesdiff.js": {
+      "sha256": "d3cecc2951b1982957bf9a2d025c2042289239291247dd8babe21ed6815764ac",
+      "size": 8461
+    },
+    "js/engine/runtime.js": {
+      "sha256": "c275224c1fd3dad2b4cd4dce735d6325a8e984c44d91413dd1256bf1275f0473",
+      "size": 32656
+    },
+    "js/engine/selftest.js": {
+      "sha256": "b9e1dc6265d4891f268756f2b884a2e3822104cc88b31d82e3ed005cfdcbe657",
+      "size": 2948
+    },
+    "js/vendor/fengari-web.js": {
+      "sha256": "fbea0ee4b2e38840f96b03eb7ee162ae391127df26fccd000a2b8756535c8186",
+      "size": 219632
+    },
+    "js/vendor/fflate.js": {
+      "sha256": "8cc1f687e0159e977addb6b85e274dbd11e622cf151f4fcb7b85d49622ea43e7",
+      "size": 89198
+    },
+    "assets/bg_deck.jpg": {
+      "sha256": "0930d97c6250fa74573ff9e223f7ec15a4dc3965c436b32d6904dd29ed1254e7",
+      "size": 619589
+    },
+    "assets/bg_duel.jpg": {
+      "sha256": "a462b0ceffb89e410732bffd1e1a0b95512c34199215c95b26d8ea08549d3767",
+      "size": 340414
+    },
+    "assets/bg_menu.jpg": {
+      "sha256": "f704e19866adc68236f1bf0f695a40c82cb4efbb236ae7382366c88000de75d3",
+      "size": 823893
+    },
+    "assets/coin-back.png": {
+      "sha256": "0d08b7bc0c54c45cbc29b8b1c4b3598e806081e56f9a56bcf0f63ed9c3f74236",
+      "size": 10972
+    },
+    "assets/coin-front.png": {
+      "sha256": "11ed6220964db52d3a86d3235d836bcecd38636012b166b2bebfa7ec6f85f074",
+      "size": 10335
+    },
+    "assets/cover.jpg": {
+      "sha256": "18d62701017ee64341300de018975381dd44b946a2fc2a162cb0232171152898",
+      "size": 8530
+    },
+    "assets/cover2.jpg": {
+      "sha256": "c7e04e02d1c5b0669f4c40292300df84f5e05537105710cf848ae1844f285885",
+      "size": 8233
+    },
+    "assets/attack/desktop.ini": {
+      "sha256": "d1839315e3ef368cac0f6aebd95ddf6ff2338685687d2c19878d79a5ce11e865",
+      "size": 48
+    },
+    "assets/attack/IconHate.png": {
+      "sha256": "67368d49abfe3bd8904a367911fa0a19f88b54b0b864688a1be97ea07c6ca493",
+      "size": 830
+    },
+    "assets/attack/sword-earth.png": {
+      "sha256": "1ea931aa2a897576325bb200ba904bfa9099c10a3f4acb3a58ac418027a6fc1f",
+      "size": 2313
+    },
+    "assets/attack/sword-fire.png": {
+      "sha256": "525b7667c6938cfd0bfcebf6d0a1442ca9b16251b5add5a81b61102b33b76ae7",
+      "size": 2325
+    },
+    "assets/attack/sword-moon.png": {
+      "sha256": "a5bb678ce524328bf53ca192ddf0079d11db29446c97cc14051cedfc443d4b69",
+      "size": 2388
+    },
+    "assets/attack/sword-sun.png": {
+      "sha256": "486dce5b41710745415bf9579a00d9ee85af597b7e5f82f7f4d4713e16e5d1bb",
+      "size": 2362
+    },
+    "assets/attack/sword-water.png": {
+      "sha256": "41d33bcb45d1de07905c4f09dfca3e1be4d18f321fd7ff618acc0386aebf00e3",
+      "size": 2366
+    },
+    "assets/attack/sword-wind.png": {
+      "sha256": "00d44b555e07a7b173568bf2d2e68fb2219b65479606ed7447d7aa6638f0ed69",
+      "size": 2346
+    },
+    "assets/attack/target-earth.png": {
+      "sha256": "cd2f8230ac73e03c25344c0232dc1f50a6ca7bc9aaafb849c804620a2658f824",
+      "size": 3623
+    },
+    "assets/attack/target-fire.png": {
+      "sha256": "23e7196cfd2796e979562af84092d1a52c079b3b5b9f0aecadc2f78fc52ce00c",
+      "size": 3687
+    },
+    "assets/attack/target-moon.png": {
+      "sha256": "c5b015c0bf9e731afc444013abfd8927d3fdeae4fc032692c3add50fb5d521fa",
+      "size": 3822
+    },
+    "assets/attack/target-sun.png": {
+      "sha256": "8bdb26c0e433b1bff8d46cbbf7dd82dfd12aa926372c06075be49e90005d4c5b",
+      "size": 3749
+    },
+    "assets/attack/target-water.png": {
+      "sha256": "07aa7e55580b57d52523dbcb3a4d5d1a1aefbe9f3d914615e0c6a1d1dd9a064b",
+      "size": 3866
+    },
+    "assets/attack/target-wind.png": {
+      "sha256": "2a8dfd557cf9f2519f59fd3387180aff143258fda3db5c264b7a78712135c5e9",
+      "size": 3762
+    },
+    "assets/attack/wand-earth.png": {
+      "sha256": "d36ff4288be969b66256c9f7d377560d74474e14c603eea957e3e78cdc85e6e8",
+      "size": 3760
+    },
+    "assets/attack/wand-fire.png": {
+      "sha256": "e082882067010a354a64361fe93f908df918b6abfc43bee63f7c16ad0a38a3f2",
+      "size": 3798
+    },
+    "assets/attack/wand-moon.png": {
+      "sha256": "83700356b144103ae8e90e23a40512f703969e0c2204c6ba82e480940dd5d931",
+      "size": 3893
+    },
+    "assets/attack/wand-sun.png": {
+      "sha256": "1c92921a71c262f873615a73f4b22199272b8fdcaedf8edd9afb2f7883f93e40",
+      "size": 3856
+    },
+    "assets/attack/wand-water.png": {
+      "sha256": "5e003bc55520157de3e032c14c320c6d91d7b55ba9c6f0341d75caff982a6bd2",
+      "size": 3878
+    },
+    "assets/attack/wand-wind.png": {
+      "sha256": "a6b53043ed7a336c3607bc0bb0428654f3a388365ff9b0c125f291720dcf176f",
+      "size": 3655
+    },
+    "assets/boot/bar-fill.png": {
+      "sha256": "ee4c16e9d69cd1d4416fe6c326e4fbc4186369a2352c9a6ea1e45eabfdd26f1f",
+      "size": 513
+    },
+    "assets/boot/bg.png": {
+      "sha256": "215540eaea9ef30d5625f6ace749cec03f5fb2d9752882e7ab15bda5182b6206",
+      "size": 190365
+    },
+    "assets/boot/creature.png": {
+      "sha256": "960a5e9fdbbc9385dd25cc42ebe34be4f2b8047371bcfc7bd59feb0c6d6a4b1d",
+      "size": 12291
+    },
+    "assets/boot/loading-title.png": {
+      "sha256": "d842c98db706f4f67ac05cd49a34de5f3d81331de173717d53d35dd98a968773",
+      "size": 1242
+    },
+    "assets/effects/buff.png": {
+      "sha256": "c796088971ab5d7902c6183f32509041765d4646c881d69fe4bce2919685e3a9",
+      "size": 3648
+    },
+    "assets/effects/debuff.png": {
+      "sha256": "fef0322e45e23789856dd7b3187aef3f6f941036fa5e0dbdfa81c11a568b2f31",
+      "size": 3698
+    },
+    "assets/effects/heal-text.png": {
+      "sha256": "87dc2318e3c8cb96f596f4ca0906640127618093f0be96fa477738569b161564",
+      "size": 6600
+    },
+    "assets/effects/heart.png": {
+      "sha256": "6a7ebe6baa71885d1b0234ee85b9cd312db278a8971fbed87f28004ed7053c9d",
+      "size": 3609
+    },
+    "assets/home/menu-card-frame.png": {
+      "sha256": "4ddac4d2ab8825e0da34e456a557bd86404f4dd17e454eb29c1541c64f6d128d",
+      "size": 555131
+    },
+    "assets/home/menu-icon-ai.png": {
+      "sha256": "768e9d2213df77be210d473ec3223cdb07409342d021d9d9d379943a7a2ebae6",
+      "size": 209757
+    },
+    "assets/home/menu-icon-deck.png": {
+      "sha256": "eb674befe04f50834e74426d43568d37788e525ed693382ab3ea5c13e937b170",
+      "size": 290177
+    },
+    "assets/home/menu-icon-replay.png": {
+      "sha256": "5f1bbb50883765ec700b10629d06b8b77177a5b7fe16f0e2639ac2db737bad76",
+      "size": 180179
+    },
+    "assets/home/menu-icon-server.png": {
+      "sha256": "dccd24a0d99e6b3717b123a4ba403bc91d31e1751fe8380ce425a2cc6f8cbb67",
+      "size": 199307
+    },
+    "assets/home/menu-icon-story.png": {
+      "sha256": "b0900cc6103effb365535a9b4193a5afa18688ab916e6dd733acac179818c332",
+      "size": 220280
+    },
+    "assets/icons/atk-sword-earth.png": {
+      "sha256": "f50d1636eae0076f9653d1328a4b3cd0a85d8295e6f52843e5cde23f27628dbe",
+      "size": 1285
+    },
+    "assets/icons/atk-sword-fire.png": {
+      "sha256": "9670d508542ef787c6508bf4a681aae9e0d94202f363a94ec30aa46c40d949c6",
+      "size": 1291
+    },
+    "assets/icons/atk-sword-moon.png": {
+      "sha256": "36babfe024252e1b01cd2ec1aee0bc6c9375fecc390d24c97cf05046194c51be",
+      "size": 1267
+    },
+    "assets/icons/atk-sword-sun.png": {
+      "sha256": "8fff46fb13de4417920fb99e3e3b34fde727f8c481d883f3673d2ad727cfad3a",
+      "size": 1261
+    },
+    "assets/icons/atk-sword-water.png": {
+      "sha256": "8c8e58d75bec1d2b759cdfddc91e4eecd60c2757f6ce864c705fe1c83b9c8a0f",
+      "size": 1211
+    },
+    "assets/icons/atk-sword-wind.png": {
+      "sha256": "748d66d05364d0da849c088a4d254d1482b32c4574a51ed726ee22514cd31293",
+      "size": 1277
+    },
+    "assets/icons/atk-wand-earth.png": {
+      "sha256": "f09dea39415a41cba88fe83a91583fd673687f963a8c04c9e1fb4ddf614fa81f",
+      "size": 1318
+    },
+    "assets/icons/atk-wand-fire.png": {
+      "sha256": "1924b5883c67d6df0a09b785f42b1ac7af481cd4aae590344a9af0f5232c58c3",
+      "size": 1321
+    },
+    "assets/icons/atk-wand-moon.png": {
+      "sha256": "9f0b833d4fc74f2be1ac3440f2c042c2aa0a932e97360264e4ddba510d56eecf",
+      "size": 1317
+    },
+    "assets/icons/atk-wand-sun.png": {
+      "sha256": "2b04d7bf554df87902831739fd81e1158a4d2dd36cb612db95e485772c1c9d6c",
+      "size": 1312
+    },
+    "assets/icons/atk-wand-water.png": {
+      "sha256": "8e03ad00b3adfa0c90d5df4dd9040b2a79f36783438cd8fc72d7186776a12469",
+      "size": 1276
+    },
+    "assets/icons/atk-wand-wind.png": {
+      "sha256": "01937b097ab5168ae30bca2aceb564d35d2291b801ae4d746cbe3cea0826d8c5",
+      "size": 1316
+    },
+    "assets/icons/attr-earth.png": {
+      "sha256": "b997514e3d4a4757f3ef22e4b8317e2ae653b8cd9da20646b0f5fc25e04850b1",
+      "size": 5356
+    },
+    "assets/icons/attr-fire.png": {
+      "sha256": "9a0700a5418e4bf99c1a01d77d8c55a901035c59c4add1a541957820f70989ae",
+      "size": 5997
+    },
+    "assets/icons/attr-moon.png": {
+      "sha256": "5997020420f25f1b6e95c74056cdcc9a71377fa686ed3ada947c7f1c3a000e38",
+      "size": 5575
+    },
+    "assets/icons/attr-sun.png": {
+      "sha256": "6c56659c8680b7d0690795614563158c5c61f41ae42d4ed3fa2b2533ffa0f78d",
+      "size": 5977
+    },
+    "assets/icons/attr-water.png": {
+      "sha256": "c1a82fd46e4a321e2ce6527d193d93f69867d66c4d48d8e7e28bcb3d005f7ece",
+      "size": 5162
+    },
+    "assets/icons/attr-wind.png": {
+      "sha256": "d3d40314278b854ecaa4abadb3278c79455c196b61201cf7a26bc266e0afc685",
+      "size": 6778
+    },
+    "assets/icons/class-alchemist.png": {
+      "sha256": "923dd569246fc06da246db24215094f15bc751af1417701409148971c0eae8c9",
+      "size": 4376
+    },
+    "assets/icons/class-fighter.png": {
+      "sha256": "575f6f69faefcddefe8e9881566b925f956541872acbaa12f1725f757ad4f448",
+      "size": 4474
+    },
+    "assets/icons/class-knight.png": {
+      "sha256": "01451bef331d88491f1861cf5d0e5430f3aa7b6f79ca6ff90759daaea80ea573",
+      "size": 4400
+    },
+    "assets/icons/class-magician.png": {
+      "sha256": "10821c5da44ecde779deb279da11b5cd85e0a8bb19b50cada93b7cbb03493dad",
+      "size": 4004
+    },
+    "assets/icons/class-priest.png": {
+      "sha256": "7f3992461c72ef173cfb9899163bebd57c75dbe62ae777140ab7232fafa924a1",
+      "size": 4186
+    },
+    "assets/icons/deck-book.png": {
+      "sha256": "d9ad34ec028de6994cfaf344e2c479c6567806d8e13097fbbb18aa1bb2883510",
+      "size": 1807
+    },
+    "assets/icons/dotte-stars.png": {
+      "sha256": "fede37f7c9421be4493fdbc7f53d0e6de5898d661b116ceb158134d4612fa28b",
+      "size": 1852
+    },
+    "assets/icons/dotte-title.png": {
+      "sha256": "88c7072e44cfc0d803cc5fccdc1b4aee54b6dd3c1909a93d74107fb961d5db18",
+      "size": 6833
+    },
+    "assets/icons/hp.png": {
+      "sha256": "6a7ebe6baa71885d1b0234ee85b9cd312db278a8971fbed87f28004ed7053c9d",
+      "size": 3609
+    },
+    "assets/icons/level-1.png": {
+      "sha256": "61fa6d51a67eb2e2721995a0874ebd6ee871f8e9c76aa861f52bcd71163b2db2",
+      "size": 3810
+    },
+    "assets/icons/level-2.png": {
+      "sha256": "d93d64e0de2b3a21d2df7da7b1163a092e3f898c4ea60360ceac4b024f58873c",
+      "size": 7107
+    },
+    "assets/icons/level-3.png": {
+      "sha256": "a9bf4bdbb0990336dfaee6e4c3981919bfad5d0b9ad278f159521c8c52004dae",
+      "size": 8709
+    },
+    "assets/icons/level-list-1.png": {
+      "sha256": "fe60d0578f9c40c0e447423007d0088beef4c88042eec495d8860d5dab8dd7f9",
+      "size": 176
+    },
+    "assets/icons/level-list-2.png": {
+      "sha256": "873c68673ca9073b914a59c6cb5665bcb2782b935025bc640fecf46f73c43109",
+      "size": 387
+    },
+    "assets/icons/level-list-3.png": {
+      "sha256": "94cd92375bf89bde85b8df4ab68e80197a41890175de3690dd613d4fb2a9527e",
+      "size": 382
+    },
+    "assets/icons/sanctuary.png": {
+      "sha256": "3d88885bd10acf9b7d1c1c7c2345c6a62ae0226d8211d64bc04ffbed98391a2c",
+      "size": 11964
+    },
+    "assets/icons/status-bind.png": {
+      "sha256": "e66a49a6e60e788a753ba82e159d1eb21de1135b96f84f94133660aabb2acae0",
+      "size": 1663
+    },
+    "assets/icons/status-confusion.png": {
+      "sha256": "2515c31e6bfc4ce704b9fe75c2ae7ddcc86a45ee7d2c28fd052a5fbf9efdbfb8",
+      "size": 1718
+    },
+    "assets/icons/status-hunger.png": {
+      "sha256": "7a350e21631d9e17d37f0f6e779e099ecb3fe57556dc361b4be0c9ae9bab490b",
+      "size": 1949
+    },
+    "assets/icons/status-isolation.png": {
+      "sha256": "b39b89964573a7b24f53619446fcab3e10eefe409234c7d15a83a0214ce4653c",
+      "size": 1970
+    },
+    "assets/icons/status-misfortune.png": {
+      "sha256": "cbff93e7145c77a257c1faa546fce577e19df9a45f01a42a262135ffaff8d939",
+      "size": 1930
+    },
+    "assets/icons/status-silence.png": {
+      "sha256": "f87ed30fabdf1cd5813afbbe76a669a3d02c9c4ec4f4d2af30ec7453afddc255",
+      "size": 1445
+    },
+    "assets/icons/status-sleep.png": {
+      "sha256": "b514add3de413aa5cca3958ca612d37557956d61bec856dd9363e2e624e34c67",
+      "size": 1582
+    },
+    "assets/icons/status-weak.png": {
+      "sha256": "08cbe074af69e9bbf56802fa3fdaf8809b1cbe6d1f22e5094fe0c5abd8906863",
+      "size": 1554
+    },
+    "assets/icons/stones.png": {
+      "sha256": "9d2b499fac27ed0ddb20fee991ef3bb365a4e8cf334e68724bf5330ff5905e79",
+      "size": 12024
+    },
+    "assets/icons/mission-num/MissionTextNum0.png": {
+      "sha256": "45359e8bb77c4835e0cb81200c2aa4289b8cf965348dbdc87e9f8183e0230251",
+      "size": 383
+    },
+    "assets/icons/mission-num/MissionTextNum1.png": {
+      "sha256": "4cf3843d6938cdbeeecc85f5bcda2aa6f80f177c626ebc82e6b9913da21956aa",
+      "size": 212
+    },
+    "assets/icons/mission-num/MissionTextNum2.png": {
+      "sha256": "8cd9cccbe48deb23456d4f32e638201e41a00fe81a512305b53cc7e117b5e916",
+      "size": 343
+    },
+    "assets/icons/mission-num/MissionTextNum3.png": {
+      "sha256": "509e78138fce309509571f2d9ecde915a6a7f6e54a1f37a2c56e66c88cd908cf",
+      "size": 363
+    },
+    "assets/icons/mission-num/MissionTextNum4.png": {
+      "sha256": "4bf4b0cd6106ada0f1a0d03cc431e999f3b160eb13ff8ccbf411d4bc2ceff6bf",
+      "size": 297
+    },
+    "assets/icons/mission-num/MissionTextNum5.png": {
+      "sha256": "fcc32f25fb9c71f5b246ec5c633fecfe401b49dc9abdfe012218cfdb70660d2f",
+      "size": 344
+    },
+    "assets/icons/mission-num/MissionTextNum6.png": {
+      "sha256": "369540119dff580dd71cefe3330dd058aa0e77e68252f7cf714db651902c7d42",
+      "size": 377
+    },
+    "assets/icons/mission-num/MissionTextNum7.png": {
+      "sha256": "4d740df31d410ddc961b3144d96fe261dc95325499ae7cbd7ca0ebd608e2caf7",
+      "size": 324
+    },
+    "assets/icons/mission-num/MissionTextNum8.png": {
+      "sha256": "485cc1081dcd0a77ef1bb657f8095fb8e87c8c5662c64296be1b35cf9d3af4e4",
+      "size": 390
+    },
+    "assets/icons/mission-num/MissionTextNum9.png": {
+      "sha256": "b215f1146dbecd93b003513377cba6ac981140c513835726c97de6fa1282bbc1",
+      "size": 359
+    },
+    "assets/puzzle/crown.png": {
+      "sha256": "cc47b4762d9cb8c522071e249834225e975b6f8ba08b163c472bbbcea7271f21",
+      "size": 8381
+    },
+    "assets/puzzle/hard.png": {
+      "sha256": "9178177c578251133f2b9c1decaada3ec377e3820a98ebfda490218d2b9e3c77",
+      "size": 2591
+    },
+    "assets/puzzle/normal.png": {
+      "sha256": "d1a28e330c64fd84621a39a48685ae83dfb8a06756a6c695e082978ba2bc3d68",
+      "size": 2222
+    },
+    "assets/puzzle/tutorial.png": {
+      "sha256": "b1a7096472eb29439fe1cee595d4a9078c9450841c98b9f18320216ef804a001",
+      "size": 2198
+    },
+    "assets/story/frame.png": {
+      "sha256": "4ab079362b6caf467f29e4ebac67878f254a2e6ab4154bc7d04d7e013dbee2b2",
+      "size": 3874
+    },
+    "assets/story/pen.png": {
+      "sha256": "048de07d0f1adcc33f66752ed43d91b65068765cb31d5fe6816da39d3cc4c3d5",
+      "size": 7111
+    },
+    "assets/story/ribbon.png": {
+      "sha256": "3267a399406aa2377db9e23c7c98eed245ed7fed0c9ebe5add3ef79ba8e6d627",
+      "size": 2379
+    },
+    "assets/ui/CommonButton.png": {
+      "sha256": "3bd172b57fbc98a83deb11217dce09f62dcb2bd2c5c7b2a6839d02a64b71f35a",
+      "size": 1301
+    },
+    "assets/ui/CommonButtonPush.png": {
+      "sha256": "728a2d0dd589d1d9f02b02204cad478ab85b5fa4deecf6b76ee8e5b299a79308",
+      "size": 820
+    },
+    "assets/ui/DetailFrame.png": {
+      "sha256": "f1e4d95e36b6b8bd4bbda7edc7327660dd5bab7b1836350d9a5b1afa4e6b2ca3",
+      "size": 2600
+    },
+    "assets/ui/discord.svg": {
+      "sha256": "ffab9f178318421d8ea875deaa02d2e5121aeed495fa6289add18112af4b83a2",
+      "size": 797
+    },
+    "assets/ui/EffectChoiceBar.png": {
+      "sha256": "dba82df76d0cb1b72c25e23103ac990ff4045cac4556f889d572109783f08113",
+      "size": 1530
+    },
+    "assets/ui/flag-jp.svg": {
+      "sha256": "8e10d48d79e3d409a2060cd8f6ce4c90b0a2a3ba31fda3c677754e6b5d9f8acb",
+      "size": 237
+    },
+    "assets/ui/flag-ko.svg": {
+      "sha256": "8950343fcb33e00a35ca657fa915e302b1689babfb91b4380980381505dea6e6",
+      "size": 765
+    },
+    "assets/ui/flag-us.svg": {
+      "sha256": "82e70064dba597c3a7b7a9f58bff622afe8cda834dfd7b4266262e09603ffdcf",
+      "size": 1167
+    },
+    "assets/ui/MenuButton.png": {
+      "sha256": "0b0a9af9f4d62d0fc0c7a5acb791fa59564d387be8e7f787af76a7c35b15c710",
+      "size": 3740
+    },
+    "assets/ui/ScreenWindow9.png": {
+      "sha256": "42d409cc9d8f63201c26cd99dab705b3c924f5f443c9584bc55c5689ed5f3b15",
+      "size": 7140
+    },
+    "assets/ui/ScreenWindow9.png.bak": {
+      "sha256": "d466427aad11bb7ba08b623fa6e7ac8f11b67ca88563b6346ae2795f182c2727",
+      "size": 8004
+    },
+    "assets/ui/ScrollBannerFrame.png": {
+      "sha256": "a1dabfa77a77a794ed2f5d7c34b5914e762a4aa0cfd56c513ef8ddb94c26b1aa",
+      "size": 4568
+    },
+    "assets/ui/SelectFrame.png": {
+      "sha256": "4ab079362b6caf467f29e4ebac67878f254a2e6ab4154bc7d04d7e013dbee2b2",
+      "size": 3874
+    },
+    "assets/ui/windows-exe.svg": {
+      "sha256": "e07081222ca06c98030f2df0f8804b15177d071c20ba762e3dd82b6eb59c893a",
+      "size": 226
+    },
+    "assets/ui/대사창.png": {
+      "sha256": "4ab079362b6caf467f29e4ebac67878f254a2e6ab4154bc7d04d7e013dbee2b2",
+      "size": 3874
+    },
+    "assets/ui/이름표.png": {
+      "sha256": "cbc8a7c58cbd2e3a87a0e21030a8e58af623dcfaf925a74670273515d35270a1",
+      "size": 1730
+    }
+  }
+}
