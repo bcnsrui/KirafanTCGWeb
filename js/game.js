@@ -1584,32 +1584,89 @@ function archiveReplayRemote(replay, match) {
   }).catch(() => {});
 }
 
+/** 리플레이 덱 저장용 짧은 닉 (보드 표시용 "나 · AI 4단계 · …" 아님) */
+function replayDeckNicks(match) {
+  const meNick = String(
+    match?.localNick || currentNick() || match?.host || t("game.me"),
+  ).trim() || t("game.me");
+  const vsAi = !!(match?.bot || match?.vsAi);
+  let opNick = "";
+  if (vsAi) {
+    opNick = String(match?.ai?.name || match?.opp || t("game.opp")).trim();
+  } else {
+    const local = String(match?.localNick || currentNick() || "").trim();
+    if (local && local === match?.host) opNick = String(match?.opp || "").trim();
+    else if (local && local === match?.opp) opNick = String(match?.host || "").trim();
+    else opNick = String(match?.opp || match?.host || "").trim();
+  }
+  if (!opNick) opNick = t("game.opp");
+  return { meNick, opNick };
+}
+
 /** the game so far kept for the replay list (again at its end: the same id) */
 async function keepReplay(match, result) {
-  flushSanctuary();
-  recordFrame();
-  if (!recorder.frames.length) return null;
-  const payload = {
-    id: recorder.id || Date.now(), format: FORMAT, date: new Date().toISOString(),
-    names: [...(me === 0 ? names : [names[1], names[0]])], myDeck: match.me.name, aiDeck: match.ai.name,
-    level: match.level, bot: match.bot || "", result, turns: duel.turn, frames: recorder.frames,
-  };
   try {
+    flushSanctuary();
+    recordFrame();
+    if (!recorder.frames.length) {
+      console.warn("keepReplay: no frames");
+      return null;
+    }
+    const { meNick, opNick } = replayDeckNicks(match);
+    const myDeckName = String(match?.me?.name || names?.[me] || "").trim();
+    const opDeckName = String(match?.ai?.name || names?.[1 - me] || "").trim();
+    const vsAi = !!(match?.vsAi);
+    // bot 은 AI 성격만 (사람전에 상대 닉이 들어가 있던 옛 데이터 방지)
+    const bot = vsAi ? String(match?.bot || "").trim() : "";
+    const raw = {
+      id: recorder.id || Date.now(),
+      format: FORMAT,
+      date: new Date().toISOString(),
+      names: [...(me === 0 ? names : [names[1], names[0]])],
+      myDeck: myDeckName,
+      aiDeck: opDeckName,
+      level: match?.level || 0,
+      bot,
+      result,
+      turns: duel?.turn || 0,
+      frames: recorder.frames,
+      decks: {
+        me: {
+          name: meNick,
+          summoner: duel.decks[me]?.summoner ?? null,
+          main: [...(duel.decks[me]?.main || [])].map((c) => (typeof c === "number" ? c : Number(c?.code || c) || 0)).filter(Boolean),
+        },
+        op: {
+          name: opNick,
+          summoner: duel.decks[1 - me]?.summoner ?? null,
+          main: [...(duel.decks[1 - me]?.main || [])].map((c) => (typeof c === "number" ? c : Number(c?.code || c) || 0)).filter(Boolean),
+        },
+      },
+      vsAi,
+      pvp: !!(match?.pvp || (match?.roomId && !vsAi)),
+    };
+    // IndexedDB / 디스크에 못 넣는 참조·순환 제거
+    const payload = JSON.parse(JSON.stringify(raw));
     recorder.id = await saveReplay(payload);
-    archiveReplayRemote({ ...payload, id: recorder.id }, match);
+    try {
+      archiveReplayRemote({ ...payload, id: recorder.id }, match);
+    } catch (archErr) {
+      console.warn("archiveReplayRemote failed", archErr);
+    }
   } catch (err) {
     console.error(err);
     toast(t("replay.saveFail"));
+    return null;
   }
   // 전적만 계정 동기화 (덱 전문·리플레이 프레임은 올리지 않음)
   try {
     const record = makeMatchRecord({
       result,
-      level: match.level,
-      bot: match.bot || "",
-      turns: duel.turn,
-      myDeck: match.me?.name || "",
-      aiDeck: match.ai?.name || "",
+      level: match?.level || 0,
+      bot: match?.vsAi ? (match?.bot || "") : "",
+      turns: duel?.turn || 0,
+      myDeck: match?.me?.name || "",
+      aiDeck: match?.ai?.name || "",
     });
     await submitMatchRecord(record);
   } catch (err) {
@@ -1722,8 +1779,9 @@ function optionLabel(o) {
 }
 
 /**
- * Chip color from this option's effect text (label + effect; bare totteoki → card totteoki block).
- * Multi-effect priority: draw > status > atk > summon > gauge > heal
+ * Chip color from this option's effect text (label + effect).
+ * 배틀 크리에메이트 「돗테오키 효과」는 본문에 드로우가 있어도 항상 연빨강(totteoki).
+ * Multi-effect priority (그 외): draw > status > atk > summon > gauge > heal
  * (heal then splits heal-aoe / heal-single)
  */
 /** Drop "(배틀 페이즈 종료시) …" deferred bonuses so chip color follows the immediate effect only. */
@@ -1784,27 +1842,11 @@ function optionChipKind(o) {
     || (/(?:돗테오키|とっておき|totteoki)/i.test(label)
       && /(?:효과|効果|effect|スキル|skill)/i.test(label)
       && !/(?:게이지|ゲージ|gauge)/i.test(label));
-  if (bareDotte) {
-    // 샤미코 등 ①/② 선택: 해당 선택지 본문으로 색 분류
-    const totteBlock = cardDesc.split(
-      /\[돗테오키 게이지[^\]]*\]|【とっておきゲージ[^\]]*】|\[とっておきゲージ[^\]]*\]|\[Totteoki[^\]]*\]|\[Consume[^\]]*Totteoki\s*Gauge[^\]]*\]/i,
-    )[1] || "";
-    if (totteBlock.trim()) {
-      const body = totteBlock.split(/\n\s*\n\s*\(/)[0];
-      const choices = [...body.matchAll(/[①②③][:：]\s*([^\n①②③]+)/g)].map((m) => m[1].trim());
-      const second = /두번째|第二|2つ目|second/i.test(label);
-      if (choices.length) {
-        const pick = second ? (choices[1] || choices[choices.length - 1]) : choices[0];
-        s = `${label}\n${pick}`;
-      } else {
-        s = `${label}\n${body}`;
-      }
-    }
-  }
+  // 배틀 크리에메이트 돗테오키 = 항상 연빨강 (코테츠처럼 본문에 드로우가 있어도 하늘색으로 떨어지지 않음)
+  if (bareDotte) return "totteoki";
+
   const kind = optionChipKindFromText(s, cardDesc);
   if (kind !== "other") return kind;
-  // 돗테오키 효과 버튼: EN/JA 문구 미매칭으로 연노랑(other) 떨어지지 않게
-  if (bareDotte) return "totteoki";
 
   // 플레이버 라벨(앨리스 등): 서포트 [스킬]/[Skill]/【スキル】 본문으로 재분류 (돗테오키 버튼에는 적용하지 않음)
   const skillBody = (cardDesc.match(/\[(?:스킬|スキル|Skill|Summon)\]\s*([\s\S]*?)(?=\n\s*\[|\n\s*【|$)/i)
@@ -1922,6 +1964,37 @@ function askMenu(d) {
   });
 }
 
+const PROMPT_RESULT_SCRIM_ID = "prompt-result-scrim";
+
+function ensureResultScrim() {
+  const board = document.getElementById("board");
+  if (!board) return;
+  let scrim = document.getElementById(PROMPT_RESULT_SCRIM_ID);
+  if (!scrim) {
+    scrim = el("div", "prompt-result-scrim");
+    scrim.id = PROMPT_RESULT_SCRIM_ID;
+    // 배경 클릭으로 닫히지 않음 — 보드 입력만 막음
+    scrim.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    scrim.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  }
+  board.appendChild(scrim);
+}
+
+function removeResultScrim() {
+  document.getElementById(PROMPT_RESULT_SCRIM_ID)?.remove();
+}
+
+function isResultPromptOpen() {
+  const box = document.getElementById("prompt");
+  return !!(box && !box.hidden && box.classList.contains("result"));
+}
+
 /** a question over the board: buttons [{ label, value, card?, primary?, wide? }];
  *  pictures: [{ src, caption, className? }] shown under the text */
 function askPrompt(title, text, buttons, { result = false, pictures = [] } = {}) {
@@ -1953,8 +2026,9 @@ function askPrompt(title, text, buttons, { result = false, pictures = [] } = {})
         if (info) button.addEventListener("mouseenter", () => show(info));
       }
       button.addEventListener("click", () => {
+        removeResultScrim();
         box.hidden = true;
-        box.classList.remove("waiting");
+        box.classList.remove("waiting", "result");
         box.style.display = "";
         box.style.zIndex = "";
         resolve(b.value);
@@ -1973,12 +2047,22 @@ function askPrompt(title, text, buttons, { result = false, pictures = [] } = {})
     box.style.zIndex = "9999";
     // 보드 위에 확실히 보이도록 맨 앞으로
     box.parentElement?.appendChild(box);
+    if (result) {
+      ensureResultScrim();
+      // 스크림 위에 결과 창
+      box.parentElement?.appendChild(box);
+    } else {
+      removeResultScrim();
+    }
   });
 }
 
 function showWaitingPrompt(title, text) {
   const box = document.getElementById("prompt");
   if (!box) return;
+  // 승패 결과창이 떠 있으면 덮어쓰지 않음
+  if (isResultPromptOpen()) return;
+  removeResultScrim();
   box.classList.add("waiting");
   box.classList.remove("result");
   document.getElementById("prompt-title").textContent = title;
@@ -1993,17 +2077,21 @@ function showWaitingPrompt(title, text) {
 function hideWaitingPrompt() {
   const box = document.getElementById("prompt");
   if (!box) return;
-  if (!box.classList.contains("waiting") && box.hidden) return;
+  // waiting 만 닫음 — 승패 result 창을 화면 클릭/정리로 지우지 않음
+  if (!box.classList.contains("waiting")) return;
   box.hidden = true;
   box.classList.remove("waiting");
   box.style.display = "";
   box.style.zIndex = "";
 }
 
-/** 대기/선택 프롬프트를 강제로 닫아 보드가 가려지지 않게 합니다. */
-function clearPromptOverlay() {
+/** 대기/선택 프롬프트를 강제로 닫아 보드가 가려지지 않게 합니다.
+ *  승패 결과창은 버튼으로만 닫음 (force 로만 강제 해제). */
+function clearPromptOverlay({ force = false } = {}) {
   hideOppWaitNotice(true);
   hideOppAwayNotice();
+  if (!force && isResultPromptOpen()) return;
+  removeResultScrim();
   const box = document.getElementById("prompt");
   if (!box) return;
   box.hidden = true;
@@ -3047,18 +3135,34 @@ function flushReplayOnUnload(match) {
       myDeck: match.me?.name || "",
       aiDeck: match.ai?.name || "",
       level: match.level,
-      bot: match.bot || "",
+      bot: match.vsAi ? (match.bot || "") : "",
       result: t("game.replayResignAsLoss"),
       turns: duel.turn,
       frames: recorder.frames,
+      decks: (() => {
+        const { meNick, opNick } = replayDeckNicks(match);
+        const codes = (arr) => [...(arr || [])].map((c) => (typeof c === "number" ? c : Number(c?.code || c) || 0)).filter(Boolean);
+        return {
+          me: { name: meNick, summoner: duel.decks[me]?.summoner ?? null, main: codes(duel.decks[me]?.main) },
+          op: { name: opNick, summoner: duel.decks[1 - me]?.summoner ?? null, main: codes(duel.decks[1 - me]?.main) },
+        };
+      })(),
+      vsAi: !!match.vsAi,
+      pvp: !!(match.pvp || (match.roomId && !match.vsAi)),
     };
-    void saveReplay(payload).then((id) => { recorder.id = id; }).catch(() => {});
+    let saved;
+    try {
+      saved = JSON.parse(JSON.stringify(payload));
+    } catch {
+      return;
+    }
+    void saveReplay(saved).then((id) => { recorder.id = id; }).catch(() => {});
     try {
       fetch(`${API_BASE}/replays/archive`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...payload,
+          ...saved,
           mode: match.pvp || match.roomId ? "pvp" : "ai",
           roomId: match.roomId || "",
         }),
@@ -3307,19 +3411,26 @@ async function playPvpMatch(match) {
   let specEndPrompt = null;
   const resignGate = createResignGate();
   const winnerNickOf = (resignBy) => {
-    const by = String(resignBy || "");
+    const by = String(resignBy || "").trim();
+    // AI전: 항복자 미상이면 사람(방장)이 나간 것으로 보고 AI 승
+    if (!by && match.vsAi) {
+      return String(match.opp || "").trim() || "?";
+    }
     return [match.host, match.opp]
       .map((n) => String(n || "").trim())
       .find((n) => n && n !== by) || "?";
   };
   const showSpectatorResignResult = (resignBy) => {
     if (specEndPrompt) return specEndPrompt;
-    const winnerNick = winnerNickOf(resignBy);
+    const by = String(resignBy || "").trim()
+      || (match.vsAi ? String(match.host || "").trim() : "");
+    const winnerNick = winnerNickOf(by);
     log(t("duel.specWinner", { name: winnerNick }));
     specEndPrompt = (async () => {
       disarmPvpUnloadResign();
       hideOppAwayNotice();
       hideOppWaitNotice(true);
+      clearPromptOverlay();
       try {
         await askPrompt(
           t("duel.resultWin"),
@@ -3427,9 +3538,13 @@ async function playPvpMatch(match) {
       }
       const resignBy = String(by || "");
       if (spectating) {
-        // 관전: 즉시 승자 알림. resignGate 로 ask 를 끊고, 이 Promise 를 기다린다.
-        // (duel.over 는 getter-only — 대입하면 TypeError)
+        // 관전: 즉시 승자 알림. ask 대기·엔진 루프를 끊는다.
+        // (duel.over 는 getter-only — winner 만 세팅)
         showSpectatorResignResult(resignBy);
+        if (duel && duel.winner == null) {
+          duel.winner = 2;
+          duel.winReason = "surrender";
+        }
         resignGate.trip(by || "");
         return;
       }
@@ -3439,7 +3554,12 @@ async function playPvpMatch(match) {
       playBgm("win");
       leaveAfterOppResign = (async () => {
         disarmPvpUnloadResign();
-        try { await keepReplay(match, t("duel.resultWin")); } catch { /* ignore */ }
+        try {
+          await keepReplay(match, t("duel.resultWin"));
+        } catch (err) {
+          console.error("resign win replay failed", err);
+          toast(t("replay.saveFail"));
+        }
         try { await clearMatchRoom(match, { keepDuel: true }); } catch { /* ignore */ }
         await askPrompt(t("duel.win"), WIN_REASONS.surrender, [
           { label: t("duel.exit"), value: "server.html", primary: true },
@@ -3466,6 +3586,7 @@ async function playPvpMatch(match) {
         if (oppResigned) return;
         if (nick && nick === localNick) return;
         awayNickNow = nick || "";
+        // 창 닫기(이탈) = 재입장 대기 메시지. 항복일 때만 승자 알림.
         showOppAwayNotice({
           canClaim: !spectating,
           onClaim: claimWinVsAway,
@@ -3494,10 +3615,14 @@ async function playPvpMatch(match) {
       await duel.play(duel.decks);
     } catch (err) {
       // 관전·항복으로 ask 가 끊기면 OppResignedError / DuelEnd — 에러 화면으로 보지 않음
-      // (duel.over 는 getter-only. 관전은 resignGate·specEndPrompt 만으로 종료)
       if (err instanceof OppResignedError || err instanceof DuelEnd || oppResigned || specEndPrompt) {
         if (!duel?.over && !spectating && err instanceof OppResignedError) {
           duel.lose(1 - me, "surrender");
+        }
+        // 관전: watch 보다 wait 가 먼저 끊겨도 승자 알림을 띄운다 (AI전 항복 멈춤 방지)
+        if (spectating && !specEndPrompt) {
+          const by = err instanceof OppResignedError ? String(err.resignedBy || "") : "";
+          showSpectatorResignResult(by);
         }
       } else {
         throw err;
@@ -3510,20 +3635,25 @@ async function playPvpMatch(match) {
         await specEndPrompt;
         return;
       }
-      // watch 가 늦을 수 있어 항복 상태를 짧게 재확인
+      // watch 가 늦을 수 있어 항복·종료 상태를 짧게 재확인
       let resignBy = "";
-      for (let i = 0; i < 15; i++) {
+      let ended = false;
+      for (let i = 0; i < 20; i++) {
         try {
           const existing = await fetchPvpDuel(roomId);
           if (existing?.phase === "resigned" || existing?.resignedBy) {
             resignBy = String(existing.resignedBy || "");
+            ended = true;
             break;
           }
-          if (existing?.gone) break;
+          if (existing?.gone) {
+            ended = true;
+            break;
+          }
         } catch { /* ignore */ }
         await new Promise((r) => setTimeout(r, 200));
       }
-      if (resignBy || oppResigned) {
+      if (ended || resignBy || oppResigned) {
         await showSpectatorResignResult(resignBy);
         return;
       }
@@ -3726,7 +3856,27 @@ async function playRoomAiBroadcast(match) {
   surrendering = async () => {
     log(t("duel.resignSelf"));
     disarmPvpUnloadResign();
-    try { await postPvpResign(roomId, localNick); } catch { /* ignore */ }
+    // 관전자가 항복을 읽을 수 있게 서버에 남긴 뒤 확인. 실패 시 duel 삭제 → gone 으로 관전 종료
+    let resignOk = false;
+    try {
+      await postPvpResign(roomId, localNick);
+    } catch (err) {
+      console.warn("AI resign post failed", err);
+      beaconPvpResign(roomId, localNick);
+    }
+    for (let i = 0; i < 12; i++) {
+      try {
+        const d = await fetchPvpDuel(roomId);
+        if (d?.phase === "resigned" || d?.resignedBy) {
+          resignOk = true;
+          break;
+        }
+      } catch { /* ignore */ }
+      await new Promise((r) => setTimeout(r, 100));
+    }
+    if (!resignOk) {
+      try { await clearPvpDuel(roomId); } catch { /* ignore */ }
+    }
     return keepReplay(match, t("game.replayResignAsLoss"));
   };
   duel.onActivate = alchemistNotice;

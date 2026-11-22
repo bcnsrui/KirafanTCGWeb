@@ -277,6 +277,8 @@ export function createResignGate() {
   const err = () => new OppResignedError(resignedBy);
   return {
     isCancelled: () => cancelled,
+    resignedBy: () => resignedBy,
+    error: err,
     trip(by = "") {
       cancelled = true;
       resignedBy = by == null ? "" : String(by);
@@ -338,8 +340,14 @@ export async function waitPvpAnswer(roomId, step, {
   resignGate = null,
 } = {}) {
   const start = Date.now();
+  const cancelledErr = () => {
+    if (resignGate?.isCancelled()) return resignGate.error();
+    if (isCancelled?.()) return new OppResignedError(resignGate?.resignedBy?.() || "");
+    return null;
+  };
   while (Date.now() - start < timeoutMs) {
-    if (resignGate?.isCancelled() || isCancelled?.()) throw new OppResignedError();
+    const early = cancelledErr();
+    if (early) throw early;
     const data = await api(`/duels/${encodeURIComponent(roomId)}?step=${encodeURIComponent(String(step))}`);
     const by = resignFromPoll(data);
     if (by !== null) throw new OppResignedError(by);
@@ -425,11 +433,15 @@ export function lockstepPlayers(roomId, localPlayer, remotePlayer, localIsPlayer
     try { onCatchUpDone?.(); } catch { /* ignore */ }
   };
 
+  const throwIfCancelled = () => {
+    if (resignGate?.isCancelled()) throw resignGate.error();
+    if (cancelled()) throw new OppResignedError(resignGate?.resignedBy?.() || "");
+  };
   const wrap = (player, isLocal) => ({
     human: true,
     async ask(duel, decision) {
       const n = step++;
-      if (cancelled()) throw new OppResignedError();
+      throwIfCancelled();
       if (isLocal) {
         // 언어 변경 등으로 재접속: 이미 올린 내 수순은 다시 묻지 않음
         try {
@@ -448,7 +460,7 @@ export function lockstepPlayers(roomId, localPlayer, remotePlayer, localIsPlayer
         } finally {
           arm?.cancel();
         }
-        if (cancelled()) throw new OppResignedError();
+        throwIfCancelled();
         await postPvpAnswer(roomId, n, answer);
         return answer;
       }
@@ -492,11 +504,15 @@ export function lockstepSpectator(roomId, {
     catchingUp = false;
     try { onCatchUpDone?.(); } catch { /* ignore */ }
   };
+  const throwIfCancelled = () => {
+    if (resignGate?.isCancelled()) throw resignGate.error();
+    if (cancelled()) throw new OppResignedError(resignGate?.resignedBy?.() || "");
+  };
   const wrap = (isHuman) => ({
     human: !!isHuman,
     async ask(duel, decision) {
       const n = step++;
-      if (cancelled()) throw new OppResignedError();
+      throwIfCancelled();
       try {
         const peek = await peekPvpAnswer(roomId, n);
         if (peek.found) return peek.answer;

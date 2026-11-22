@@ -875,6 +875,14 @@ class Handler(BaseHTTPRequestHandler):
                     step = body.get("step")
                     if step is None:
                         return self._text(400, "step required")
+                    if not isinstance(data, dict) or not data:
+                        return self._json(200, {"ok": False, "gone": True})
+                    if data.get("phase") == "resigned" or data.get("resignedBy"):
+                        return self._json(200, {
+                            "ok": False,
+                            "resigned": True,
+                            "resignedBy": str(data.get("resignedBy") or ""),
+                        })
                     key = str(step)
                     if key.lstrip("-").isdigit():
                         key = str(int(key))

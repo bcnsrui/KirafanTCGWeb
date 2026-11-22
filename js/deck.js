@@ -399,7 +399,7 @@ function renderList() {
     li.addEventListener("click", () => add(card));
     li.addEventListener("contextmenu", (e) => {
       e.preventDefault();
-      add(card);
+      remove(card);
     });
     return li;
   }));
@@ -438,7 +438,7 @@ function aiRankCardEl(row) {
     btn.addEventListener("click", () => add(card));
     btn.addEventListener("contextmenu", (e) => {
       e.preventDefault();
-      add(card);
+      remove(card);
     });
   }
   return btn;

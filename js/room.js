@@ -685,7 +685,8 @@ async function startDuel() {
       toast(t("room.oppDeckInvalid", { list: oppProblems.join(" · ") }));
       return;
     }
-    bot = oppName;
+    // 사람전: bot 은 AI 성격 전용. 상대 닉을 넣으면 리플레이가 AI전으로 오인됨
+    bot = "";
   }
 
   playerDecks[me] = mine;

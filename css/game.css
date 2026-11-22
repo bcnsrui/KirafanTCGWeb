@@ -1694,6 +1694,15 @@ button.pile:hover {
   font-size: 34px;
 }
 
+/* 승패 결과: 보드 클릭으로 창이 사라지지 않게 입력 차단 */
+.prompt-result-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(0, 0, 0, 0.42);
+  cursor: default;
+}
+
 /* ---- effect choice bars (support + battle creamate) ---- */
 .card-menu {
   --ui-effect-bar: url("../assets/ui/EffectChoiceBar.png?v=5");

@@ -1,11 +1,12 @@
 """Build the web version's card data and images from the game folder.
 
     KirafanAI\\.venv\\Scripts\\python.exe KirafanWeb\\tools\\build_data.py
-    KirafanAI\\.venv\\Scripts\\python.exe KirafanWeb\\tools\\build_data.py --lang en
 
-- data/cards.json (or data/en/…): the cards a deck may hold
+KO only. English/Japanese packs: build_en_pack.py / build_ja_pack.py (KO → MT).
+
+- data/cards.json: the cards a deck may hold
 - data/ai_decks.json: the level bots' decks (Korean titles; shared)
-- data/engine.json (or data/en/…): every card + system strings for the rules engine
+- data/engine.json: every card + system strings for the rules engine
 - data/scripts.json, puzzles, sound, pics: language-independent (full build only)
 """
 import argparse
@@ -34,11 +35,6 @@ LANG_PATHS = {
         "cdb": os.path.join(GAME, "expansions", "kirafan.cdb"),
         "strings": os.path.join(GAME, "expansions", "strings.conf"),
         "out": os.path.join(WEB, "data"),
-    },
-    "en": {
-        "cdb": os.path.join(GAME, "expansions", "kirafan(EN).cdb"),
-        "strings": os.path.join(GAME, "expansions", "strings_en.conf"),
-        "out": os.path.join(WEB, "data", "en"),
     },
 }
 
@@ -208,9 +204,7 @@ def engine_puzzles():
     return out
 
 
-def build_card_lists(db, system, sets, cdb_path, bit_system=None):
-    """bit_system: strings for attribute/class/type keys (keep Korean so deck filters/sort stay stable)."""
-    bits = bit_system or system
+def build_card_lists(db, system, sets, cdb_path):
     con = sqlite3.connect(cdb_path)
     rows = {r[0]: r for r in con.execute("select id, type, atk, def, level, race, attribute, setcode from datas")}
     con.close()
@@ -226,9 +220,9 @@ def build_card_lists(db, system, sets, cdb_path, bit_system=None):
             "id": code,
             "name": card.name,
             "kind": "summoner" if code in SUMMONER_CODES else "token" if code in tokens else "creamate",
-            "types": bit_names(typ, 1050, bits),
-            "class": "/".join(bit_names(race, 1020, bits)),
-            "attribute": "/".join(bit_names(attr, 1010, bits)),
+            "types": bit_names(typ, 1050, system),
+            "class": "/".join(bit_names(race, 1020, system)),
+            "attribute": "/".join(bit_names(attr, 1010, system)),
             "level": level & 0xff,
             "atk": atk,
             "hp": hp,
@@ -241,66 +235,54 @@ def build_card_lists(db, system, sets, cdb_path, bit_system=None):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Build KirafanWeb card/engine data")
-    parser.add_argument("--lang", choices=sorted(LANG_PATHS), default="ko",
-                        help="ko: data/*.json (full assets). en: data/en/cards.json + engine.json only")
-    parser.add_argument("--full", action="store_true",
-                        help="Also rebuild scripts/puzzles/sounds/pics (ko default does this)")
-    args = parser.parse_args(argv)
-    lang = args.lang
-    cfg = LANG_PATHS[lang]
+    argparse.ArgumentParser(description="Build KirafanWeb card/engine data").parse_args(argv)
+    cfg = LANG_PATHS["ko"]
     cdb_path = cfg["cdb"]
     if not os.path.isfile(cdb_path):
         raise SystemExit(f"missing cdb: {cdb_path}")
     if not os.path.isfile(cfg["strings"]):
         raise SystemExit(f"missing strings: {cfg['strings']}")
 
-    db = CardDB(cdb_path) if lang != "ko" else get_db()
+    db = get_db()
     system, sets = strings(cfg["strings"])
-    # Deck filter/sort keys stay Korean even for EN card text
-    bit_system = strings(LANG_PATHS["ko"]["strings"])[0] if lang != "ko" else system
     out_dir = cfg["out"]
     os.makedirs(out_dir, exist_ok=True)
 
-    cards, codes = build_card_lists(db, system, sets, cdb_path, bit_system=bit_system)
+    cards, codes = build_card_lists(db, system, sets, cdb_path)
     with open(os.path.join(out_dir, "cards.json"), "w", encoding="utf-8") as f:
         json.dump({"maxCopies": MAX_COPIES, "mainSize": MAIN_SIZE, "cards": cards}, f, ensure_ascii=False)
-    print("[%s] cards %d (summoner %d, creamate %d)" % (
-        lang, len(cards), sum(c["kind"] == "summoner" for c in cards), sum(c["kind"] == "creamate" for c in cards)))
+    print("[ko] cards %d (summoner %d, creamate %d)" % (
+        len(cards), sum(c["kind"] == "summoner" for c in cards), sum(c["kind"] == "creamate" for c in cards)))
 
     engine = engine_data(system, cdb_path)
     with open(os.path.join(out_dir, "engine.json"), "w", encoding="utf-8") as f:
         json.dump(engine, f, ensure_ascii=False)
-    print("[%s] engine cards %d" % (lang, len(engine["cards"])))
+    print("[ko] engine cards %d" % len(engine["cards"]))
 
-    # Shared Korean AI decks / scripts / media only on full ko build
-    do_full = (lang == "ko") or args.full
-    if lang == "ko":
-        model, decks = ai_decks(db, cards)
-        with open(os.path.join(WEB, "data", "ai_decks.json"), "w", encoding="utf-8") as f:
-            json.dump({"model": model, "bots": {lv: name for lv, name in LEVEL_BOTS}, "decks": decks}, f,
-                      ensure_ascii=False)
-        print("AI decks %d (model %s)" % (len(decks), model))
+    model, decks = ai_decks(db, cards)
+    with open(os.path.join(WEB, "data", "ai_decks.json"), "w", encoding="utf-8") as f:
+        json.dump({"model": model, "bots": {lv: name for lv, name in LEVEL_BOTS}, "decks": decks}, f,
+                  ensure_ascii=False)
+    print("AI decks %d (model %s)" % (len(decks), model))
 
-    if do_full and lang == "ko":
-        scripts = engine_scripts()
-        with open(os.path.join(WEB, "data", "scripts.json"), "w", encoding="utf-8") as f:
-            json.dump(scripts, f, ensure_ascii=False)
-        print("scripts %d" % len(scripts))
-        puzzles = engine_puzzles()
-        with open(os.path.join(WEB, "data", "puzzles.json"), "w", encoding="utf-8") as f:
-            json.dump(puzzles, f, ensure_ascii=False)
-        print("puzzles %d" % len(puzzles))
-        sound, copied = sounds()
-        with open(os.path.join(WEB, "data", "sounds.json"), "w", encoding="utf-8") as f:
-            json.dump(sound, f, ensure_ascii=False)
-        print("sounds: bgm %d, voice %d, sfx %d (copied %d)" % (
-            sum(map(len, sound["bgm"].values())), sum(map(len, sound["voice"].values())),
-            len(sound["effects"]), copied))
-        subprocess.check_call(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
-                               os.path.join(WEB, "tools", "resize_pics.ps1"),
-                               os.path.join(GAME, "expansions", "pics"), os.path.join(WEB, "pics"),
-                               ",".join(str(c) for c in codes)])
+    scripts = engine_scripts()
+    with open(os.path.join(WEB, "data", "scripts.json"), "w", encoding="utf-8") as f:
+        json.dump(scripts, f, ensure_ascii=False)
+    print("scripts %d" % len(scripts))
+    puzzles = engine_puzzles()
+    with open(os.path.join(WEB, "data", "puzzles.json"), "w", encoding="utf-8") as f:
+        json.dump(puzzles, f, ensure_ascii=False)
+    print("puzzles %d" % len(puzzles))
+    sound, copied = sounds()
+    with open(os.path.join(WEB, "data", "sounds.json"), "w", encoding="utf-8") as f:
+        json.dump(sound, f, ensure_ascii=False)
+    print("sounds: bgm %d, voice %d, sfx %d (copied %d)" % (
+        sum(map(len, sound["bgm"].values())), sum(map(len, sound["voice"].values())),
+        len(sound["effects"]), copied))
+    subprocess.check_call(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+                           os.path.join(WEB, "tools", "resize_pics.ps1"),
+                           os.path.join(GAME, "expansions", "pics"), os.path.join(WEB, "pics"),
+                           ",".join(str(c) for c in codes)])
 
 
 if __name__ == "__main__":
