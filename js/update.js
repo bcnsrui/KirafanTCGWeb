@@ -244,17 +244,8 @@ export async function checkAndApplyUpdates(onProgress) {
     ? `g:${manifest.generatedAt}`
     : `c:${Object.keys(manifest.files || {}).length}`;
   const prev = metaGet();
-  // Browser only: same revision → skip re-hash on main-menu returns.
-  // Exe always compares file hashes to GitHub and overwrites mismatches.
-  if (!isTauri() && prev?.generatedAt && manifest.generatedAt && prev.generatedAt === manifest.generatedAt) {
-    installDataFetchHook();
-    await ensureServiceWorker().catch(() => null);
-    return report("ok", "데이터 최신 (이 브라우저 저장소)", {
-      checked: Object.keys(manifest.files || {}).length,
-      updated: 0,
-      revision,
-    });
-  }
+  // Always compare per-file hashes (web + exe). Skipping when generatedAt matched
+  // left stale EN/JA cards.json in Cache Storage while KO looked current.
   const entries = Object.entries(manifest.files);
   if (!entries.length) {
     metaSet(manifest);

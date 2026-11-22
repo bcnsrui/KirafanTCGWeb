@@ -1,6 +1,7 @@
 /* First-run download UI + exe data-folder setup.
- * Integrity check runs once per data revision (manifest generatedAt), not every time
- * you return to the main menu from deck / AI / server / replay / etc. */
+ * Exe: integrity once per process launch (same-process main-menu returns skip).
+ * Web: integrity every time index (main menu) loads — Cache Storage can keep stale
+ * EN/JA cards while KO looks updated if we only compare generatedAt / session flags. */
 
 import {
   checkAndApplyShellUpdates,
@@ -11,7 +12,7 @@ import {
   manifestRevisionToken,
   metaGet,
   reloadToDiskShell,
-} from "./update.js?v=shellSync1";
+} from "./update.js?v=webIntegrity1";
 import { isTauri } from "./runtime.js";
 import {
   defaultDataPath,
@@ -55,43 +56,6 @@ function isSessionOk() {
   } catch {
     return false;
   }
-}
-
-/**
- * Skip integrity UI when this tab already checked, or saved data revision
- * still matches the live manifest. Never show the overlay just to compare.
- */
-async function alreadyCheckedCurrentRevision() {
-  // Same tab (덱/AI 갔다 메인 복귀): 절대 다시 검사하지 않음
-  if (isSessionOk()) return true;
-
-  const metaRev = revisionFromMeta();
-  const done = readDone();
-
-  let live = null;
-  try {
-    live = await manifestRevisionToken();
-  } catch { /* ignore */ }
-
-  // 이 탭 첫 진입: 매니페스트 리비전이 이미 적용·표시된 것과 같으면 스킵 (화면 안 띄움)
-  if (live && (live === metaRev || live === done)) {
-    markCheckedThisSession(live);
-    return true;
-  }
-  if (done === "ok" && metaRev && (!live || live === metaRev)) {
-    markCheckedThisSession(metaRev);
-    return true;
-  }
-  if (!live && (metaRev || (done && done !== "1"))) {
-    markCheckedThisSession(metaRev || done);
-    return true;
-  }
-  if (done === "1" && metaRev && (!live || live === metaRev)) {
-    markCheckedThisSession(metaRev);
-    return true;
-  }
-
-  return false;
 }
 
 function markCheckedThisSession(token) {
@@ -300,36 +264,17 @@ export async function runBootSequence() {
     return { status: "design", message: "디자인 미리보기" };
   }
 
-  // Web: skip if already checked this tab / applied. Exe: every process launch verifies vs GitHub;
-  // only same-process main-menu returns reuse the session flag.
-  const canSkip = isTauri()
-    ? (!forceBoot && isSessionOk())
-    : (!forceBoot && (isSessionOk() || metaGet() || await alreadyCheckedCurrentRevision()));
+  // Exe: process launch verifies; same-process main returns skip.
+  // Web: always verify on main (index) — no metaGet()/session short-circuit.
+  const canSkip = isTauri() && !forceBoot && isSessionOk();
 
   if (canSkip) {
-    const coldStart = !isSessionOk();
     hideBootUi();
     markSessionOk();
     const metaRev = revisionFromMeta();
     if (metaRev) markCheckedThisSession(metaRev);
     installDataFetchHook();
     await ensureServiceWorker().catch(() => null);
-
-    // Browser: quiet revision sync on cold tab. Exe already did a full check at launch.
-    if (!isTauri() && coldStart && metaGet()) {
-      void (async () => {
-        try {
-          const live = await manifestRevisionToken();
-          const cur = revisionFromMeta();
-          if (live && cur && live !== cur) {
-            const result = await checkAndApplyUpdates(() => {});
-            markCheckedThisSession(result.revision || live);
-          } else if (live) {
-            markCheckedThisSession(live);
-          }
-        } catch { /* ignore background sync errors */ }
-      })();
-    }
     return { status: "ok", message: "이번 실행에서 이미 확인함" };
   }
 
