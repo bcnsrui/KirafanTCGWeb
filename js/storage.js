@@ -146,11 +146,26 @@ export async function listStoredDir(rel) {
 }
 
 export async function deleteStored(rel) {
-  if (!isTauri()) return;
-  const root = await getDataPath();
-  if (!root) return;
   const path = normalizeRel(rel);
-  await invoke("delete_data_file", { root, rel: path });
+  if (isTauri()) {
+    const root = await getDataPath();
+    if (!root) return;
+    try {
+      await invoke("delete_data_file", { root, rel: path });
+    } catch { /* ignore */ }
+    return;
+  }
+  // Browser: drop Cache Storage entry so the next download cannot mix with a stale blob
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    const key = cacheKey(path);
+    await cache.delete(key);
+    try {
+      const u = new URL(key);
+      u.search = "";
+      await cache.delete(u.href);
+    } catch { /* ignore */ }
+  } catch { /* ignore */ }
 }
 
 export async function writeStoredText(rel, text) {

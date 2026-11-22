@@ -4,6 +4,7 @@ import { assetUrl, dataUrl, shellFileUrl, shellManifestUrl } from "./config.js";
 import { CACHE_NAME, cacheKey } from "./update-cache.js";
 import { isTauri, invoke } from "./runtime.js";
 import {
+  deleteStored,
   getDataPath,
   readStored,
   storedHash,
@@ -116,8 +117,11 @@ async function downloadAndApplyPack(manifest, name, packInfo, onProgress) {
     const expect = manifest.files?.[path];
     const ab = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
     const fileHash = await sha256(ab);
+    // 팩 안 한 파일이 어긋나도 전체 중단하지 않음 — 나머지만 저장, 틀린 건 개별 재다운로드
     if (expect?.sha256 && fileHash !== expect.sha256) {
-      throw new Error(`${path}: pack 내 무결성 불일치`);
+      console.warn(`pack skip ${path}: hash mismatch`);
+      await deleteStored(path);
+      continue;
     }
     await writeStored(path, ab, fileHash, guessType(path));
     written++;
@@ -299,6 +303,8 @@ export async function checkAndApplyUpdates(onProgress) {
           }
         }
       }
+      // 어긋난 로컬/캐시만 지우고 다시 받음 (시크릿=빈 캐시와 같은 출발점)
+      await deleteStored(path);
       need.push([path, info, rel]);
       bytesTotal += info.size || 0;
     }
@@ -361,57 +367,91 @@ export async function checkAndApplyUpdates(onProgress) {
     bytesTotal = need.reduce((s, [, info]) => s + (info.size || 0), 0);
   }
 
-  for (let i = 0; i < need.length; i++) {
-    const [path, info] = need[i];
-    onProgress?.({
-      status: "downloading",
-      message: path,
-      checked: entries.length,
-      updated,
-      current: path,
-      index: i + 1,
-      total: need.length,
-      bytesDone,
-      bytesTotal,
-      sizeLabel: `${formatBytes(bytesDone)} / ${formatBytes(bytesTotal)}`,
-    });
-    const source = fileSource(path, info);
-    const maxAttempts = 3;
-    let lastErr = null;
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+  /** 갱신 중에는 캐시 훅이 옛 파일을 네트워크 응답처럼 주지 않게 */
+  const prevUpdating = window.__kirafanUpdating;
+  window.__kirafanUpdating = true;
+  const failed = [];
+  try {
+    for (let i = 0; i < need.length; i++) {
+      const [path, info] = need[i];
+      onProgress?.({
+        status: "downloading",
+        message: path,
+        checked: entries.length,
+        updated,
+        current: path,
+        index: i + 1,
+        total: need.length,
+        bytesDone,
+        bytesTotal,
+        sizeLabel: `${formatBytes(bytesDone)} / ${formatBytes(bytesTotal)}`,
+      });
+      const source = fileSource(path, info);
+      const maxAttempts = 4;
+      let lastErr = null;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          await deleteStored(path);
+          const buf = await fetchFreshBuffer(path, source, info, attempt);
+          const hash = await sha256(buf);
+          if (hash !== info.sha256) throw new Error("무결성 불일치");
+          await writeStored(path, buf, hash, guessType(path));
+          updated++;
+          bytesDone += info.size || buf.byteLength;
+          lastErr = null;
+          break;
+        } catch (err) {
+          lastErr = err;
+          await deleteStored(path);
+          onProgress?.({
+            status: "downloading",
+            message: attempt < maxAttempts ? `재시도 ${path}` : path,
+            checked: entries.length,
+            updated,
+            current: path,
+            index: i + 1,
+            total: need.length,
+            bytesDone,
+            bytesTotal,
+            sizeLabel: `${formatBytes(bytesDone)} / ${formatBytes(bytesTotal)}`,
+          });
+          if (attempt < maxAttempts) await new Promise((r) => setTimeout(r, 400 * attempt));
+        }
+      }
+      if (lastErr) failed.push([path, info, lastErr]);
+    }
+
+    // 개별 실패분이 있으면 data 팩으로 한 번 더 복구 (CDN 단일 파일 스톨 대비)
+    if (failed.length && useAssetPacks(forceRemote) && packs.data) {
+      onProgress?.({
+        status: "downloading",
+        message: `개별 실패 ${failed.length}개 → data 팩으로 복구`,
+        current: packs.data.file,
+        updated,
+      });
       try {
-        let url = bustRemoteCache(assetUrl(path, source));
-        let res = await fetch(url, { cache: "no-store" });
-        if (!res.ok) res = await fetch(path, { cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const buf = await res.arrayBuffer();
-        const hash = await sha256(buf);
-        if (hash !== info.sha256) throw new Error("무결성 불일치");
-        await writeStored(path, buf, hash, res.headers.get("Content-Type") || guessType(path));
-        updated++;
-        bytesDone += info.size || buf.byteLength;
-        lastErr = null;
-        break;
+        for (const [path] of failed) await deleteStored(path);
+        const result = await downloadAndApplyPack(manifest, "data", packs.data, onProgress);
+        packHashes.data = result.hash || packs.data.sha256;
+        updated += result.written;
+        const still = [];
+        for (const [path, info, err] of failed) {
+          const have = await storedHash(path);
+          if (!have || have !== info.sha256) still.push([path, err]);
+        }
+        failed.length = 0;
+        failed.push(...still.map(([path, err]) => [path, null, err]));
       } catch (err) {
-        lastErr = err;
-        onProgress?.({
-          status: "downloading",
-          message: attempt < maxAttempts ? `재시도 ${path}` : path,
-          checked: entries.length,
-          updated,
-          current: path,
-          index: i + 1,
-          total: need.length,
-          bytesDone,
-          bytesTotal,
-          sizeLabel: `${formatBytes(bytesDone)} / ${formatBytes(bytesTotal)}`,
-        });
-        if (attempt < maxAttempts) await new Promise((r) => setTimeout(r, 400 * attempt));
+        console.warn("data pack recovery failed", err);
       }
     }
-    if (lastErr) {
-      throw new Error(`${path}: ${lastErr.message || lastErr}`);
+
+    if (failed.length) {
+      const [path, , err] = failed[0];
+      throw new Error(`${path}: ${err?.message || err}`);
     }
+  } finally {
+    window.__kirafanUpdating = prevUpdating;
   }
 
   metaSet(manifest, { packs: packHashes });
@@ -424,6 +464,43 @@ export async function checkAndApplyUpdates(onProgress) {
     bytesTotal,
     revision,
   });
+}
+
+/** Download one asset trying GitHub / jsDelivr / same-origin (hook bypassed while updating). */
+async function fetchFreshBuffer(path, source, info, attempt = 1) {
+  const urls = [];
+  const primary = bustRemoteCache(assetUrl(path, source));
+  if (primary) urls.push(primary);
+  // raw.githubusercontent CDN stall → jsDelivr
+  if (path.startsWith("data/")) {
+    const rest = path.replace(/^data\//, "");
+    urls.push(bustRemoteCache(
+      `https://cdn.jsdelivr.net/gh/bcnsrui/KirafanTCG@main/web/data/${rest}`,
+    ));
+  } else if (path.startsWith("pics/") || path.startsWith("sound/")) {
+    urls.push(bustRemoteCache(
+      `https://cdn.jsdelivr.net/gh/bcnsrui/KirafanTCG@main/${path}`,
+    ));
+  }
+  urls.push(path); // same-origin last
+  let lastErr = null;
+  const start = Math.max(0, (attempt - 1) % urls.length);
+  const ordered = [...urls.slice(start), ...urls.slice(0, start)];
+  for (const url of ordered) {
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const buf = await res.arrayBuffer();
+      if (info?.size && buf.byteLength && Math.abs(buf.byteLength - info.size) > info.size * 0.5) {
+        // clearly wrong payload (HTML error page etc.)
+        throw new Error(`크기 이상 (${buf.byteLength})`);
+      }
+      return buf;
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr || new Error("다운로드 실패");
 }
 
 /** True when the window is already served from the on-disk shell overlay. */
@@ -589,6 +666,8 @@ export function installDataFetchHook() {
   window.__kirafanFetchHook = true;
   const orig = window.fetch.bind(window);
   window.fetch = async (input, init) => {
+    // 무결성 갱신 중: 캐시된 옛 data/pics 를 네트워크처럼 돌려주지 않음
+    if (window.__kirafanUpdating) return orig(input, init);
     try {
       const url = typeof input === "string" ? input : input?.url || "";
       const u = new URL(url, location.href);

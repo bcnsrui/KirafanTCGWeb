@@ -12,7 +12,7 @@ import {
   manifestRevisionToken,
   metaGet,
   reloadToDiskShell,
-} from "./update.js?v=webIntegrity1";
+} from "./update.js?v=webIntegrity2";
 import { isTauri } from "./runtime.js";
 import {
   defaultDataPath,
