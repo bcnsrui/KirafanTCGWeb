@@ -1,6 +1,6 @@
 import { API_BASE, EXE_DOWNLOAD_URL, VERSION } from "./config.js";
 import { toast } from "./ui.js";
-import { runBootSequence } from "./boot.js?v=webIntegrity6";
+import { runBootSequence } from "./boot.js?v=webIntegrity8";
 import { isTauri } from "./runtime.js";
 import { loadSounds, playBgm, setVolume, volume } from "./sound.js";
 import "./local-assets.js?v=4";

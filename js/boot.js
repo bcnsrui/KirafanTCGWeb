@@ -1,7 +1,6 @@
 /* First-run download UI + exe data-folder setup.
- * Exe: integrity once per process launch (same-process main-menu returns skip).
- * Web: integrity every time index (main menu) loads — Cache Storage can keep stale
- * EN/JA cards while KO looks updated if we only compare generatedAt / session flags. */
+ * Exe + web: full data/pics/sound integrity whenever index (main) loads or exe starts.
+ * Localhost web_server may still skip remote fill (disk files). */
 
 import {
   checkAndApplyShellUpdates,
@@ -12,7 +11,7 @@ import {
   manifestRevisionToken,
   metaGet,
   reloadToDiskShell,
-} from "./update.js?v=webIntegrity6";
+} from "./update.js?v=webIntegrity8";
 import { isTauri } from "./runtime.js";
 import {
   defaultDataPath,
@@ -299,20 +298,7 @@ export async function runBootSequence() {
     return { status: "design", message: "디자인 미리보기" };
   }
 
-  // Exe: cold start → full data integrity (~all manifest files). Same-process
-  // return to main → skip. Web: always verify (lighter scan inside update.js).
-  const canSkip = isTauri() && !forceBoot && isSessionOk();
-
-  if (canSkip) {
-    hideBootUi();
-    markSessionOk();
-    const metaRev = revisionFromMeta();
-    if (metaRev) markCheckedThisSession(metaRev);
-    installDataFetchHook();
-    await ensureServiceWorker().catch(() => null);
-    return { status: "ok", message: "이번 실행에서 이미 확인함" };
-  }
-
+  // Always full integrity (exe relaunch, return to main, live web).
   document.documentElement.classList.remove("boot-skip");
   overlay?.classList.remove("hidden");
   if (overlay) overlay.hidden = false;

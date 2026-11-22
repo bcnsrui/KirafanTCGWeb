@@ -274,28 +274,9 @@ export async function checkAndApplyUpdates(onProgress) {
   }
 
   const packs = manifest.packs || {};
-  const prevHashes = prev?.hashes || {};
   const prevPacks = prev?.packs || {};
-  // Exe cold start (this function only runs when boot did not session-skip):
-  // hash every data/pics/sound file. Web may skip pics/sound when meta+pack match.
-  const fullScan = isTauri();
-
-  /** pics/sound: meta+팩 스탬프가 원격과 같으면 저장소 대조 생략(웹). data/·변경분·exe는 항상 대조. */
-  function mustCheckStored(path, info) {
-    if (fullScan) return true;
-    if (prevHashes[path] !== info.sha256) return true;
-    if (path.startsWith("data/")) return true;
-    const pn = packNameForPath(path);
-    if (!pn || !packs[pn]?.sha256) return true;
-    if (prevPacks[pn] !== packs[pn].sha256) return true;
-    return false;
-  }
-
-  const toCheck = [];
-  for (const [rel, info] of entries) {
-    const path = normalizeRel(rel);
-    if (mustCheckStored(path, info)) toCheck.push([path, info, rel]);
-  }
+  // Always verify every manifest file (exe + web, every main entry / relaunch).
+  const toCheck = entries.map(([rel, info]) => [normalizeRel(rel), info, rel]);
 
   const need = [];
   let bytesTotal = 0;
@@ -332,7 +313,7 @@ export async function checkAndApplyUpdates(onProgress) {
     }
   }
 
-  const packStamp = () => {
+  const packStampVerified = () => {
     const out = { ...prevPacks };
     for (const [name, info] of Object.entries(packs)) {
       if (info?.sha256) out[name] = info.sha256;
@@ -341,7 +322,7 @@ export async function checkAndApplyUpdates(onProgress) {
   };
 
   if (!need.length) {
-    metaSet(manifest, { packs: packStamp() });
+    metaSet(manifest, { packs: packStampVerified() });
     installDataFetchHook();
     await ensureServiceWorker().catch(() => null);
     const where = isTauri() ? (await getDataPath()) || "데이터 폴더" : "이 브라우저 저장소";
@@ -454,29 +435,38 @@ export async function checkAndApplyUpdates(onProgress) {
       if (lastErr) failed.push([path, info, lastErr]);
     }
 
-    // 개별 실패분이 있으면 data 팩으로 한 번 더 복구 (CDN 단일 파일 스톨 대비)
-    if (failed.length && useAssetPacks(forceRemote) && packs.data) {
-      onProgress?.({
-        status: "downloading",
-        message: `개별 실패 ${failed.length}개 → data 팩으로 복구`,
-        current: packs.data.file,
-        updated,
-      });
-      try {
-        for (const [path] of failed) await deleteStored(path);
-        const result = await downloadAndApplyPack(manifest, "data", packs.data, onProgress);
-        packHashes.data = result.hash || packs.data.sha256;
-        updated += result.written;
-        const still = [];
-        for (const [path, info, err] of failed) {
-          const have = await storedHash(path);
-          if (!have || have !== info.sha256) still.push([path, err]);
-        }
-        failed.length = 0;
-        failed.push(...still.map(([path, err]) => [path, null, err]));
-      } catch (err) {
-        console.warn("data pack recovery failed", err);
+    // 개별 실패 → 해당 팩(data/pics/sound)으로 복구 (큰 일러는 pics 팩)
+    if (failed.length && useAssetPacks(forceRemote)) {
+      const failedByPack = {};
+      for (const row of failed) {
+        const pn = packNameForPath(row[0]);
+        if (!pn || !packs[pn]?.file) continue;
+        (failedByPack[pn] ||= []).push(row);
       }
+      for (const [name, rows] of Object.entries(failedByPack)) {
+        const packInfo = packs[name];
+        onProgress?.({
+          status: "downloading",
+          message: `개별 실패 ${rows.length}개 → ${name} 팩으로 복구`,
+          current: packInfo.file,
+          updated,
+        });
+        try {
+          for (const [path] of rows) await deleteStored(path);
+          const result = await downloadAndApplyPack(manifest, name, packInfo, onProgress);
+          packHashes[name] = result.hash || packInfo.sha256;
+          updated += result.written;
+        } catch (err) {
+          console.warn(`${name} pack recovery failed`, err);
+        }
+      }
+      const still = [];
+      for (const [path, info, err] of failed) {
+        const have = await storedHash(path);
+        if (!have || (info && have !== info.sha256)) still.push([path, info, err]);
+      }
+      failed.length = 0;
+      failed.push(...still);
     }
 
     if (failed.length) {
@@ -487,7 +477,7 @@ export async function checkAndApplyUpdates(onProgress) {
     window.__kirafanUpdating = prevUpdating;
   }
 
-  metaSet(manifest, { packs: { ...packStamp(), ...packHashes } });
+  metaSet(manifest, { packs: { ...packStampVerified(), ...packHashes } });
   installDataFetchHook();
   await ensureServiceWorker().catch(() => null);
   return report("ok", updated ? `${updated}개 파일 저장 (${formatBytes(bytesDone)})` : "데이터 최신", {
