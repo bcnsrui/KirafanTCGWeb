@@ -12,7 +12,7 @@ import {
   manifestRevisionToken,
   metaGet,
   reloadToDiskShell,
-} from "./update.js?v=webIntegrity4";
+} from "./update.js?v=webIntegrity5";
 import { isTauri } from "./runtime.js";
 import {
   defaultDataPath,
@@ -215,7 +215,9 @@ export async function runBootSequence() {
           if (info.total) setProgress(Math.min(25, (info.index / info.total) * 25));
         } else if (info.status === "downloading") {
           stopStatusDots();
-          $("boot-status").textContent = info.message || t("boot.downloadingBusy");
+          $("boot-status").textContent = info.total
+            ? t("boot.downloading", { index: info.index, total: info.total })
+            : t("boot.downloadingBusy");
           $("boot-detail").textContent = info.current || "";
           if (info.total) setProgress(Math.min(25, (info.index / info.total) * 25));
         }

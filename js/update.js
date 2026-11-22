@@ -571,7 +571,7 @@ export async function checkAndApplyShellUpdates(onProgress) {
     return info;
   };
   if (!isTauri()) {
-    return report("ok", "브라우저 — 껍데기는 배포 서버를 따름");
+    return report("ok", "브라우저 — UI는 배포 서버를 따름");
   }
 
   let manifest;
@@ -583,11 +583,11 @@ export async function checkAndApplyShellUpdates(onProgress) {
   } catch (err) {
     const prev = shellMetaGet();
     if (prev) {
-      return report("offline", `껍데기 확인 실패 — 이전 파일 유지 (${err.message || err})`, {
+      return report("offline", `무결성 확인 실패 — 이전 파일 유지 (${err.message || err})`, {
         revision: prev.generatedAt ? `s:${prev.generatedAt}` : null,
       });
     }
-    return report("error", `껍데기 확인 실패: ${err.message || err}`);
+    return report("error", `무결성 확인 실패: ${err.message || err}`);
   }
 
   const revision = manifest.generatedAt ? `s:${manifest.generatedAt}` : `s:${Object.keys(manifest.files).length}`;
@@ -613,7 +613,7 @@ export async function checkAndApplyShellUpdates(onProgress) {
   if (!need.length) {
     shellMetaSet(manifest);
     const haveIndex = await storedHash("www/index.html");
-    return report("ok", "껍데기 최신", {
+    return report("ok", "UI 최신", {
       checked: entries.length,
       updated: 0,
       needReload: !isDiskShell() && !!haveIndex,
@@ -626,7 +626,7 @@ export async function checkAndApplyShellUpdates(onProgress) {
     const [rel, info, diskRel] = need[i];
     onProgress?.({
       status: "downloading",
-      message: `껍데기 다운로드 ${i + 1}/${need.length}`,
+      message: `다운로드 ${i + 1}/${need.length}`,
       current: rel,
       index: i + 1,
       total: need.length,
@@ -643,7 +643,7 @@ export async function checkAndApplyShellUpdates(onProgress) {
   }
 
   shellMetaSet(manifest);
-  return report("ok", updated ? `껍데기 ${updated}개 갱신` : "껍데기 최신", {
+  return report("ok", updated ? `UI ${updated}개 갱신` : "UI 최신", {
     checked: entries.length,
     updated,
     needReload: true,

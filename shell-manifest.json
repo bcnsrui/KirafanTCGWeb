@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-21T16:37:04Z",
+  "generatedAt": "2026-11-22T01:48:51Z",
   "files": {
     "admin.html": {
       "sha256": "c14bc46d02f56967b1a1e327de9326925781fb4cb4f1d8cb675b78af37afc05c",
@@ -11,16 +11,16 @@
       "size": 5627
     },
     "deck.html": {
-      "sha256": "4d986b64eae8c47671ab21c9ff3cb02f433b00df3dace5b162f16d8634cf25f8",
-      "size": 7571
+      "sha256": "f360e1a3ca5d7f258114307acebb78800239ec80a2b0c6898316747770349ea8",
+      "size": 7595
     },
     "game.html": {
-      "sha256": "f30899d8cf26d142f24614e5838bef984815f0b897374e00e463c8274ade4289",
-      "size": 9989
+      "sha256": "5d87e732f9f2272bc1e6087a89cc10377a794fb5ad2513143b1bcab9af27b650",
+      "size": 9994
     },
     "index.html": {
-      "sha256": "880d9d1047b462014b4e938181259675c371870349cc438f193bc492424e004a",
-      "size": 9288
+      "sha256": "d902bdfa8fd6441e57029eb5fe0197ef6c8dac78c356848b7c65b80ff7a67ac2",
+      "size": 9295
     },
     "puzzle.html": {
       "sha256": "460294b0bffb09345e8ccfad03e726d97f2e3ea22ff10352f229ae1dcd523477",
@@ -31,12 +31,12 @@
       "size": 1821
     },
     "replay.html": {
-      "sha256": "c4ed211d6b50afede917de0eb33564868c3fc0636696108ddd82e82e5530d3c8",
-      "size": 1662
+      "sha256": "ba21aa4a42e587b79c9a199983444def2824fce542c705ebbc57839a16dd1cbc",
+      "size": 1950
     },
     "room.html": {
-      "sha256": "e99030aed4d935392e664c9d620a573161cd69a8d2cc7b45ac48324ecd26ea7a",
-      "size": 5923
+      "sha256": "4b474730ed98cc92f4574549fd0e393c0c197059b076d05ca1052ec9f6d89c5f",
+      "size": 5924
     },
     "server.html": {
       "sha256": "0169318244c0022d04865b4739a7e4eb8fc1bea167ccbed7a09c6b4769aaaa59",
@@ -51,16 +51,16 @@
       "size": 13740
     },
     "css/game.css": {
-      "sha256": "394a73656157bec4b9dee07564994bedea2731cb1f1ff7e15a780d244ec77b0f",
-      "size": 46392
+      "sha256": "c964f8ef2e811f74b284582041d2bc023962c168b6c65f84a9c7346244d22a21",
+      "size": 46605
     },
     "css/records.css": {
       "sha256": "4cc8a483edf1e502b7544fdbef7be5cc4f5b68395f66f6aef1edb7499b81340c",
       "size": 2099
     },
     "css/replay.css": {
-      "sha256": "5cbf5f6ed28719e03da5bca7cd49536f45ae216db337977a1c14d1e738a4fca2",
-      "size": 3896
+      "sha256": "7bdf0be71633ea03201112f0714bff850db662492001f093af158d5412deb8d6",
+      "size": 4387
     },
     "css/room.css": {
       "sha256": "fb5efc4ff37311a9654431b69e60f4e13064b1ea9c9e1ca7b45a7c68eb5b9cb7",
@@ -87,16 +87,16 @@
       "size": 7342
     },
     "js/boot.js": {
-      "sha256": "29df3258af08058234c1caab5ec017ce46d8fbf3445dc1b9de1d8dde5875cec2",
-      "size": 13634
+      "sha256": "b4611de58b5f49990db4b9bbc478e87de060959a01fbade88b7f8ec89f16c4c1",
+      "size": 12851
     },
     "js/config.js": {
       "sha256": "fa9968fc9d44c1415d8b724efcc9b6aa06413a155ae121ed5299ae56cd6130db",
       "size": 5060
     },
     "js/deck.js": {
-      "sha256": "06096bcb1c17be622dad521a7ac5499cb845dc5e5b71150bc8942c3f9253e9c5",
-      "size": 19635
+      "sha256": "d2a13a8491114a5a04a0c4fbb96ecc5735f933bca92cdc4dfb53a97270ff9a21",
+      "size": 19641
     },
     "js/decks.js": {
       "sha256": "3e4a2755317946cf40482ee3341cd7886b958e09f9fe000545c74794145b911d",
@@ -107,8 +107,8 @@
       "size": 1093
     },
     "js/game.js": {
-      "sha256": "85d0187b690aee73015274ceeaf41805a4ad3f095803b8096169a3dc0df0eaa1",
-      "size": 187963
+      "sha256": "50b49d2e32be1231efdf611a9c169ec58956e5abddc2a398c36ababc082198d7",
+      "size": 193203
     },
     "js/i18n.js": {
       "sha256": "f228a12d6b229ed497950da67f388233316b10f73f37cff76b6193920d44544b",
@@ -127,8 +127,8 @@
       "size": 1542
     },
     "js/main.js": {
-      "sha256": "17646a2de767ffa5f978e9665047d5bc76398d8c007a12d91808ce46231b1f02",
-      "size": 5481
+      "sha256": "13afb1e3b786149cd622d577b14dfc0e3b850a54b572da7e876c1a587773604a",
+      "size": 5484
     },
     "js/match-store.js": {
       "sha256": "963779dd199c0a4678761870c4d1c1e277b81a1f57052f295eb5f1c77ff2d867",
@@ -143,8 +143,8 @@
       "size": 2775
     },
     "js/pvp.js": {
-      "sha256": "8f5420d5345b0e30ded391dda9888c32613bd745505263c958cb92416f77fb1e",
-      "size": 16383
+      "sha256": "bec8fe27455c3480f18d5100c1204304ac648a8810b3c351915cc95d8dd46d9f",
+      "size": 16901
     },
     "js/records-page.js": {
       "sha256": "eecb5d7e53a623c183ad269be30e9154e987454d5292ad55e6e8eb1c97e0be44",
@@ -155,16 +155,16 @@
       "size": 3147
     },
     "js/replay-list.js": {
-      "sha256": "6e3e2f78463bee50fcf88b78bd3f22ec06d4561f9b42fed9fdc28002d13f7788",
-      "size": 3882
+      "sha256": "e1c8d60fe8af9711c12164bd4ba300f8803e73fc56a52e531d9f9aa59011f7ce",
+      "size": 8512
     },
     "js/replays.js": {
       "sha256": "9ec331423ac93f59dea387dbc13d1c5cfa7db852721c945b82112acd21fb5285",
       "size": 5119
     },
     "js/room.js": {
-      "sha256": "1947a62cce8e3c8443afa636e2a0d0371bb76aa7ec9679e8ee31c2321f374a44",
-      "size": 38556
+      "sha256": "592d8166346a5255906606d92a59751627b8236fcd20aadf93c5c018a9b397ae",
+      "size": 38658
     },
     "js/runtime.js": {
       "sha256": "e16a0b6f41bb9cdfcb575743a527164dbd4e877574716cd017426289add796a3",
@@ -187,12 +187,12 @@
       "size": 5846
     },
     "js/storage.js": {
-      "sha256": "cd4db06cc53ab94f65ddfeb1fa33414cf4eb14a2a7be104824828c4652794265",
-      "size": 4885
+      "sha256": "677711691c6b229db7d44ee06372f9ae25d379b14137239b76e102de51766610",
+      "size": 5299
     },
     "js/ui-i18n.js": {
-      "sha256": "a421f848d129bbe773e044079eb631a4ae95f594529a67916af1fbf78ee83726",
-      "size": 71214
+      "sha256": "c39ac333c1819a2be89397d274f5f1adcb564fd736cfa13fa40757b5aa579e65",
+      "size": 72262
     },
     "js/ui.js": {
       "sha256": "4dab15ca2a944401f6a17e10d764c6c1728044ca7d0780a1ad5c037ff928322f",
@@ -203,8 +203,8 @@
       "size": 405
     },
     "js/update.js": {
-      "sha256": "d2a64c4af555af3dc95a6b2fbda0107eb0d9a67294bfecbfdc5c82c80483aae3",
-      "size": 21832
+      "sha256": "9ac3aa02a052c26075f0c8318f3a3731b0ee9ea0b11bff83cb50b57d2b252abd",
+      "size": 25532
     },
     "js/ai/agent.js": {
       "sha256": "ebf4efebf298a89ef42e5de23388698515334cd37644f844239aea08460b9ed3",
