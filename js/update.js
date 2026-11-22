@@ -6,7 +6,10 @@ import { isTauri, invoke } from "./runtime.js";
 import {
   deleteStored,
   getDataPath,
+  isClientForbidden,
   readStored,
+  stampStoredHash,
+  storedExists,
   storedHash,
   writeStored,
 } from "./storage.js";
@@ -114,6 +117,8 @@ async function downloadAndApplyPack(manifest, name, packInfo, onProgress) {
     if (!(path.startsWith("data/") || path.startsWith("pics/") || path.startsWith("sound/"))) {
       continue;
     }
+    // Never unpack admin / duels / ai/test onto player machines
+    if (isClientForbidden(path)) continue;
     const expect = manifest.files?.[path];
     const ab = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
     const fileHash = await sha256(ab);
@@ -280,9 +285,10 @@ export async function checkAndApplyUpdates(onProgress) {
 
   const need = [];
   let bytesTotal = 0;
+  const yieldEvery = isTauri() ? 40 : 8;
   for (let i = 0; i < toCheck.length; i++) {
     const [path, info, rel] = toCheck[i];
-    if (i % 8 === 0 || i + 1 === toCheck.length) {
+    if (i % yieldEvery === 0 || i + 1 === toCheck.length) {
       onProgress?.({
         status: "checking",
         message: `파일 확인 중… ${i + 1} / ${toCheck.length}`,
@@ -294,23 +300,18 @@ export async function checkAndApplyUpdates(onProgress) {
       await new Promise((r) => setTimeout(r, 0));
     }
     const have = await storedHash(path);
-    if (!have || have !== info.sha256) {
-      // header missing in old cache entries: fall back to re-hash once
-      if (have == null) {
-        const buf = await readStored(path);
-        if (buf) {
-          const h = await sha256(buf);
-          if (h === info.sha256) {
-            await writeStored(path, buf, h, guessType(path));
-            continue;
-          }
-        }
-      }
-      // 어긋난 로컬/캐시만 지우고 다시 받음 (시크릿=빈 캐시와 같은 출발점)
-      await deleteStored(path);
-      need.push([path, info, rel]);
-      bytesTotal += info.size || 0;
+    if (have === info.sha256) continue;
+    // Header missing but file present: stamp expected hash (web/exe header mode — no rehash).
+    if (have == null && info?.sha256 && await storedExists(path)) {
+      try {
+        await stampStoredHash(path, info.sha256);
+        continue;
+      } catch { /* fall through → redownload */ }
     }
+    // 어긋난 로컬/캐시만 지우고 다시 받음 (시크릿=빈 캐시와 같은 출발점)
+    await deleteStored(path);
+    need.push([path, info, rel]);
+    bytesTotal += info.size || 0;
   }
 
   const packStampVerified = () => {
@@ -589,7 +590,7 @@ export async function checkAndApplyShellUpdates(onProgress) {
   const need = [];
   for (let i = 0; i < entries.length; i++) {
     const [rel, info] = entries[i];
-    if (i % 10 === 0 || i + 1 === entries.length) {
+    if (i % 40 === 0 || i + 1 === entries.length) {
       onProgress?.({
         status: "checking",
         message: `파일 무결성 검사중… ${i + 1} / ${entries.length}`,
@@ -601,7 +602,14 @@ export async function checkAndApplyShellUpdates(onProgress) {
     }
     const diskRel = `www/${rel}`;
     const have = await storedHash(diskRel);
-    if (!have || have !== info.sha256) need.push([rel, info, diskRel]);
+    if (have === info.sha256) continue;
+    if (have == null && info?.sha256 && await storedExists(diskRel)) {
+      try {
+        await stampStoredHash(diskRel, info.sha256);
+        continue;
+      } catch { /* redownload */ }
+    }
+    need.push([rel, info, diskRel]);
   }
 
   if (!need.length) {

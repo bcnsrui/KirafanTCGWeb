@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-22T02:12:44Z",
+  "generatedAt": "2026-11-22T02:57:39Z",
   "files": {
     "admin.html": {
       "sha256": "c14bc46d02f56967b1a1e327de9326925781fb4cb4f1d8cb675b78af37afc05c",
@@ -19,8 +19,8 @@
       "size": 9994
     },
     "index.html": {
-      "sha256": "66bbc3493c9100af9849ca1c594a9b9ff3934abceaf1ae0cf236e788fed6041e",
-      "size": 9295
+      "sha256": "35f734a2ffe800c5b6a7947c510a874085084357e972b627b1a9f22f40bf106e",
+      "size": 9296
     },
     "puzzle.html": {
       "sha256": "460294b0bffb09345e8ccfad03e726d97f2e3ea22ff10352f229ae1dcd523477",
@@ -87,8 +87,8 @@
       "size": 7342
     },
     "js/boot.js": {
-      "sha256": "0501be0df11aa6f88c76e1135ec3ecab129931191b92bb320069b7d1e53b9963",
-      "size": 12304
+      "sha256": "34612dc28b66535fd8f560d1f7d5f76f1092f90397053473c006d13cc9031399",
+      "size": 12474
     },
     "js/config.js": {
       "sha256": "fa9968fc9d44c1415d8b724efcc9b6aa06413a155ae121ed5299ae56cd6130db",
@@ -127,8 +127,8 @@
       "size": 1542
     },
     "js/main.js": {
-      "sha256": "aa0de55b78c31ee38c2bc128723cce0fa63b7650b5351865b9deaa47a13c4bc5",
-      "size": 5484
+      "sha256": "7d221241e4e283170016f3030e26bc311656ee334b8468556e4fd967ef5bd646",
+      "size": 5485
     },
     "js/match-store.js": {
       "sha256": "963779dd199c0a4678761870c4d1c1e277b81a1f57052f295eb5f1c77ff2d867",
@@ -187,8 +187,8 @@
       "size": 5846
     },
     "js/storage.js": {
-      "sha256": "555eb0d6f5fadad7b68c9eb12bd65a74bebf09dfdac89eeab971035906ead02e",
-      "size": 5738
+      "sha256": "c505650d0352dee4e2e13affc61a9a9a9042438cad702f5178c72c6d48d4738e",
+      "size": 7588
     },
     "js/ui-i18n.js": {
       "sha256": "c39ac333c1819a2be89397d274f5f1adcb564fd736cfa13fa40757b5aa579e65",
@@ -203,8 +203,8 @@
       "size": 405
     },
     "js/update.js": {
-      "sha256": "5bf516a7670392e811e10784b9157d4a40f692aa6532f37a2bd8783965667b2b",
-      "size": 25334
+      "sha256": "a1fd13faa24fa856804e06304a67a8906f87756d22a4f88a130e39b27e21fc37",
+      "size": 25687
     },
     "js/ai/agent.js": {
       "sha256": "ebf4efebf298a89ef42e5de23388698515334cd37644f844239aea08460b9ed3",

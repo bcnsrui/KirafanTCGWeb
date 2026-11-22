@@ -11,8 +11,8 @@ import {
   manifestRevisionToken,
   metaGet,
   reloadToDiskShell,
-} from "./update.js?v=webIntegrity8";
-import { isTauri } from "./runtime.js";
+} from "./update.js?v=webIntegrity14";
+import { invoke, isTauri } from "./runtime.js";
 import {
   defaultDataPath,
   setDataPath,
@@ -174,6 +174,10 @@ async function ensureExePath() {
   const path = await defaultDataPath();
   if (!path) throw new Error("실행 파일 폴더를 확인할 수 없습니다");
   await setDataPath(path);
+  // admin/duels are server-only — never ship beside the client
+  try {
+    await invoke("purge_server_only_dirs", { root: path });
+  } catch { /* ignore */ }
   showSetup(false);
   return true;
 }
