@@ -113,13 +113,28 @@ export async function storedHash(rel) {
   }
 }
 
+function bufToBase64(buf) {
+  const bytes = new Uint8Array(buf);
+  let bin = "";
+  const step = 0x8000;
+  for (let i = 0; i < bytes.length; i += step) {
+    bin += String.fromCharCode(...bytes.subarray(i, i + step));
+  }
+  return btoa(bin);
+}
+
 export async function writeStored(rel, buf, sha256, contentType) {
   const path = normalizeRel(rel);
   if (isTauri()) {
     const root = await getDataPath();
     if (!root) throw new Error("데이터 폴더가 없습니다");
-    const bytes = [...new Uint8Array(buf)];
-    await invoke("write_data_file", { root, rel: path, bytes });
+    // base64 avoids huge number[] IPC stalls on shell images / vendor js
+    try {
+      await invoke("write_data_file_b64", { root, rel: path, b64: bufToBase64(buf) });
+    } catch {
+      const bytes = [...new Uint8Array(buf)];
+      await invoke("write_data_file", { root, rel: path, bytes });
+    }
     return;
   }
   const cache = await caches.open(CACHE_NAME);

@@ -12,7 +12,7 @@ import {
   manifestRevisionToken,
   metaGet,
   reloadToDiskShell,
-} from "./update.js?v=webIntegrity5";
+} from "./update.js?v=webIntegrity6";
 import { isTauri } from "./runtime.js";
 import {
   defaultDataPath,
@@ -299,8 +299,8 @@ export async function runBootSequence() {
     return { status: "design", message: "디자인 미리보기" };
   }
 
-  // Exe: process launch verifies; same-process main returns skip.
-  // Web: always verify on main (index) — no metaGet()/session short-circuit.
+  // Exe: cold start → full data integrity (~all manifest files). Same-process
+  // return to main → skip. Web: always verify (lighter scan inside update.js).
   const canSkip = isTauri() && !forceBoot && isSessionOk();
 
   if (canSkip) {

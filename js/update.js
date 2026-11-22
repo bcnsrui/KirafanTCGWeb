@@ -276,9 +276,13 @@ export async function checkAndApplyUpdates(onProgress) {
   const packs = manifest.packs || {};
   const prevHashes = prev?.hashes || {};
   const prevPacks = prev?.packs || {};
+  // Exe cold start (this function only runs when boot did not session-skip):
+  // hash every data/pics/sound file. Web may skip pics/sound when meta+pack match.
+  const fullScan = isTauri();
 
-  /** pics/sound: meta+팩 스탬프가 원격과 같으면 저장소 대조 생략. data/·변경분·팩 미기록은 항상 대조. */
+  /** pics/sound: meta+팩 스탬프가 원격과 같으면 저장소 대조 생략(웹). data/·변경분·exe는 항상 대조. */
   function mustCheckStored(path, info) {
+    if (fullScan) return true;
     if (prevHashes[path] !== info.sha256) return true;
     if (path.startsWith("data/")) return true;
     const pn = packNameForPath(path);

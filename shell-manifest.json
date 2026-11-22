@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-22T01:48:51Z",
+  "generatedAt": "2026-11-22T02:06:11Z",
   "files": {
     "admin.html": {
       "sha256": "c14bc46d02f56967b1a1e327de9326925781fb4cb4f1d8cb675b78af37afc05c",
@@ -19,7 +19,7 @@
       "size": 9994
     },
     "index.html": {
-      "sha256": "d902bdfa8fd6441e57029eb5fe0197ef6c8dac78c356848b7c65b80ff7a67ac2",
+      "sha256": "38c4a03dddcdc52292a05b639be2802654f69009c1bbb9246d6a4b9a482a8c08",
       "size": 9295
     },
     "puzzle.html": {
@@ -87,8 +87,8 @@
       "size": 7342
     },
     "js/boot.js": {
-      "sha256": "b4611de58b5f49990db4b9bbc478e87de060959a01fbade88b7f8ec89f16c4c1",
-      "size": 12851
+      "sha256": "ad82db8e6d57853f07fed2e849cf3369e010773ce004ea6f66c8c1572d80c568",
+      "size": 12867
     },
     "js/config.js": {
       "sha256": "fa9968fc9d44c1415d8b724efcc9b6aa06413a155ae121ed5299ae56cd6130db",
@@ -127,7 +127,7 @@
       "size": 1542
     },
     "js/main.js": {
-      "sha256": "13afb1e3b786149cd622d577b14dfc0e3b850a54b572da7e876c1a587773604a",
+      "sha256": "ca7276e726d8eee74f466cf7f3ae7c3a28ce01dd356cc2f3f22b420602b0aa8f",
       "size": 5484
     },
     "js/match-store.js": {
@@ -187,8 +187,8 @@
       "size": 5846
     },
     "js/storage.js": {
-      "sha256": "677711691c6b229db7d44ee06372f9ae25d379b14137239b76e102de51766610",
-      "size": 5299
+      "sha256": "555eb0d6f5fadad7b68c9eb12bd65a74bebf09dfdac89eeab971035906ead02e",
+      "size": 5738
     },
     "js/ui-i18n.js": {
       "sha256": "c39ac333c1819a2be89397d274f5f1adcb564fd736cfa13fa40757b5aa579e65",
@@ -203,8 +203,8 @@
       "size": 405
     },
     "js/update.js": {
-      "sha256": "9ac3aa02a052c26075f0c8318f3a3731b0ee9ea0b11bff83cb50b57d2b252abd",
-      "size": 25532
+      "sha256": "18c9ffcf67f8100d4da83f24e7e26bb41111eef912e66668b2f0d29e6ad8a849",
+      "size": 25750
     },
     "js/ai/agent.js": {
       "sha256": "ebf4efebf298a89ef42e5de23388698515334cd37644f844239aea08460b9ed3",
