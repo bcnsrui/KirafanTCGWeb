@@ -12,14 +12,14 @@ import {
   manifestRevisionToken,
   metaGet,
   reloadToDiskShell,
-} from "./update.js?v=webIntegrity2";
+} from "./update.js?v=webIntegrity4";
 import { isTauri } from "./runtime.js";
 import {
   defaultDataPath,
   setDataPath,
 } from "./storage.js";
 import { getLang, setLang } from "./lang.js";
-import { applyI18n, t } from "./ui-i18n.js?v=i18n34";
+import { applyI18n, t } from "./ui-i18n.js?v=i18n35";
 
 const BOOT_DONE_KEY = "kirafan-boot-done";
 /** After one successful check, main-menu round-trips in this tab must not re-run. */
@@ -112,6 +112,7 @@ function hideBootUi() {
   document.getElementById("main-menu")?.classList.remove("booting");
   document.documentElement.classList.add("boot-skip");
   stopDots();
+  stopStatusDots();
 }
 
 function setProgress(pct) {
@@ -139,6 +140,33 @@ function stopDots() {
   if (!el) return;
   if (el._timer) clearInterval(el._timer);
   delete el.dataset.running;
+}
+
+/** boot-status: "파일 무결성 검사중" + . / .. / ... */
+let statusDotsTimer = null;
+let statusDotsBase = "";
+
+function startStatusDots(base) {
+  stopStatusDots();
+  const el = $("boot-status");
+  if (!el) return;
+  statusDotsBase = base || t("boot.checking");
+  const frames = [".", "..", "..."];
+  let i = 0;
+  el.textContent = statusDotsBase + frames[0];
+  statusDotsTimer = setInterval(() => {
+    i = (i + 1) % frames.length;
+    const status = $("boot-status");
+    if (status) status.textContent = statusDotsBase + frames[i];
+  }, 420);
+}
+
+function stopStatusDots() {
+  if (statusDotsTimer) {
+    clearInterval(statusDotsTimer);
+    statusDotsTimer = null;
+  }
+  statusDotsBase = "";
 }
 
 /** exe: always use folder next to the .exe (data/pics/sound). No picker. */
@@ -178,12 +206,16 @@ export async function runBootSequence() {
     showSetup(false);
     startDots();
     setProgress(0);
-    $("boot-status").textContent = t("boot.checking");
+    startStatusDots(t("boot.checking"));
     $("boot-detail").textContent = "";
     try {
       const shell = await checkAndApplyShellUpdates((info) => {
-        if (info.status === "checking" || info.status === "downloading") {
-          $("boot-status").textContent = info.message || t("boot.checking");
+        if (info.status === "checking") {
+          $("boot-detail").textContent = info.current || "";
+          if (info.total) setProgress(Math.min(25, (info.index / info.total) * 25));
+        } else if (info.status === "downloading") {
+          stopStatusDots();
+          $("boot-status").textContent = info.message || t("boot.downloadingBusy");
           $("boot-detail").textContent = info.current || "";
           if (info.total) setProgress(Math.min(25, (info.index / info.total) * 25));
         }
@@ -191,15 +223,16 @@ export async function runBootSequence() {
       // Apply www/ changes: first switch to disk overlay, or hard-reload if already on it.
       // (Previously skipped reload when isDiskShell — updates sat on disk unused.)
       if (shell.needReload || (shell.updated | 0) > 0) {
+        stopStatusDots();
         $("boot-status").textContent = shell.message || t("boot.checking");
         $("boot-detail").textContent = isDiskShell()
-          ? "껍데기 갱신 적용 중…"
-          : "껍데기 디스크 오버레이로 전환…";
+          ? "갱신 적용 중…"
+          : "디스크 오버레이로 전환…";
         const ok = await reloadToDiskShell();
         if (ok) {
           return {
             status: "reload",
-            message: isDiskShell() ? "껍데기 갱신 적용" : "껍데기 디스크 오버레이로 전환",
+            message: isDiskShell() ? "갱신 적용" : "디스크 오버레이로 전환",
           };
         }
       }
@@ -284,18 +317,17 @@ export async function runBootSequence() {
   showSetup(false);
   startDots();
   setProgress(0);
-  $("boot-status").textContent = t("boot.checking");
+  startStatusDots(t("boot.checking"));
   $("boot-detail").textContent = "";
 
   try {
     const result = await checkAndApplyUpdates((info) => {
       if (info.status === "checking") {
-        $("boot-status").textContent = info.total
-          ? t("boot.checkingProgress", { index: info.index, total: info.total })
-          : (info.message || t("boot.checking"));
+        if (!statusDotsTimer) startStatusDots(t("boot.checking"));
         $("boot-detail").textContent = info.current || "";
         if (info.total) setProgress((info.index / info.total) * 30);
       } else if (info.status === "downloading") {
+        stopStatusDots();
         if (info.total) {
           $("boot-status").textContent = t("boot.downloading", {
             index: info.index,
@@ -311,10 +343,12 @@ export async function runBootSequence() {
           .filter(Boolean)
           .join(" · ");
       } else if (info.status === "ok") {
+        stopStatusDots();
         $("boot-status").textContent = info.message || t("boot.done");
         $("boot-detail").textContent = "";
         setProgress(100);
       } else {
+        stopStatusDots();
         $("boot-status").textContent = info.message || "";
       }
     });
@@ -328,6 +362,7 @@ export async function runBootSequence() {
       return result;
     }
     // Incomplete / error: stay on overlay — do not enter main menu
+    stopStatusDots();
     $("boot-status").textContent = result.message || t("boot.fail");
     $("boot-detail").textContent = t("boot.retryHint");
     stopDots();
@@ -337,6 +372,7 @@ export async function runBootSequence() {
     document.documentElement.classList.remove("boot-skip");
     overlay?.classList.remove("hidden");
     if (overlay) overlay.hidden = false;
+    stopStatusDots();
     $("boot-status").textContent = err.message || String(err);
     $("boot-detail").textContent = t("boot.retryHint");
     stopDots();

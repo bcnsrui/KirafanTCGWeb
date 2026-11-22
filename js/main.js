@@ -1,10 +1,10 @@
 import { API_BASE, EXE_DOWNLOAD_URL, VERSION } from "./config.js";
 import { toast } from "./ui.js";
-import { runBootSequence } from "./boot.js?v=webIntegrity2";
+import { runBootSequence } from "./boot.js?v=webIntegrity4";
 import { isTauri } from "./runtime.js";
 import { loadSounds, playBgm, setVolume, volume } from "./sound.js";
 import "./local-assets.js?v=4";
-import { applyI18n, t } from "./ui-i18n.js?v=i18n34";
+import { applyI18n, t } from "./ui-i18n.js?v=i18n35";
 import { setupSideLang } from "./side-settings.js";
 import "./presence.js";
 import { bindHomeCardsFit } from "./stage-scale.js?v=14";

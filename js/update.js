@@ -273,23 +273,41 @@ export async function checkAndApplyUpdates(onProgress) {
     });
   }
 
+  const packs = manifest.packs || {};
+  const prevHashes = prev?.hashes || {};
+  const prevPacks = prev?.packs || {};
+
+  /** pics/sound: meta+팩 스탬프가 원격과 같으면 저장소 대조 생략. data/·변경분·팩 미기록은 항상 대조. */
+  function mustCheckStored(path, info) {
+    if (prevHashes[path] !== info.sha256) return true;
+    if (path.startsWith("data/")) return true;
+    const pn = packNameForPath(path);
+    if (!pn || !packs[pn]?.sha256) return true;
+    if (prevPacks[pn] !== packs[pn].sha256) return true;
+    return false;
+  }
+
+  const toCheck = [];
+  for (const [rel, info] of entries) {
+    const path = normalizeRel(rel);
+    if (mustCheckStored(path, info)) toCheck.push([path, info, rel]);
+  }
+
   const need = [];
   let bytesTotal = 0;
-  for (let i = 0; i < entries.length; i++) {
-    const [rel, info] = entries[i];
-    if (i % 8 === 0 || i + 1 === entries.length) {
+  for (let i = 0; i < toCheck.length; i++) {
+    const [path, info, rel] = toCheck[i];
+    if (i % 8 === 0 || i + 1 === toCheck.length) {
       onProgress?.({
         status: "checking",
-        message: `파일 확인 중… ${i + 1} / ${entries.length}`,
+        message: `파일 확인 중… ${i + 1} / ${toCheck.length}`,
         checked: i + 1,
         index: i + 1,
-        total: entries.length,
-        current: normalizeRel(rel),
+        total: toCheck.length,
+        current: path,
       });
-      // Yield so the boot UI can paint
       await new Promise((r) => setTimeout(r, 0));
     }
-    const path = normalizeRel(rel);
     const have = await storedHash(path);
     if (!have || have !== info.sha256) {
       // header missing in old cache entries: fall back to re-hash once
@@ -310,18 +328,29 @@ export async function checkAndApplyUpdates(onProgress) {
     }
   }
 
+  const packStamp = () => {
+    const out = { ...prevPacks };
+    for (const [name, info] of Object.entries(packs)) {
+      if (info?.sha256) out[name] = info.sha256;
+    }
+    return out;
+  };
+
   if (!need.length) {
-    metaSet(manifest);
+    metaSet(manifest, { packs: packStamp() });
     installDataFetchHook();
     await ensureServiceWorker().catch(() => null);
     const where = isTauri() ? (await getDataPath()) || "데이터 폴더" : "이 브라우저 저장소";
-    return report("ok", `데이터 최신 (${where})`, { checked: entries.length, updated: 0, revision });
+    return report("ok", `데이터 최신 (${where})`, {
+      checked: toCheck.length,
+      updated: 0,
+      revision,
+    });
   }
 
   let updated = 0;
   let bytesDone = 0;
-  const packHashes = { ...(prev?.packs || {}) };
-  const packs = manifest.packs || {};
+  const packHashes = { ...prevPacks };
   /** Missing ≤ this many files in a pack → fetch those files one-by-one (not the whole zip). */
   const PACK_FILE_THRESHOLD = 20;
 
@@ -454,11 +483,11 @@ export async function checkAndApplyUpdates(onProgress) {
     window.__kirafanUpdating = prevUpdating;
   }
 
-  metaSet(manifest, { packs: packHashes });
+  metaSet(manifest, { packs: { ...packStamp(), ...packHashes } });
   installDataFetchHook();
   await ensureServiceWorker().catch(() => null);
   return report("ok", updated ? `${updated}개 파일 저장 (${formatBytes(bytesDone)})` : "데이터 최신", {
-    checked: entries.length,
+    checked: toCheck.length,
     updated,
     bytesDone,
     bytesTotal,
@@ -569,7 +598,7 @@ export async function checkAndApplyShellUpdates(onProgress) {
     if (i % 10 === 0 || i + 1 === entries.length) {
       onProgress?.({
         status: "checking",
-        message: `껍데기 확인 중… ${i + 1} / ${entries.length}`,
+        message: `파일 무결성 검사중… ${i + 1} / ${entries.length}`,
         index: i + 1,
         total: entries.length,
         current: rel,
